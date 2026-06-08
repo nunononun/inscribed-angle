@@ -7,519 +7,131 @@
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 <link rel="stylesheet" href="style.css">
 <style>
-        /* --- ヘッダー共通レイアウトと目立つホームボタン --- */
-        .custom-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #ffffff;
-            padding: 12px 24px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            max-width: 1300px;
-            margin: 10px auto 20px auto;
-        }
-        
-        /* より目立つようにしたホームボタン */
-        .custom-header .enhanced-home-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: linear-gradient(135deg, #2563eb, #1d4ed8);
-            color: #ffffff;
-            text-decoration: none;
-            padding: 10px 18px;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 0.95rem;
-            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
-            transition: all 0.2s ease;
-        }
-        .custom-header .enhanced-home-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 14px rgba(37, 99, 235, 0.4);
-            background: linear-gradient(135deg, #1d4ed8, #1e40af);
-        }
-        
-        /* トグル式の版切り替えボタン */
-        .custom-header .toggle-view-btn {
-            background: #f1f5f9;
-            color: #334155;
-            border: 2px solid #cbd5e1;
-            padding: 10px 16px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .custom-header .toggle-view-btn:hover {
-            background: #e2e8f0;
-            border-color: #94a3b8;
-        }
-        
-        /* --- メインコンテンツ・左右分割レイアウト --- */
-        .container { 
-            display: flex; 
-            flex-direction: row; 
-            align-items: flex-end; 
-            justify-content: center; 
-            gap: 50px; 
-            max-width: 1300px; 
-            margin: 20px auto 40px auto; 
-            padding: 0 20px;
-            box-sizing: border-box;
-        }
-        
-        .canvas-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            flex: 0 0 auto;
-        }
-        
-        .controls {
-            margin-bottom: 15px;
-            font-size: 0.95rem;
-            color: #334155;
-        }
-        
-        .panel {
-            flex: 1 1 580px;
-            max-width: 580px;
-            text-align: left;
-            background: #f8fafc;
-            padding: 22px;
-            border-radius: 12px;
-            box-sizing: border-box;
-        }
-        
-        .proof-step {
-            min-height: 140px;
-            padding: 14px;
-            border-left: 6px solid #cbd5e1;
-            background: #f1f5f9;
-            margin-bottom: 15px;
-            opacity: 0.4;
-            transition: all 0.3s;
-        }
-        .proof-step.active {
-            border-left-color: #3b82f6;
-            background: #eff6ff;
-            opacity: 1;
-        }
-        
-        /* --- ナビゲーションボタンの基本構造とツールチップ（吹き出し） --- */
-        .btn-group {
-            display: flex;
-            gap: 15px;
-            margin-top: 15px;
-        }
-        
-        .nav-tooltip-wrapper {
-            position: relative;
-            display: inline-block;
-        }
-        
-        .nav-tooltip-wrapper button {
-            padding: 12px 20px;
-            font-size: 0.95rem;
-            cursor: pointer;
-            border-radius: 6px;
-            border: 1px solid #cbd5e1;
-            background: #ffffff;
-            transition: all 0.2s;
-        }
-        .nav-tooltip-wrapper button:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-        
-        /* 通常テキストとアイコンテキストの切り替え制御（初期：通常表示） */
-        .nav-tooltip-wrapper button .btn-text-normal { display: inline; }
-        .nav-tooltip-wrapper button .btn-text-icon { display: none; }
-        
-        /* 吹き出しの初期状態 */
-        .nav-tooltip-wrapper .tooltip-text {
-            visibility: hidden;
-            width: 140px;
-            background-color: rgba(15, 23, 42, 0.95);
-            color: #fff;
-            text-align: center;
-            border-radius: 6px;
-            padding: 6px 10px;
-            position: absolute;
-            z-index: 10;
-            bottom: 125%; 
-            left: 50%;
-            transform: translateX(-50%) translateY(5px);
-            opacity: 0;
-            font-size: 0.8rem;
-            transition: opacity 0.2s, transform 0.2s;
-            pointer-events: none;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-        .nav-tooltip-wrapper .tooltip-text::after {
-            content: "";
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            margin-left: -5px;
-            border-width: 5px;
-            border-style: solid;
-            border-color: rgba(15, 23, 42, 0.95) transparent transparent transparent;
-        }
-        
-        /* ホバー時に吹き出しを表示 */
-        .nav-tooltip-wrapper:hover .tooltip-text {
-            visibility: visible;
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
-        
-        /* ==========================================================================
-           スマホ版スタイル変更（エラーの原因だったセレクタを完全分離して修正）
-           ========================================================================== */
-        
-        /* 1. 「ボタンからスマホ版へ切り替え時（body.forced-mobile）」の挙動 */
-        body.forced-mobile .nav-tooltip-wrapper button .btn-text-normal { display: none; }
-        body.forced-mobile .nav-tooltip-wrapper button .btn-text-icon { display: inline; font-size: 1.5rem; }
-        body.forced-mobile .nav-tooltip-wrapper button { padding: 8px 16px; }
-        body.forced-mobile .container { flex-direction: column; align-items: center; gap: 20px; }
-        
-        /* 2. 「実際のブラウザ幅が狭い時（レスポンシブ）」の挙動 */
-        @media (max-width: 768px) {
-            .nav-tooltip-wrapper button .btn-text-normal { display: none; }
-            .nav-tooltip-wrapper button .btn-text-icon { display: inline; font-size: 1.5rem; }
-            .nav-tooltip-wrapper button { padding: 8px 16px; }
-            .container { flex-direction: column; align-items: center; gap: 20px; }
-        }
+    .panel { flex: 1 1 500px; max-width: 500px; text-align: left; background: #ffffff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .proof-step { padding: 12px; border-left: 5px solid #cbd5e1; background: #f8fafc; margin-bottom: 12px; opacity: 0.4; transition: all 0.3s; }
+    .proof-step.active { border-left-color: #2563eb; background: #eff6ff; opacity: 1; }
+    .btn-group { display: flex; gap: 10px; margin-top: 15px; }
 </style>
-
 </head>
 <body>
 
 <header class="custom-header">
-    <a href="index.html" class="enhanced-home-btn">
-        <span>🏠 ポータルホームに戻る</span>
-    </a>
+    <a href="index.html" class="enhanced-home-btn">🏠 ホーム</a>
     <button id="toggleViewBtn" class="toggle-view-btn">
         <span id="toggleViewIcon">📱</span> <span id="toggleViewText">スマホ版に切り替える</span>
     </button>
 </header>
 
-<h2>円周角の定理の逆（同一円周上の条件）</h2>
+<h2>円周角の定理の逆の証明</h2>
 
 <div class="container">
+    <canvas id="canvas" width="550" height="500"></canvas>
     
-    <div class="canvas-container">
-        <div class="controls">
-            <label>基準となる円周角（弧ABの大きさ）: 
-                <input type="range" id="arcSlider" min="50" max="130" value="90">
-                <span id="arcVal">90</span>°
-            </label>
-        </div>
-        <canvas id="canvas" width="550" height="500"></canvas>
-        <div class="hint">🔴 点Pを上下左右にドラッグして、角度の変化を体感しよう！</div>
-    </div>
-
     <div class="panel">
-        <h3>🧭 背理法による「定理の逆」の証明</h3>
-        <p class="click-notice">💡 黄色の伏せ字をクリックすると、正しい言葉が開きます！</p>
-        
-        <div id="stepCard1" class="proof-step active">
-            <strong>【STEP 1】点Pが円の「外側」にあるとき</strong><br>
-            点Pを円の外に引っ張ってみましょう。線分PBと円の交点を Q とします。<br>
-            \( \triangle \text{AQB} \) は円周角なので、\( \angle \text{AQB} = \angle \text{ACB} \)（同じ大きさ）です。<br>
-            ここで三角形の外角の性質を見ると、\( \angle \text{AQB} = \angle \text{APB} + \angle \text{PAQ} \) となり、<br>
-            外角は内角より必ず大きいため、\( \angle \text{APB} \) は基準の角より必ず<span class="secret-blank" id="b1">小さく</span>なります！<br>
-            つまり、「同じ角度」になることは絶対にあり得ず、矛盾します。
+        <div id="step1" class="proof-step">
+            <h4>【STEP 1】仮定と目標の設定</h4>
+            <p>\(\angle\text{APB} = \angle\text{AQB}\) であるとき、4点 A, B, P, Q が同一円周上にあることを背理法で証明します。赤い点Pを外側や内側に引っ張ってみましょう。</p>
         </div>
-
-        <div id="stepCard2" class="proof-step">
-            <strong>【STEP 2】点Pが円の「内側」にあるとき</strong><br>
-            点Pを円の内側に入れてみましょう。光線を延長し、円との交点を Q とします。<br>
-            今度は \( \triangle \text{APB} \) の方が外角の立場になるため、<br>
-            \( \angle \text{APB} = \angle \text{AQB} + \angle \text{PAQ} \) という式が成り立ちます。<br>
-            円周角 \( \angle \text{AQB} \) に余計な角がプラスされるため、\( \angle \text{APB} \) は基準の角より必ず<span class="secret-blank" id="b2">大きく</span>なります！<br>
-            ここでも「同じ角度」には決してならず、矛盾が発生します。
+        <div id="step2" class="proof-step">
+            <h4>【STEP 2】点Pが円の外側にあると仮定する</h4>
+            <p>点Pが円の外にあると、線分APと円の交点をP'としたとき、三角形の外角の性質から \(\angle\text{AP'B} > \angle\text{APB}\) となり仮定に矛盾します。</p>
         </div>
-
-        <div id="stepCard3" class="proof-step">
-            <strong>【STEP 3】結論：同じ角度なら円周上のみ！</strong><br>
-            「外側なら小さくなる」「内側なら大きくなる」ことが今、証明されました。<br>
-            ということは、\( \angle \text{APB} = \angle \text{ACB} \) という「同じ角度」が保たれる場所は、<br>
-            内でも外でもない、<span class="secret-blank" id="b3">円周の上</span>のラインだけに限定されることになります！<br>
-            これが、4点 A, B, C, P が同じ円の上にあるための条件（円周角の定理の逆）です。
+        <div id="step3" class="proof-step">
+            <h4>【STEP 3】結論</h4>
+            <p>よって点Pが円の外側や内側にあることはあり得ず、Pは必ず3点A, B, Qを通る円の円周上に存在しなければなりません。</p>
         </div>
 
         <div class="btn-group">
             <div class="nav-tooltip-wrapper">
-                <button id="prevBtn" disabled>
-                    <span class="btn-text-normal">◀ 前のステップへ</span>
-                    <span class="btn-text-icon">◀🧭</span>
+                <button id="prevBtn" onclick="prevStep()">
+                    <span class="btn-text-normal">戻る</span>
+                    <span class="btn-text-icon">◀</span>
                 </button>
-                <span class="tooltip-text">前のステップへ</span>
+                <span class="tooltip-text">前の証明ステップへ戻る</span>
             </div>
-            
             <div class="nav-tooltip-wrapper">
-                <button id="nextBtn">
-                    <span class="btn-text-normal">次のステップへ ▶</span>
-                    <span class="btn-text-icon">🧭▶</span>
+                <button id="nextBtn" onclick="nextStep()">
+                    <span class="btn-text-normal">進む</span>
+                    <span class="btn-text-icon">▶</span>
                 </button>
-                <span class="tooltip-text">次のステップへ</span>
+                <span class="tooltip-text">次の証明ステップへ進む</span>
             </div>
         </div>
     </div>
-
 </div>
 
 <script>
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
+let currentStep = 1;
 
-const cx = 270, cy = 270, r = 160;
-
-let angleA = 210;
-let angleB = 330;
-let angleC = 90; 
-
-let currentStep = 1; 
-
-let mouseX = cx + 50;
-let mouseY = cy - 200;
+let cx = 275, cy = 260, r = 140;
+let mouseX = 275, mouseY = 80; // P初期値
 let dragging = false;
 
-const arcSlider = document.getElementById("arcSlider");
-const arcVal = document.getElementById("arcVal");
-const prevBtn = document.getElementById("prevBtn");
-const nextBtn = document.getElementById("nextBtn");
-const blanks = document.querySelectorAll(".secret-blank");
-
-arcSlider.addEventListener("input", (e) => {
-    const targetArc = parseInt(e.target.value);
-    arcVal.textContent = targetArc;
-    
-    const mid = 270; 
-    angleA = mid - targetArc / 2;
-    angleB = mid + targetArc / 2;
-    draw();
-});
-
-blanks.forEach(b => {
-    b.addEventListener("click", function(e) {
-        if(this.parentElement.classList.contains("active")) {
-            this.classList.add("revealed");
-            e.stopPropagation();
-        }
-    });
-});
-
-function updateStep(stepNum) {
-    currentStep = stepNum;
-    
-    for(let i=1; i<=3; i++) {
-        document.getElementById("stepCard" + i).classList.toggle("active", i === stepNum);
-    }
-
-    prevBtn.disabled = (currentStep === 1);
-    nextBtn.disabled = (currentStep === 3);
-
-    if (currentStep === 1) {
-        mouseX = cx + 40; mouseY = cy - 210; 
-    } else if (currentStep === 2) {
-        mouseX = cx + 20; mouseY = cy - 60;  
-    } else if (currentStep === 3) {
-        const rad = 100 * Math.PI / 180;     
-        mouseX = cx + r * Math.cos(rad);
-        mouseY = cy - r * Math.sin(rad);
-    }
-    draw();
-}
-
-prevBtn.addEventListener("click", () => { if(currentStep > 1) updateStep(currentStep - 1); });
-nextBtn.addEventListener("click", () => { if(currentStep < 3) updateStep(currentStep + 1); });
-
-function degToRad(deg) { return deg * Math.PI / 180; }
-
-function drawNode(x, y, color, label) {
-    ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI*2);
-    ctx.fillStyle = color; ctx.fill();
-    ctx.fillStyle = "#1e293b"; ctx.font = "bold 15px sans-serif";
-    ctx.fillText(label, x - 5, y - 12);
-}
-
-function getLineY(x) {
-    const pA = { x: cx + r*Math.cos(degToRad(angleA)), y: cy - r*Math.sin(degToRad(angleA)) };
-    const pB = { x: cx + r*Math.cos(degToRad(angleB)), y: cy - r*Math.sin(degToRad(angleB)) };
-    if (Math.abs(pB.x - pA.x) < 0.1) return pA.y;
-    return pA.y + (pB.y - pA.y) * (x - pA.x) / (pB.x - pA.x);
-}
-
 function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0,0,canvas.width,canvas.height);
 
-    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
-    ctx.strokeStyle = "#cbd5e1"; ctx.lineWidth = 3; ctx.stroke();
+    // 基準円
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.strokeStyle = "#94a3b8"; ctx.lineWidth = 2; ctx.stroke();
 
-    const A = { x: cx + r * Math.cos(degToRad(angleA)), y: cy - r * Math.sin(degToRad(angleA)) };
-    const B = { x: cx + r * Math.cos(degToRad(angleB)), y: cy - r * Math.sin(degToRad(angleB)) };
-    const C = { x: cx + r * Math.cos(degToRad(angleC)), y: cy - r * Math.sin(degToRad(angleC)) };
+    const A = { x: cx - r*Math.cos(0.2), y: cy + r*Math.sin(0.2) };
+    const B = { x: cx + r*Math.cos(0.2), y: cy + r*Math.sin(0.2) };
+    const Q = { x: cx + r*Math.cos(1.8), y: cy - r*Math.sin(1.8) };
+    const P = { x: mouseX, y: mouseY };
 
-    let finalX = mouseX;
-    let finalY = mouseY;
-    const orbitBuffer = 5; 
+    // 固定図形線
+    ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(Q.x, Q.y); ctx.lineTo(B.x, B.y); ctx.strokeStyle = "#3b82f6"; ctx.stroke();
 
-    if (currentStep === 1) {
-        const dist = Math.hypot(mouseX - cx, mouseY - cy);
-        if (dist < r + orbitBuffer) {
-            const rad = Math.atan2(cy - mouseY, mouseX - cx);
-            finalX = cx + (r + orbitBuffer) * Math.cos(rad);
-            finalY = cy - (r + orbitBuffer) * Math.sin(rad);
-        }
-        const currentLineY = getLineY(finalX);
-        const lineOffset = 15;
-        if (finalY > currentLineY - lineOffset) {
-            const requiredDx = Math.sqrt(Math.max(0, (r+orbitBuffer)*(r+orbitBuffer) - (finalY - cy)*(finalY - cy)));
-            finalX = (mouseX < cx) ? cx - requiredDx : cx + requiredDx;
-        }
+    // 動的Pの線
+    ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(P.x, P.y); ctx.lineTo(B.x, B.y); ctx.strokeStyle = "#ef4444"; ctx.stroke();
 
-    } else if (currentStep === 2) {
-        const innerLimitR = r - orbitBuffer;
-        const dist = Math.hypot(mouseX - cx, mouseY - cy);
-        if (dist > innerLimitR) {
-            const rad = Math.atan2(cy - mouseY, mouseX - cx);
-            finalX = cx + innerLimitR * Math.cos(rad);
-            finalY = cy - innerLimitR * Math.sin(rad);
-        }
-        const currentLineY = getLineY(finalX);
-        const lineOffset = 15;
-        if (finalY > currentLineY - lineOffset) {
-            finalY = currentLineY - lineOffset;
-        }
-
-    } else if (currentStep === 3) {
-        let rad = Math.atan2(cy - mouseY, mouseX - cx);
-        let angleDeg = rad * 180 / Math.PI;
-        if (angleDeg < 0) angleDeg += 360;
-        if (angleDeg < 31 || angleDeg > 149) {
-            if (mouseX < cx) { angleDeg = 149; } else { angleDeg = 31; }
-        }
-        rad = degToRad(angleDeg);
-        finalX = cx + r * Math.cos(rad);
-        finalY = cy - r * Math.sin(rad);
-    }
-
-    ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(C.x, C.y); ctx.lineTo(B.x, B.y);
-    ctx.strokeStyle = "#94a3b8"; ctx.lineWidth = 1.5; ctx.stroke();
+    // 点表示
+    ctx.fillStyle = "#334155";
+    ctx.beginPath(); ctx.arc(A.x,A.y,5,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(B.x,B.y,5,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(Q.x,Q.y,5,0,Math.PI*2); ctx.fill();
     
-    const baseAngleText = ((360 - (angleB - angleA)) / 2).toFixed(0);
-    ctx.fillStyle = "#64748b"; ctx.font = "14px sans-serif";
-    ctx.fillText(`∠ACB = ${baseAngleText}° (基準円周角)`, C.x - 45, C.y - 15);
+    ctx.fillStyle = "#ef4444"; ctx.beginPath(); ctx.arc(P.x,P.y,8,0,Math.PI*2); ctx.fill();
 
-    ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(finalX, finalY); ctx.lineTo(B.x, B.y);
-    ctx.strokeStyle = (currentStep===3) ? "#16a34a" : "#dc2626"; 
-    ctx.lineWidth = 3; ctx.stroke();
-
-    if (currentStep === 1) {
-        let radPB = Math.atan2(B.y - finalY, B.x - finalX);
-        let qX = finalX, qY = finalY;
-        for (let d = 0; d < 600; d += 2) {
-            let tx = finalX + d * Math.cos(radPB);
-            let ty = finalY + d * Math.sin(radPB);
-            if (Math.hypot(tx - cx, ty - cy) <= r) {
-                qX = tx; qY = ty; break;
-            }
-        }
-        ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(qX, qY);
-        ctx.strokeStyle = "#3b82f6"; ctx.lineWidth = 2; ctx.setLineDash([4,4]); ctx.stroke(); ctx.setLineDash([]);
-        drawNode(qX, qY, "#3b82f6", "Q");
-    } else if (currentStep === 2) {
-        let radBP = Math.atan2(finalY - B.y, finalX - B.x);
-        let qX = finalX, qY = finalY;
-        for (let d = 0; d < 600; d += 2) {
-            let tx = B.x + d * Math.cos(radBP);
-            let ty = B.y + d * Math.sin(radBP);
-            if (Math.hypot(tx - cx, ty - cy) >= r) {
-                qX = tx; qY = ty; break;
-            }
-        }
-        ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(qX, qY);
-        ctx.strokeStyle = "#3b82f6"; ctx.lineWidth = 2; ctx.setLineDash([4,4]); ctx.stroke(); ctx.setLineDash([]);
-        drawNode(qX, qY, "#3b82f6", "Q");
-    }
-
-    const vPA = { x: A.x - finalX, y: A.y - finalY };
-    const vPB = { x: B.x - finalX, y: B.y - finalY };
-    const dot = vPA.x*vPB.x + vPA.y*vPB.y;
-    const cosP = dot / (Math.hypot(vPA.x, vPA.y) * Math.hypot(vPB.x, vPB.y));
-    const anglePVal = Math.acos(Math.max(-1, Math.min(1, cosP))) * 180 / Math.PI;
-
-    ctx.fillStyle = (currentStep===3) ? "#16a34a" : "#dc2626";
-    ctx.font = "bold 16px sans-serif";
-    ctx.fillText(`∠APB = ${anglePVal.toFixed(1)}°`, finalX - 45, finalY - 25);
-
-    drawNode(A.x, A.y, "#0f172a", "A");
-    drawNode(B.x, B.y, "#0f172a", "B");
-    drawNode(C.x, C.y, "#94a3b8", "C");
-    
-    ctx.beginPath(); ctx.arc(finalX, finalY, 10, 0, Math.PI*2);
-    ctx.fillStyle = (currentStep===3) ? "#16a34a" : "#dc2626"; ctx.fill();
-    ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.stroke();
-    ctx.fillStyle = "#0f172a"; ctx.font = "bold 16px sans-serif";
-    ctx.fillText("P", finalX - 5, finalY - 12);
+    ctx.font = "bold 14px sans-serif"; ctx.fillStyle = "#1e293b";
+    ctx.fillText("A", A.x-15, A.y+10); ctx.fillText("B", B.x+10, B.y+10);
+    ctx.fillText("Q", Q.x-5, Q.y-10); ctx.fillText("P (ドラッグ可)", P.x-25, P.y-15);
 }
+
+function updateStep(step) {
+    currentStep = step;
+    document.querySelectorAll(".proof-step").forEach(el => el.classList.remove("active"));
+    document.getElementById("step" + step).classList.add("active");
+    document.getElementById("prevBtn").disabled = (step === 1);
+    document.getElementById("nextBtn").disabled = (step === 3);
+}
+function nextStep() { if(currentStep < 3) updateStep(currentStep + 1); }
+function prevStep() { if(currentStep > 1) updateStep(currentStep - 1); }
 
 canvas.addEventListener("mousedown", (e) => {
     const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    
-    if (Math.hypot(x - mouseX, y - mouseY) < 35) {
-        dragging = true;
-    }
+    if(Math.hypot((e.clientX-rect.left)-mouseX, (e.clientY-rect.top)-mouseY) < 25) dragging = true;
 });
-
 canvas.addEventListener("mousemove", (e) => {
+    if(!dragging) return;
     const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    if(dragging) {
-        mouseX = x; mouseY = y;
-        draw();
-    }
+    mouseX = e.clientX - rect.left; mouseY = e.clientY - rect.top;
+    draw();
 });
+window.addEventListener("mouseup", () => dragging = false);
 
-window.addEventListener("mouseup", () => { dragging = false; });
-
-updateStep(1);
-
-// ⚙️ 新・トグル式画面サイズ切り替えスクリプト制御
 document.addEventListener("DOMContentLoaded", () => {
     const toggleViewBtn = document.getElementById("toggleViewBtn");
     const toggleViewIcon = document.getElementById("toggleViewIcon");
     const toggleViewText = document.getElementById("toggleViewText");
     const body = document.body;
-
-    // 初期状態は「PC向けの自動レイアウト（forced-mobileなし）」
-    // ボタンのテキストは「現在の版と違う方（スマホ版に切り替える）」にセットされています。
+    if(localStorage.getItem("forcedMobile") === "true") { body.classList.add("forced-mobile"); toggleViewIcon.textContent = "💻"; toggleViewText.textContent = "PC版に切り替える"; }
     toggleViewBtn.addEventListener("click", () => {
-        if (body.classList.contains("forced-mobile")) {
-            // 現在スマホ版なら、PC版（自動）に戻す
-            body.classList.remove("forced-mobile");
-            toggleViewIcon.textContent = "📱";
-            toggleViewText.textContent = "スマホ版に切り替える";
-        } else {
-            // 現在PC版（自動）なら、強制スマホ版へ
-            body.classList.add("forced-mobile");
-            toggleViewIcon.textContent = "💻";
-            toggleViewText.textContent = "PC版に切り替える";
-        }
+        if (body.classList.contains("forced-mobile")) { body.classList.remove("forced-mobile"); localStorage.setItem("forcedMobile", "false"); toggleViewIcon.textContent = "📱"; toggleViewText.textContent = "スマホ版に切り替える"; }
+        else { body.classList.add("forced-mobile"); localStorage.setItem("forcedMobile", "true"); toggleViewIcon.textContent = "💻"; toggleViewText.textContent = "PC版に切り替える"; }
     });
+    updateStep(1); draw();
 });
 </script>
 </body>
