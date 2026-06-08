@@ -6,33 +6,139 @@
 <title>円周角の定理：マスタークイズ</title>
 <link rel="stylesheet" href="style.css">
 <style>
-    body {
-        font-family: 'Helvetica Neue', Arial, sans-serif;
-        background-color: #f0f2f5;
-        margin: 0;
-        padding: 20px;
-        color: #333;
-    }
+    /* クイズ画面専用のパーツのみを記述し、bodyの競合を完全に防ぎます */
     .quiz-container {
         max-width: 650px;
-        margin: 30px auto;
+        margin: 80px auto 30px auto; /* 家ボタンと被らないように上の余白を広げました */
         background: #fff;
         border-radius: 12px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         padding: 30px;
         box-sizing: border-box;
-    }
-    h1 {
         text-align: center;
-        color: #007bff;
-        font-size: 1.8em;
-        margin-top: 0;
+    }
+    .status {
+        display: flex;
+        justify-content: space-between;
+        font-weight: bold;
+        margin-bottom: 10px;
     }
     .progress-bar-container {
         width: 100%;
         background-color: #e9ecef;
         border-radius: 10px;
         margin-bottom: 25px;
+        height: 12px;
+        overflow: hidden;
+    }
+    .progress-bar {
+        height: 100%;
+        width: 0%;
+        background-color: #28a745;
+        transition: width 0.3s ease;
+    }
+    .question-box {
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin-bottom: 30px;
+        line-height: 1.5;
+        text-align: left;
+    }
+    .options {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+    .option-btn {
+        padding: 14px;
+        font-size: 1rem;
+        font-weight: bold;
+        background-color: #f8fafc;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: left;
+    }
+    .option-btn:hover:not(:disabled) {
+        background-color: #edf2f7;
+        border-color: #cbd5e1;
+    }
+    .option-btn.correct {
+        background-color: #d4edda !important;
+        border-color: #28a745 !important;
+        color: #155724;
+    }
+    .option-btn.incorrect {
+        background-color: #f8d7da !important;
+        border-color: #dc3545 !important;
+        color: #721c24;
+    }
+    .feedback-box {
+        margin-top: 20px;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: left;
+    }
+    .feedback-title {
+        font-size: 1.3rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+    .canvas-container {
+        display: flex;
+        justify-content: center;
+        margin: 15px 0;
+    }
+    #explainCanvas {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+    }
+    .next-container {
+        margin-top: 20px;
+        text-align: right;
+    }
+    .next-btn, .restart-btn {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        font-size: 1rem;
+        font-weight: bold;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    .next-btn:hover, .restart-btn:hover {
+        background-color: #0056b3;
+    }
+    .result-view {
+        display: none;
+    }
+    .score-circle {
+        margin: 25px auto;
+        width: 120px;
+        height: 120px;
+        border: 6px solid #007bff;
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+    }
+    .score-num {
+        font-size: 2rem;
+        color: #007bff;
+    }
+    .btn-back-result {
+        display: inline-block;
+        margin-top: 15px;
+        color: #007bff;
+        text-decoration: none;
+        font-weight: bold;
     }
 </style>
 </head>
@@ -75,14 +181,14 @@
 
     <div id="result-view" class="result-view">
         <h2>🎉 お疲れ様でした！結果発表</h2>
-        <button class="restart-btn" onclick="restartQuiz()">最初からやり直す</button>
-        <a href="index.html" class="btn-back-result">ポータルに戻る ➔</a>
         <div class="score-circle">
             <div id="final-score" class="score-num">0</div>
             <div>/ 20 問中</div>
         </div>
         <p id="comment" style="font-size: 1.2em; font-weight: bold; margin: 20px 0;"></p>
         <button class="restart-btn" onclick="restartQuiz()">最初からやり直す</button>
+        <br>
+        <a href="index.html" class="btn-back-result">ポータルに戻る ➔</a>
     </div>
 </div>
 
@@ -99,7 +205,7 @@ const quizTemplates = [
     { type: "inscribed_quad_calc", q: "円に内接する四角形ABCDにおいて、∠A = {n1}° です。このとき、その向かい側にある内角∠Cの大きさは何度でしょう？", e: "対角の和は180°になる性質から計算できます。180 - {n1} = {n2}° です。" },
     { type: "quad_exterior", q: "円に内接する四角形ABCDにおいて、∠A = {n1}° であるとき、その向かい側にある頂点Cにおける「外角」の大きさは何度でしょう？", e: "円に内接する四角形の1つの外角は、向かい合う内角（内対角）に等しくなるため、そのまま{n1}°です。" },
     { type: "converse", q: "線分ABと同じ側に2点C, Dがあり、∠ACB = ∠ADB = {n1}° が成り立っています。このとき、4点A, B, C, Dはどのような関係にあるでしょう？", e: "これが「円周角の定理の逆」です。2つの頂点を見込む角の大きさが等しければ、4点は必ず1つの円周上に存在します。"},
-    { type: "converse_side", q: "円周角の定理の逆を利用して、「4点が1つの円周上にある」と言いたいとき、2つの点（C, D）は基準となる線分ABに対してどちら側になければならないでしょう？", e: "円周角の定理の逆を適用するには、2点C, Dが線分ABに対して「同じ側」にあることが必須条件です。反対側にある場合は、対角の和が180°になる条件（内接四角形）の扱いになります。"},
+    { type: "converse_side", q: "円周角の定理の逆利用して、「4点が1つの円周上にある」と言いたいとき、2つの点（C, D）は基準となる線分ABに対してどちら側になければならないでしょう？", e: "円周角の定理の逆を適用するには、2点C, Dが線分ABに対して「同じ側」にあることが必須条件です。反対側にある場合は、対角の和が180°になる条件（内接四角形）の扱いになります。"},
     { type: "ratio_arc", q: "ある弧に対する円周角が{n2}°（中心角が{n1}°）のとき、この弧の長さは円周全体のどれだけの割合にあたるでしょう？", e: "中心角が{n1}°のとき、円全体（360°）に対する割合は {n1}/360 = 1/{n3} となります。"},
     { type: "basic_double", q: "中心角に比べて円周角はいつでも半分になります。では円周角が {n2}° であるような弧の中心角は何度でしょう？", e: "中心角はいつでも円周角の2倍です。{n2} × 2 = {n1}° です。"},
     { type: "diameter_app", q: "直径ABをもつ円周上に点Cをとります。∠ABC = {n1}° であるとき、もう1つの鋭角 ∠BAC の大きさは何度でしょう？", e: "直径に対する円周角∠ACB = 90°なので、直角三角形の残りの鋭角の和は90°になります。したがって 90 - {n1} = {n2}° となります。"},
@@ -121,26 +227,19 @@ function shuffleArray(array) {
     }
 }
 
-// ★選択肢が消えるバグを根本解決した新しい選択肢生成関数
 function makeUniqueOptions(correctStr, dummyArray) {
     let opts = new Set();
     opts.add(correctStr);
-    
-    // ダミーの選択肢から重複を取り除きつつ追加
     for (let d of dummyArray) {
         if (d !== undefined && d !== null && d !== "") {
             opts.add(d);
         }
     }
-    
-    // 万が一重複により3択に満たない場合のバックアップ用選択肢
     const backups = ["30°", "45°", "60°", "90°", "120°", "180°", "等しい", "1 : 1", "絶対に内接しない"];
     for (let b of backups) {
         if (opts.size >= 3) break;
         opts.add(b);
     }
-    
-    // 配列化してシャッフルし、確実に3つの要素だけを返す
     let resArray = Array.from(opts).slice(0, 3);
     return resArray.sort(() => Math.random() - 0.5);
 }
@@ -241,7 +340,6 @@ function generateQuizData() {
                 n1 = 360 / n3;
                 n2 = n1 / 2;
                 correctStr = `${n2}°`;
-                // 重複が発生しやすかったため、明確に異なる値をダミーに指定
                 options = makeUniqueOptions(correctStr, [`${n1}°`, `${n2 + 15}°`, `${n2 - 15}°`, "45°", "60°"]);
                 break;
             case "quad_exterior_rev":
@@ -271,7 +369,6 @@ function generateQuizData() {
 
         let processedQ = template.q.replace(/{n1}/g, n1).replace(/{n2}/g, n2).replace(/{n3}/g, n3);
         let processedE = template.e.replace(/{n1}/g, n1).replace(/{n2}/g, n2).replace(/{n3}/g, n3);
-
         let correctIndex = options.indexOf(correctStr);
 
         return {
@@ -476,7 +573,7 @@ function drawExplanationDiagram(type, param) {
         ctx.beginPath(); ctx.moveTo(pA.x, pA.y); ctx.lineTo(pC.x, pC.y); ctx.lineTo(pB.x, pB.y);
         ctx.strokeStyle = "red"; ctx.lineWidth = 2; ctx.stroke();
         
-        drawRightAngle(ctx, pA, pC, pB, 12);
+        rightAngle(ctx, pA, pC, pB, 12);
         
         if (type === "diameter_app") {
             drawExactSector(ctx, pC, pB, pA, 22, "rgba(40, 167, 69, 0.25)");
