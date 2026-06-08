@@ -6,7 +6,7 @@
 <title>円周角の定理：マスタークイズ</title>
 <link rel="stylesheet" href="style.css">
 <style>
-    /* クイズ画面専用のパーツのみを記述し、bodyの競合を完全に防ぎます */
+    /* クイズ画面専用のスタイル */
     .quiz-container {
         max-width: 650px;
         margin: 80px auto 30px auto; /* 家ボタンと被らないように上の余白を広げました */
@@ -147,7 +147,7 @@
 <a href="index.html" class="home-btn">🏠</a>
 
 <div class="quiz-container">
-    <h1>🎯 円周角の定理マスタークイズ</h1>
+    <h1 style="color: #007bff; font-size: 1.8em; margin-top: 0;">🎯 円周角の定理マスタークイズ</h1>
     
     <div id="quiz-view">
         <div class="status">
@@ -573,7 +573,7 @@ function drawExplanationDiagram(type, param) {
         ctx.beginPath(); ctx.moveTo(pA.x, pA.y); ctx.lineTo(pC.x, pC.y); ctx.lineTo(pB.x, pB.y);
         ctx.strokeStyle = "red"; ctx.lineWidth = 2; ctx.stroke();
         
-        rightAngle(ctx, pA, pC, pB, 12);
+        drawRightAngle(ctx, pA, pC, pB, 12);
         
         if (type === "diameter_app") {
             drawExactSector(ctx, pC, pB, pA, 22, "rgba(40, 167, 69, 0.25)");
@@ -703,7 +703,7 @@ function drawExplanationDiagram(type, param) {
         ctx.beginPath();
         ctx.moveTo(pA.x, pA.y); ctx.lineTo(pB.x, pB.y); ctx.lineTo(pC.x, pC.y); ctx.lineTo(pD.x, pD.y);
         ctx.closePath();
-        ctx.strokeStyle = "purple"; ctx.lineWidth = 2.5; ctx.stroke();
+        ctx.strokeStyle = "purple"; ctx.lineWidth = 2.5; stroke();
         
         drawLabel(ctx, "A", pA, cx, cy); drawLabel(ctx, "B", pB, cx, cy);
         drawLabel(ctx, "C", pC, cx, cy); drawLabel(ctx, "D", pD, cx, cy);
@@ -760,7 +760,7 @@ function showResult() {
     } else if (score >= 15) {
         comment = "素晴らしい！定理の逆の条件もバッチリ理解できています。👍";
     } else if (score >= 10) {
-        comment = "合格です！間違えた図解をもう一度見直して、知識を完璧にしましょう。✏️";
+        comment = "合格です！間違えた図解をもう一度見知して、知識を完璧にしましょう。✏️";
     } else {
         comment = "繰り返し挑戦して、中心角と円周角、内接四角形の性質をマスターしましょう！💪";
     }
