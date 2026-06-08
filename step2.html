@@ -67,7 +67,7 @@
         border-color: #3b82f6;
     }
 
-    /* ヘッダーの横幅（max-width: 1200px）と完全に一致させ、中央寄せにする */
+    /* ヘッダーの横幅と完全に一致させ、中央寄せにする */
     .panel {
         background: #ffffff;
         border-radius: 16px;
@@ -120,7 +120,6 @@
         flex-wrap: wrap;
     }
 
-    /* ボタンの視認性とスタイルを最適化 */
     .controls button {
         padding: 10px 18px;
         font-size: 0.9rem;
@@ -144,7 +143,7 @@
         background-color: #dc2626;
     }
 
-    /* 初期位置に戻すボタン（ミントグリーン調にトーンアップして視認性を確保） */
+    /* 初期位置に戻すボタン */
     #resetBtn {
         background-color: #f0fdf4;
         color: #16a34a !important;
@@ -225,8 +224,6 @@ let qAngle = DEFAULT_Q_ANGLE;
 
 let isOverlapped = false; 
 let dragging = null;              
-let dragOffsetC = 0; 
-let dragOffsetQ = 0; // Q用のオフセットを追加してより精密化
 
 const arcInput = document.getElementById("arcInput");
 const overlapBtn = document.getElementById("overlapBtn");
@@ -337,7 +334,6 @@ function drawArcParts(currentCx, cy, startAngle, color, labelStart, labelEnd, sh
     ctx.fillText(labelEnd, pEnd.x + offsetEnd.x, pEnd.y + offsetEnd.y);
 
     if (showDoubleCircleC) {
-        // 点C（始点）を緑色の掴める二重丸として分かりやすく強調
         drawDoubleCircle(pStart.x, pStart.y, "#10b981");
     }
 }
@@ -365,11 +361,15 @@ function drawAngleLines(currentCx, cy, pX, pY, startAngle, color, labelP, labelA
     
     ctx.font = "bold 16px sans-serif";
     ctx.fillStyle = "#1e293b";
-    ctx.fillText(labelP, pX - 5, pY - 18);
+    ctx.fillText(labelP, pX - 5, yOffsetP(pY));
     
     ctx.font = "bold 15px sans-serif";
     ctx.fillStyle = color;
     ctx.fillText(labelAngleText, pX - 25, pY + 25);
+}
+
+function yOffsetP(y) {
+    return y - 18;
 }
 
 function draw() {
@@ -396,7 +396,7 @@ function draw() {
         drawCircleBase(cx3, cy3, "重ね合わせた図形", cx3);
         
         drawArcParts(cx3, cy3, 0, "rgba(59, 130, 246, 0.4)", "B", "A", false);
-        drawArcParts(cx3, cy3, startC, "rgba(16, 185, 129, 0.4)", "D", "C", true); // 重ね合わせ時もCを操作可能に
+        drawArcParts(cx3, cy3, startC, "rgba(16, 185, 129, 0.4)", "D", "C", true); 
         
         const pPt3 = getPointOnCircle(cx3, cy3, pAngle);
         drawAngleLines(cx3, cy3, pPt3.x, pPt3.y, 0, "#e11d48", "P", `∠APB=${inscribedP.toFixed(1)}°`, true);
@@ -417,12 +417,10 @@ function isAngleInArc(angle, start, duration) {
     return normAngle >= 0 && normAngle <= duration;
 }
 
-/* 【重要修正】文字のまわりではなく、描画された二重丸の「真上・内側」を判定するように完全に同期 */
 function getHoveredPoint(x, y) {
-    const clickRadius = 20; // つかみ判定の有効半径(二重丸の内側・周辺にフィット)
+    const clickRadius = 22; 
 
     if (isOverlapped && y > cy3 - r - 50) {
-        // 下段（重ね合わせ）の二重丸位置を正確に追跡
         const pPt3 = getPointOnCircle(cx3, cy3, pAngle);
         if (Math.hypot(x - pPt3.x, y - pPt3.y) < clickRadius) return "P";
         
@@ -432,7 +430,6 @@ function getHoveredPoint(x, y) {
         const cPt3 = getPointOnCircle(cx3, cy3, startC);
         if (Math.hypot(x - cPt3.x, y - cPt3.y) < clickRadius) return "C";
     } else {
-        // 上段（左右の円）の二重丸位置を正確に追跡
         const pPt = getPointOnCircle(cx1, cy, pAngle);
         if (Math.hypot(x - pPt.x, y - pPt.y) < clickRadius) return "P";
         
@@ -454,21 +451,6 @@ canvas.addEventListener("mousedown", (e) => {
 
     if(dragging) {
         canvas.style.cursor = "grabbing"; 
-        
-        // 重ね合わせの有無に応じて正確な中心点を取得
-        let activeCx = (isOverlapped && y > cy3 - r - 50) ? cx3 : cx2;
-        let activeCy = (isOverlapped && y > cy3 - r - 50) ? cy3 : cy;
-        let mouseAngle = Math.atan2(activeCy - y, x - activeCx) * 180 / Math.PI;
-        mouseAngle = normalizeAngle(mouseAngle);
-
-        if(dragging === "C") {
-            // つかんだ真上の位置からズレずに回転させるためのオフセット
-            dragOffsetC = normalizeAngle(mouseAngle - startC);
-        }
-        if(dragging === "Q") {
-            // Qにもオフセットを設定し、つかんだ場所を完全維持
-            dragOffsetQ = normalizeAngle(mouseAngle - qAngle);
-        }
     }
 });
 
@@ -486,9 +468,9 @@ canvas.addEventListener("mousemove", (e) => {
     if(!dragging) return;
 
     let angle;
-    // 重ね合わせ部分のドラッグ時、判定エリアに応じて基準中心を完全に切り替え
     let isBottomArea = (isOverlapped && y > cy3 - r - 50);
 
+    // 【Pと同じ完全同期ロジック】マウスの位置から直接角度を割り出し、円周上にカチッと吸い付かせる
     if(dragging === "P"){
         let activeCx = isBottomArea ? cx3 : cx1;
         let activeCy = isBottomArea ? cy3 : cy;
@@ -508,12 +490,12 @@ canvas.addEventListener("mousemove", (e) => {
         angle = Math.atan2(activeCy - y, x - activeCx) * 180 / Math.PI;
         angle = normalizeAngle(angle);
 
-        // 二重丸の真上を掴んだまま回せるよう計算
-        let targetStartC = normalizeAngle(angle - dragOffsetC);
-        let delta = normalizeAngle(targetStartC - startC);
+        let oldStartC = startC;
+        startC = angle; 
+        
+        // Cの移動量（デルタ）分、Qの角度も自然に連動移動させる
+        let delta = normalizeAngle(startC - oldStartC);
         if (delta > 180) delta -= 360;
-
-        startC = targetStartC;
         qAngle = normalizeAngle(qAngle + delta);
     }
 
@@ -523,15 +505,12 @@ canvas.addEventListener("mousemove", (e) => {
         angle = Math.atan2(activeCy - y, x - activeCx) * 180 / Math.PI;
         angle = normalizeAngle(angle);
 
-        // オフセットを適用し真上の連動を保障
-        let targetQAngle = normalizeAngle(angle - dragOffsetQ);
-
-        if (isAngleInArc(targetQAngle, startC, arcAngle)) {
-            let diff = normalizeAngle(targetQAngle - startC);
+        if (isAngleInArc(angle, startC, arcAngle)) {
+            let diff = normalizeAngle(angle - startC);
             let snapAngle = (diff < arcAngle / 2) ? arcAngle : 0;
             qAngle = normalizeAngle(startC + snapAngle);
         } else {
-            qAngle = targetQAngle;
+            qAngle = angle;
         }
     }
 
