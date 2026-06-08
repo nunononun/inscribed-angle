@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>円周角の定理：証明実践教材</title>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<link rel="stylesheet" href="style.css">
+<style>
+    /* 【追加スタイル】
+      すべてのステップを初期状態で非表示にし、.active がついたステップだけを表に出します。
+      これで「該当ステップだけを表示する」挙動が100%実現します。
+    */
+    .proof-step {
+        display: none;
+        opacity: 0;
+    }
+    .proof-step.active {
+        display: block !important;
+        opacity: 1 !important;
+    }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="home-btn">🏠</a>
+
+<h2>円周角の定理：なぜ2倍になるの？（証明の実験）</h2>
+
+<div class="container">
+    <div class="canvas-area">
+        <div class="controls">
+            <label>中心角（基本設定）: 
+                <input type="range" id="angleSlider" min="40" max="150" value="80">
+                <span id="angleVal">80</span>°
+            </label>
+        </div>
+        <canvas id="canvas" width="600" height="550"></canvas>
+        <p class="hint">※点Pをドラッグして、補助線の位置や三角形の形を自由に変えられます。</p>
+    </div>
+
+    <div class="panel">
+        <h3>🧭 証明のステップ</h3>
+        
+        <div class="click-notice">
+            💡 黄色の網掛けをタッチして、隠された数式を確認してみよう！
+        </div>
+
+        <p style="color: #4a5568; font-size: 0.95rem; margin-bottom: 15px;">点Pと中心Oを通る補助線（直径）を引いて考えてみましょう。</p>
+        
+        <div id="step1" class="proof-step active">
+            <strong>① 二等辺三角形を見つける</strong><br>
+            線分 OA, OB, OP はすべて円の半径なので長さが等しいです。<br>
+            よって、
+            <span id="blankOAP" class="secret-blank">\(\triangle\text{OAP}\)</span> と 
+            <span id="blankOBP" class="secret-blank">\(\triangle\text{OBP}\)</span> はどちらも<strong><span id="blankIso" class="secret-blank">二等辺三角形</span></strong>になります。<br>
+            底角をそれぞれ <span style="color:red; font-weight: bold;">角 \(a\)</span>, <span style="color:green; font-weight: bold;">角 \(b\)</span> とおきます。
+        </div>
+
+        <div id="step2" class="proof-step">
+            <strong>② 三角形の「外角の性質」を使う</strong><br>
+            三角形の1つの外角は、それと隣り合わない2つの内角の和に等しいので：<br>
+            ・∠AOK（赤側の中心角）＝ <span id="blankExtA" class="secret-blank">\(a + a = 2a\)</span><br>
+            ・∠BOK（緑側の中心角）＝ <span id="blankExtB" class="secret-blank">\(b + b = 2b\)</span>
+        </div>
+
+        <div id="step3" class="proof-step">
+            <strong>③ 合計して定理を導く</strong><br>
+            ・円周角 ∠APB ＝ <span id="blankTotalP" class="secret-blank">\(a + b\)</span><br>
+            ・中心角 ∠AOB ＝ <span id="blankTotalO" class="secret-blank">\(2a + 2b = 2(a + b)\)</span><br>
+            したがって、<strong>中心角 ∠AOB は 円周角 ∠APB のちょうど2倍</strong>になります！
+        </div>
+
+        <div class="btn-group">
+            <button id="prevBtn" disabled>↩ 戻る</button>
+            <button id="nextBtn">次へ ↪</button>
+            <button id="resetBlanksBtn">🔄 全て元に戻す</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+const cx = 300, cy = 280, r = 180;
+
+let centerAngle = 80;
+let pAngle = 230; 
+let draggingP = false;
+let currentStep = 1;
+
+const angleSlider = document.getElementById("angleSlider");
+const angleVal = document.getElementById("angleVal");
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+const resetBlanksBtn = document.getElementById("resetBlanksBtn");
+
+const blankOAP = document.getElementById("blankOAP");
+const blankOBP = document.getElementById("blankOBP");
+const blankExtA = document.getElementById("blankExtA");
+const blankExtB = document.getElementById("blankExtB");
+const blankTotalP = document.getElementById("blankTotalP");
+const blankTotalO = document.getElementById("blankTotalO");
+
+// ★ 伏せ字クリック時に該当のステップが「active」のときのみめくれるように制御
+document.querySelectorAll('.secret-blank').forEach(blank => {
+    blank.addEventListener('click', function() {
+        const parentStep = this.closest('.proof-step');
+        if (parentStep && parentStep.classList.contains('active')) {
+            this.classList.add('revealed');
+            draw(); 
+        }
+    });
+});
+
+function resetBlanksInStep(stepNum) {
+    document.querySelectorAll(`#step${stepNum} .secret-blank`).forEach(blank => {
+        blank.classList.remove('revealed');
+    });
+}
+
+resetBlanksBtn.addEventListener("click", () => {
+    resetBlanksInStep(1);
+    resetBlanksInStep(2);
+    resetBlanksInStep(3);
+    draw();
+});
+
+angleSlider.addEventListener("input", (e) => {
+    centerAngle = Number(e.target.value);
+    angleVal.textContent = centerAngle;
+    
+    const minAngle = 180 + 10;
+    const maxAngle = 180 + centerAngle - 10;
+    if (pAngle < minAngle) pAngle = minAngle;
+    if (pAngle > maxAngle) pAngle = maxAngle;
+
+    draw();
+});
+
+// ★ ステップ切り替えのロジックを完全最適化
+function updateStepDisplay(newStep) {
+    // 古いステップから active クラスを剥奪（非表示になる）
+    document.getElementById(`step${currentStep}`).classList.remove("active");
+    
+    // 現在のステップ番号を更新し、新しいステップを表示
+    currentStep = newStep;
+    document.getElementById(`step${currentStep}`).classList.add("active");
+
+    // 新しく進んだ・戻ったステップの伏せ字をリセット
+    resetBlanksInStep(currentStep);
+
+    // ボタンの有効・無効化、およびテキストの制御
+    prevBtn.disabled = (currentStep === 1);
+    
+    if (currentStep === 3) {
+        nextBtn.textContent = "最初から見る ↪";
+    } else {
+        nextBtn.textContent = "次へ ↪";
+    }
+    
+    draw();
+}
+
+nextBtn.addEventListener("click", () => {
+    let nextStep = currentStep + 1;
+    if (nextStep > 3) {
+        nextStep = 1;
+        resetBlanksInStep(1);
+        resetBlanksInStep(2);
+        resetBlanksInStep(3);
+    }
+    updateStepDisplay(nextStep);
+});
+
+prevBtn.addEventListener("click", () => {
+    let prevStep = currentStep - 1;
+    if (prevStep < 1) prevStep = 3;
+    updateStepDisplay(prevStep);
+});
+
+function degToRad(d) { return d * Math.PI / 180; }
+function radToDeg(r) { return r * 180 / Math.PI; }
+
+function pointOnCircle(a) {
+    const t = degToRad(a);
+    return { x: cx + r * Math.cos(t), y: cy - r * Math.sin(t) };
+}
+
+function drawSimpleArc(pt, angleStartRad, angleEndRad, radius, color) {
+    let diff = angleEndRad - angleStartRad;
+    while (diff > Math.PI) diff -= Math.PI * 2;
+    while (diff < -Math.PI) diff += Math.PI * 2;
+
+    ctx.beginPath();
+    ctx.moveTo(pt.x, pt.y);
+    ctx.arc(pt.x, pt.y, radius, angleStartRad, angleStartRad + diff, diff < 0);
+    ctx.closePath();
+    ctx.fillStyle = color;
+    ctx.fill();
+}
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const A = pointOnCircle(0);
+    const B = pointOnCircle(centerAngle);
+    const P = pointOnCircle(pAngle);
+    const K = pointOnCircle(pAngle + 180);
+
+    const pToA = Math.atan2(A.y - P.y, A.x - P.x);
+    const pToB = Math.atan2(B.y - P.y, B.x - P.x);
+    const pToO = Math.atan2(cy - P.y, cx - P.x);
+
+    const aToP = Math.atan2(P.y - A.y, P.x - A.x);
+    const aToO = Math.atan2(cy - A.y, cx - A.x);
+
+    const bToP = Math.atan2(P.y - B.y, P.x - B.x);
+    const bToO = Math.atan2(cy - B.y, cx - B.x);
+
+    const oToA = Math.atan2(A.y - cy, A.x - cx);
+    const oToB = Math.atan2(B.y - cy, B.x - cx);
+    const oToK = Math.atan2(K.y - cy, K.x - cx);
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.strokeStyle = "#cbd5e0";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    const showAngleA = blankOAP.classList.contains("revealed");
+    const showAngleB = blankOBP.classList.contains("revealed");
+    const showExtA   = blankExtA.classList.contains("revealed");
+    const showExtB   = blankExtB.classList.contains("revealed");
+    const showTotalP = blankTotalP.classList.contains("revealed");
+    const showTotalO = blankTotalO.classList.contains("revealed");
+
+    if (currentStep >= 2) {
+        if (showExtA || (currentStep === 3 && showTotalO)) {
+            drawSimpleArc({x:cx, y:cy}, oToK, oToA, 45, "rgba(239, 68, 68, 0.25)");
+        }
+        if (showExtB || (currentStep === 3 && showTotalO)) {
+            drawSimpleArc({x:cx, y:cy}, oToB, oToK, 45, "rgba(34, 197, 94, 0.25)");
+        }
+    }
+
+    if (showAngleA || (currentStep === 3 && showTotalP)) {
+        drawSimpleArc(P, pToO, pToA, 35, "rgba(239, 68, 68, 0.25)");
+        drawSimpleArc(A, aToP, aToO, 30, "rgba(239, 68, 68, 0.25)");
+    }
+    if (showAngleB || (currentStep === 3 && showTotalP)) {
+        drawSimpleArc(P, pToB, pToO, 35, "rgba(34, 197, 94, 0.25)");
+        drawSimpleArc(B, bToP, bToO, 30, "rgba(34, 197, 94, 0.25)");
+    }
+
+    ctx.beginPath();
+    ctx.moveTo(P.x, P.y); ctx.lineTo(K.x, K.y);
+    ctx.strokeStyle = "#718096";
+    ctx.lineWidth = 2;
+    ctx.setLineDash([6, 4]); 
+    ctx.stroke();
+    ctx.setLineDash([]); 
+
+    ctx.beginPath();
+    ctx.moveTo(A.x, A.y); ctx.lineTo(P.x, P.y); ctx.lineTo(B.x, B.y);
+    ctx.strokeStyle = "#2d3748";
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(cx, cy); ctx.lineTo(A.x, A.y);
+    ctx.moveTo(cx, cy); ctx.lineTo(B.x, B.y);
+    ctx.moveTo(cx, cy); ctx.lineTo(P.x, P.y);
+    ctx.strokeStyle = "#3182ce";
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    ctx.font = "bold 16px sans-serif";
+    
+    if (showAngleA || (currentStep === 3 && showTotalP)) {
+        let midPA = pToO + (pToA - pToO) / 2;
+        if (Math.abs(pToA - pToO) > Math.PI) midPA += Math.PI;
+        ctx.fillStyle = "#e53e3e";
+        ctx.fillText("a", P.x + Math.cos(midPA) * 55 - 5, P.y + Math.sin(midPA) * 55 + 5);
+
+        let midAO = aToP + (aToO - aToP) / 2;
+        if (Math.abs(aToO - aToP) > Math.PI) midAO += Math.PI;
+        ctx.fillText("a", A.x + Math.cos(midAO) * 45 - 5, A.y + Math.sin(midAO) * 45 + 5);
+    }
+
+    if (showAngleB || (currentStep === 3 && showTotalP)) {
+        let midPB = pToB + (pToO - pToB) / 2;
+        if (Math.abs(pToO - pToB) > Math.PI) midPB += Math.PI;
+        ctx.fillStyle = "#38a169";
+        ctx.fillText("b", P.x + Math.cos(midPB) * 55 - 5, P.y + Math.sin(midPB) * 55 + 5);
+
+        let midBO = bToP + (bToO - bToP) / 2;
+        if (Math.abs(bToO - bToP) > Math.PI) midBO += Math.PI;
+        ctx.fillText("b", B.x + Math.cos(midBO) * 45 - 5, B.y + Math.sin(midBO) * 45 + 5);
+    }
+
+    if (currentStep >= 2) {
+        if (showExtA || (currentStep === 3 && showTotalO)) {
+            let mid2a = oToK + (oToA - oToK) / 2;
+            if (Math.abs(oToA - oToK) > Math.PI) mid2a += Math.PI;
+            ctx.fillStyle = "#e53e3e";
+            ctx.fillText("2a", cx + Math.cos(mid2a) * 65 - 10, cy + Math.sin(mid2a) * 65 + 5);
+        }
+
+        if (showExtB || (currentStep === 3 && showTotalO)) {
+            let mid2b = oToB + (oToK - oToB) / 2;
+            if (Math.abs(oToK - oToB) > Math.PI) mid2b += Math.PI;
+            ctx.fillStyle = "#38a169";
+            ctx.fillText("2b", cx + Math.cos(mid2b) * 65 - 10, cy + Math.sin(mid2b) * 65 + 5);
+        }
+    }
+
+    function drawNode(pt, color, label, isDraggable = false) {
+        if (isDraggable) {
+            ctx.beginPath();
+            ctx.arc(pt.x, pt.y, 9, 0, Math.PI * 2);
+            ctx.fillStyle = "#e53e3e";
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.arc(pt.x, pt.y, 5, 0, Math.PI * 2);
+            ctx.fillStyle = "white";
+            ctx.fill();
+        } else {
+            ctx.fillStyle = color;
+            ctx.beginPath(); ctx.arc(pt.x, pt.y, 7, 0, Math.PI*2); ctx.fill();
+        }
+        ctx.fillStyle = "#2d3748";
+        ctx.fillText(label, pt.x + 12, pt.y - 12);
+    }
+    
+    drawNode(A, "#3182ce", "A");
+    drawNode(B, "#3182ce", "B");
+    drawNode(P, "#e53e3e", "P", true); 
+    drawNode({x:cx, y:cy}, "#2d3748", "O");
+
+    ctx.fillStyle = "#718096";
+    ctx.beginPath(); ctx.arc(K.x, K.y, 4, 0, Math.PI*2); ctx.fill();
+    ctx.fillText("K", K.x + 8, K.y + 12);
+}
+
+function isMouseOverP(e) {
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const P = pointOnCircle(pAngle);
+    return Math.hypot(x - P.x, y - P.y) < 20;
+}
+
+canvas.addEventListener("mousedown", (e) => {
+    if (isMouseOverP(e)) {
+        draggingP = true;
+    }
+});
+
+canvas.addEventListener("mousemove", (e) => {
+    if (isMouseOverP(e) || draggingP) {
+        canvas.style.cursor = "pointer";
+    } else {
+        canvas.style.cursor = "default";
+    }
+
+    if (!draggingP) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    let angle = Math.atan2(cy - y, x - cx) * 180 / Math.PI;
+    if (angle < 0) angle += 360;
+
+    const minAngle = 180 + 10;                  
+    const maxAngle = 180 + centerAngle - 10;     
+
+    if (angle >= minAngle && angle <= maxAngle) {
+        pAngle = angle;
+        draw();
+    }
+});
+
+canvas.addEventListener("mouseup", () => { draggingP = false; canvas.style.cursor = "default"; });
+canvas.addEventListener("mouseleave", () => { draggingP = false; canvas.style.cursor = "default"; });
+
+draw();
+</script>
+</body>
+</html>

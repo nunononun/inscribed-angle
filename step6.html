@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>円周角の定理・バグ完全修正版クイズ</title>
+<link rel="stylesheet" href="style.css">
+<style>
+    body {
+        font-family: 'Helvetica Neue', Arial, sans-serif;
+        background-color: #f0f2f5;
+        margin: 0;
+        padding: 20px;
+        color: #333;
+    }
+    .quiz-container {
+        max-width: 650px;
+        margin: 30px auto;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        padding: 30px;
+        box-sizing: border-box;
+    }
+    h1 {
+        text-align: center;
+        color: #007bff;
+        font-size: 1.8em;
+        margin-top: 0;
+    }
+    .progress-bar-container {
+        width: 100%;
+        background-color: #e9ecef;
+        border-radius: 10px;
+        margin-bottom: 25px;
+        overflow: hidden;
+    }
+    .progress-bar {
+        height: 10px;
+        width: 0%;
+        background-color: #007bff;
+        transition: width 0.3s ease;
+    }
+    .status {
+        display: flex;
+        justify-content: space-between;
+        font-weight: bold;
+        color: #666;
+        margin-bottom: 10px;
+    }
+    .question-box {
+        font-size: 1.15em;
+        font-weight: bold;
+        line-height: 1.5;
+        margin-bottom: 25px;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-left: 5px solid #007bff;
+        border-radius: 4px;
+    }
+    .options {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    .option-btn {
+        padding: 14px 20px;
+        font-size: 1em;
+        font-weight: bold;
+        text-align: left;
+        background-color: #fff;
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        min-height: 50px;
+    }
+    .option-btn:hover:not(:disabled) {
+        background-color: #f1f3f5;
+        border-color: #adb5bd;
+    }
+    .option-btn:disabled {
+        cursor: not-allowed;
+    }
+    .correct {
+        background-color: #d4edda !important;
+        border-color: #28a745 !important;
+        color: #155724;
+    }
+    .incorrect {
+        background-color: #f8d7da !important;
+        border-color: #dc3545 !important;
+        color: #721c24;
+    }
+    .feedback-box {
+        margin-top: 25px;
+        padding: 20px;
+        border-radius: 8px;
+        display: none;
+        animation: fadeIn 0.4s ease;
+    }
+    .feedback-title {
+        font-weight: bold;
+        font-size: 1.2em;
+        margin-bottom: 8px;
+    }
+    .canvas-container {
+        text-align: center;
+        margin: 15px 0;
+    }
+    canvas {
+        background-color: #fff;
+        border: 1px solid #eee;
+        border-radius: 6px;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .next-container {
+        text-align: right;
+        margin-top: 20px;
+    }
+    .next-btn {
+        padding: 10px 25px;
+        font-size: 1.1em;
+        font-weight: bold;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        display: none;
+    }
+    .next-btn:hover {
+        background-color: #0056b3;
+    }
+    .result-view {
+        text-align: center;
+        display: none;
+    }
+    .score-circle {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        background-color: #f0f7ff;
+        border: 5px solid #007bff;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin: 20px auto;
+    }
+    .score-num {
+        font-size: 2.5em;
+        font-weight: bold;
+        color: #007bff;
+    }
+    .restart-btn {
+        padding: 12px 30px;
+        font-size: 1.1em;
+        background-color: #6c757d;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        margin-top: 20px;
+        font-weight: bold;
+    }
+    .restart-btn:hover {
+        background-color: #5a6268;
+    }
+</style>
+</head>
+<body>
+
+<a href="index.html" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; background: rgba(0,123,255,0.9); color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); font-weight: bold;" title="ポータルに戻る">🏠</a>
+
+<div class="quiz-container">
+    <a href="index.html" class="btn-back-quiz">⬅ ポータルに戻る</a>
+
+    <h1>🎯 円周角の定理マスタークイズ</h1>
+    
+    <div id="quiz-view">
+        <div class="status">
+            <span id="question-number">第 1 問 / 全 20 問</span>
+            <span id="current-score">スコア: 0</span>
+        </div>
+        <div class="progress-bar-container">
+            <div id="progress" class="progress-bar"></div>
+        </div>
+        
+        <div id="question" class="question-box">問題文がここに読み込まれます。</div>
+        
+        <div class="options">
+            <button class="option-btn" onclick="checkAnswer(0)">選択肢 1</button>
+            <button class="option-btn" onclick="checkAnswer(1)">選択肢 2</button>
+            <button class="option-btn" onclick="checkAnswer(2)">選択肢 3</button>
+        </div>
+        
+        <div id="feedback" class="feedback-box">
+            <div id="feedback-title" class="feedback-title">正解！</div>
+            <div class="canvas-container">
+                <canvas id="explainCanvas" width="320" height="280"></canvas>
+            </div>
+            <div id="feedback-text">解説がここに表示されます。</div>
+        </div>
+        
+        <div class="next-container">
+            <button id="next-btn" class="next-btn" onclick="nextQuestion()">次の問題へ ➔</button>
+        </div>
+    </div>
+
+    <div id="result-view" class="result-view">
+        <h2>🎉 お疲れ様でした！結果発表</h2>
+        <button class="restart-btn" onclick="restartQuiz()">最初からやり直す</button>
+        <a href="index.html" class="btn-back-result">ポータルに戻る ➔</a>
+        <div class="score-circle">
+            <div id="final-score" class="score-num">0</div>
+            <div>/ 20 問中</div>
+        </div>
+        <p id="comment" style="font-size: 1.2em; font-weight: bold; margin: 20px 0;"></p>
+        <button class="restart-btn" onclick="restartQuiz()">最初からやり直す</button>
+    </div>
+</div>
+
+<script>
+const quizTemplates = [
+    { type: "basic_center", q: "同じ弧に対する中心角の大きさが{n1}°であるとき、その弧に対する円周角の大きさは何度でしょう？", e: "円周角は中心角の半分の大きさになります。{n1} ÷ 2 = {n2}° です。" },
+    { type: "basic_inscribed", q: "同じ弧に対する円周角の大きさが{n2}°であるとき、その弧に対する中心角の大きさは何度でしょう？", e: "中心角は円周角の2倍の大きさになります。{n2} × 2 = {n1}° です。" },
+    { type: "diameter", q: "半円の弧（直径ABの両端を結ぶ弧）に対する円周角∠ACBの大きさは、常に何度になるでしょう？", e: "直径に対する中心角は180°なので、その円周角∠ACBは半分の90°（直角）になります。" },
+    { type: "same_arc_p", q: "1つの円において、同じ弧ABに対する円周角∠APBと∠AQBがあるとき、これら2つの円周角の大きさの関係はどうなっているでしょう？", e: "「同じ弧に対する円周角は等しい」という定理のルールです。どちらも同じ大きさになります。" },
+    { type: "same_arc_abcd", q: "円周上に4点A, B, C, Dがこの順にあります。弧ABの長さと弧CDの長さが等しいとき、∠ACBと∠CBDの大きさの関係はどうなりますか？", e: "等しい長さの弧に対する円周角は、どこにあってもすべて大きさが等しくなります。" },
+    { type: "major", q: "円Oの周上に、∠APB = {n2}° となるような点Pをとりました。このとき、点Pを含まない側の中心角∠AOB（大きい方の角）は何度でしょう？", e: "中心角は円周角の2倍なので、{n2} × 2 = {n1}° です。180°を超える大きな中心角になります。" },
+    { type: "polygon", q: "外接円とは、多角形のどのような円のことでしょう？（例：△ABCの3つの頂点がすべて円周上にある場合など）", e: "多角形のすべての頂点を通る円のことを「外接円（がいせつえん）」と呼びます。" },
+    { type: "inscribed_quad_sum", q: "円に内接する四角形ABCDにおいて、向かい合う角（対角）である∠Aと∠Cの大きさを足すと、必ず何度になるでしょう？", e: "円に内接する四角形の重要な性質として、向かい合う内角の和は必ず180°になります。" },
+    { type: "inscribed_quad_calc", q: "円に内接する四角形ABCDにおいて、∠A = {n1}° です。このとき、その向かい側にある内角∠Cの大きさは何度でしょう？", e: "対角の和は180°になる性質から計算できます。180 - {n1} = {n2}° です。" },
+    { type: "quad_exterior", q: "円に内接する四角形ABCDにおいて、∠A = {n1}° であるとき、その向かい側にある頂点Cにおける「外角」の大きさは何度でしょう？", e: "円に内接する四角形の1つの外角は、向かい合う内角（内対角）に等しくなるため、そのまま{n1}°です。" },
+    { type: "converse", q: "線分ABと同じ側に2点C, Dがあり、∠ACB = ∠ADB = {n1}° が成り立っています。このとき、4点A, B, C, Dはどのような関係にあるでしょう？", e: "これが「円周角の定理の逆」です。2つの頂点を見込む角の大きさが等しければ、4点は必ず1つの円周上に存在します。"},
+    { type: "converse_side", q: "円周角の定理の逆を利用して、「4点が1つの円周上にある」と言いたいとき、2つの点（C, D）は基準となる線分ABに対してどちら側になければならないでしょう？", e: "円周角の定理の逆を適用するには、2点C, Dが線分ABに対して「同じ側」にあることが必須条件です。反対側にある場合は、対角の和が180°になる条件（内接四角形）の扱いになります。"},
+    { type: "ratio_arc", q: "ある弧に対する円周角が{n2}°（中心角が{n1}°）のとき、この弧の長さは円周全体のどれだけの割合にあたるでしょう？", e: "中心角が{n1}°のとき、円全体（360°）に対する割合は {n1}/360 = 1/{n3} となります。"},
+    { type: "basic_double", q: "中心角に比べて円周角はいつでも半分になります。では円周角が {n2}° であるような弧の中心角は何度でしょう？", e: "中心角はいつでも円周角の2倍です。{n2} × 2 = {n1}° です。"},
+    { type: "diameter_app", q: "直径ABをもつ円周上に点Cをとります。∠ABC = {n1}° であるとき、もう1つの鋭角 ∠BAC の大きさは何度でしょう？", e: "直径に対する円周角∠ACB = 90°なので、直角三角形の残りの鋭角の和は90°になります。したがって 90 - {n1} = {n2}° となります。"},
+    { type: "ratio_reverse", q: "弧の長さが円周のちょうど「{n3}分の1」であるとき、その弧に対する円周角は何度になるでしょう？", e: "中心角は 360 × (1/{n3}) = {n1}° です。円周角はその半分の {n2}° になります。"},
+    { type: "quad_exterior_rev", q: "円に内接する四角形ABCDで、∠Bの外角が {n1}° であるとき、向かい合う内角 ∠D の大きさは何度でしょう？", e: "内接四角形の外角は、その内対角と等しくなるため、そのまま {n1}° です。"},
+    { type: "major_huge", q: "中心角が {n1}° になるような大きな弧（優弧）に対する円周角は何度でしょう？", e: "どれだけ大きな角でもルールは同じです。中心角の半分なので、{n1} ÷ 2 = {n2}° です。"},
+    { type: "same_arc_ratio", q: "1つの円において、2つの等しい円周角がつくる2つの弧の長さの比はどうなっているでしょう？", e: "同じ円において、円周角の大きさが等しければ、それをつくる弧の長さも必ず 1 : 1 になります。"},
+    { type: "inscribed_quad_false", q: "四角形ABCDにおいて、向かい合う角の大きさが ∠A = {n1}°、∠C = {n2}° です（足すと {n3}°）。この四角形は円に内接するでしょうか？", e: "四角形が円に内接するための絶対条件は「向かい合う角の和がちょうど180°であること」です。足して {n3}° にになってしまうため、この四角形は絶対に円に内接しません。" }
+];
+
+let quizData = [];
+let currentQuestionIndex = 0;
+let score = 0;
+
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+// ★選択肢が消えるバグを根本解決した新しい選択肢生成関数
+function makeUniqueOptions(correctStr, dummyArray) {
+    let opts = new Set();
+    opts.add(correctStr);
+    
+    // ダミーの選択肢から重複を取り除きつつ追加
+    for (let d of dummyArray) {
+        if (d !== undefined && d !== null && d !== "") {
+            opts.add(d);
+        }
+    }
+    
+    // 万が一重複により3択に満たない場合のバックアップ用選択肢
+    const backups = ["30°", "45°", "60°", "90°", "120°", "180°", "等しい", "1 : 1", "絶対に内接しない"];
+    for (let b of backups) {
+        if (opts.size >= 3) break;
+        opts.add(b);
+    }
+    
+    // 配列化してシャッフルし、確実に3つの要素だけを返す
+    let resArray = Array.from(opts).slice(0, 3);
+    return resArray.sort(() => Math.random() - 0.5);
+}
+
+function generateQuizData() {
+    let shuffledTemplates = [...quizTemplates];
+    shuffleArray(shuffledTemplates);
+
+    quizData = shuffledTemplates.map((template) => {
+        let n1 = 0, n2 = 0, n3 = 0;
+        let options = [];
+        let correctStr = "";
+
+        switch(template.type) {
+            case "basic_center":
+                n1 = (Math.floor(Math.random() * 9) + 3) * 15; 
+                n2 = n1 / 2;
+                correctStr = `${n2}°`;
+                options = makeUniqueOptions(correctStr, [`${n1}°`, `${n2 + 15}°`, `${n2 - 10}°`]);
+                break;
+            case "basic_inscribed":
+                n2 = (Math.floor(Math.random() * 14) + 4) * 5; 
+                n1 = n2 * 2;
+                correctStr = `${n1}°`;
+                options = makeUniqueOptions(correctStr, [`${n2}°`, `${n1 + 20}°`, `${n1 - 15}°`]);
+                break;
+            case "diameter":
+                n1 = 180; n2 = 90;
+                correctStr = "90°";
+                options = makeUniqueOptions(correctStr, ["45°", "180°", "60°"]);
+                break;
+            case "same_arc_p":
+                n1 = (Math.floor(Math.random() * 9) + 5) * 5; 
+                correctStr = "等しい";
+                options = makeUniqueOptions(correctStr, ["足すと180°になる", "位置によって違う", "中心角と同じ"]);
+                break;
+            case "same_arc_abcd":
+                correctStr = "2つの角は等しい";
+                options = makeUniqueOptions(correctStr, ["∠ACB の方が大きい", "∠CBD の方が大きい", "足すと90°になる"]);
+                break;
+            case "major":
+                n2 = Math.floor(Math.random() * 20) + 100; 
+                n1 = n2 * 2;
+                correctStr = `${n1}°`;
+                options = makeUniqueOptions(correctStr, [`${n2}°`, `${360 - n1}°`, `${n1 - 30}°`]);
+                break;
+            case "polygon":
+                correctStr = "多角形のすべての頂点を通る円";
+                options = makeUniqueOptions(correctStr, ["多角形の内側に収まる円", "中心にある円", "辺にだけ触れる円"]);
+                break;
+            case "inscribed_quad_sum":
+                n1 = 80; n2 = 100;
+                correctStr = "180°";
+                options = makeUniqueOptions(correctStr, ["90°", "360°", "270°"]);
+                break;
+            case "inscribed_quad_calc":
+                n1 = Math.floor(Math.random() * 30) + 75; 
+                n2 = 180 - n1;
+                correctStr = `${n2}°`;
+                options = makeUniqueOptions(correctStr, [`${n1}°`, `${180 - n1 + 15}°`, `${90}°`]);
+                break;
+            case "quad_exterior":
+                n1 = Math.floor(Math.random() * 30) + 75; 
+                correctStr = `${n1}°`;
+                options = makeUniqueOptions(correctStr, [`${180 - n1}°`, `${90}°`, `${n1 + 15}°`]);
+                break;
+            case "converse":
+                n1 = (Math.floor(Math.random() * 5) + 4) * 10; 
+                correctStr = "1つの円周上にある";
+                options = makeUniqueOptions(correctStr, ["一直線上にある", "平行である", "垂直に交わる"]);
+                break;
+            case "converse_side":
+                n1 = 50;
+                correctStr = "必ず同じ側";
+                options = makeUniqueOptions(correctStr, ["必ず反対側", "どちら側でもよい", "斜め向かい側"]);
+                break;
+            case "ratio_arc":
+                n3 = [3, 4, 5, 6][Math.floor(Math.random() * 4)];
+                n1 = 360 / n3;
+                n2 = n1 / 2;
+                correctStr = `${n3}分の1`;
+                options = makeUniqueOptions(correctStr, ["2分の1", "8分の1", "10分の1"]);
+                break;
+            case "basic_double":
+                n2 = (Math.floor(Math.random() * 8) + 4) * 5; 
+                n1 = n2 * 2;
+                correctStr = `${n1}°`;
+                options = makeUniqueOptions(correctStr, [`${n2}°`, `${n1 + 10}°`, `${n1 - 10}°`]);
+                break;
+            case "diameter_app":
+                n1 = (Math.floor(Math.random() * 8) + 4) * 5; 
+                n2 = 90 - n1;
+                correctStr = `${n2}°`;
+                options = makeUniqueOptions(correctStr, [`${n1}°`, `${90}°`, `${180 - n1}°`]);
+                break;
+            case "ratio_reverse":
+                n3 = [3, 4, 5, 6][Math.floor(Math.random() * 4)];
+                n1 = 360 / n3;
+                n2 = n1 / 2;
+                correctStr = `${n2}°`;
+                // 重複が発生しやすかったため、明確に異なる値をダミーに指定
+                options = makeUniqueOptions(correctStr, [`${n1}°`, `${n2 + 15}°`, `${n2 - 15}°`, "45°", "60°"]);
+                break;
+            case "quad_exterior_rev":
+                n1 = Math.floor(Math.random() * 40) + 70; 
+                correctStr = `${n1}°`;
+                options = makeUniqueOptions(correctStr, [`${180 - n1}°`, `${90}°`, `${n1 - 20}°`]);
+                break;
+            case "major_huge":
+                n1 = (Math.floor(Math.random() * 6) + 21) * 10; 
+                n2 = n1 / 2;
+                correctStr = `${n2}°`;
+                options = makeUniqueOptions(correctStr, [`${n1}°`, `${360 - n2}°`, `${100}°`]);
+                break;
+            case "same_arc_ratio":
+                n1 = 45;
+                correctStr = "1 : 1";
+                options = makeUniqueOptions(correctStr, ["1 : 2", "比は定まらない", "2 : 1"]);
+                break;
+            case "inscribed_quad_false":
+                n1 = Math.floor(Math.random() * 15) + 80; 
+                n2 = n1 + 15; 
+                n3 = n1 + n2;
+                correctStr = "絶対に内接しない";
+                options = makeUniqueOptions(correctStr, ["必ず内接する", "内接するとは限らない", "条件次第で内接する"]);
+                break;
+        }
+
+        let processedQ = template.q.replace(/{n1}/g, n1).replace(/{n2}/g, n2).replace(/{n3}/g, n3);
+        let processedE = template.e.replace(/{n1}/g, n1).replace(/{n2}/g, n2).replace(/{n3}/g, n3);
+
+        let correctIndex = options.indexOf(correctStr);
+
+        return {
+            type: template.type,
+            q: processedQ,
+            e: processedE,
+            a: options,
+            c: correctIndex,
+            param: [n1, n2, n3]
+        };
+    });
+}
+
+const questionNumberEl = document.getElementById("question-number");
+const currentScoreEl = document.getElementById("current-score");
+const progressEl = document.getElementById("progress");
+const questionEl = document.getElementById("question");
+const optionBtns = document.getElementsByClassName("option-btn");
+const feedbackEl = document.getElementById("feedback");
+const feedbackTitleEl = document.getElementById("feedback-title");
+const feedbackTextEl = document.getElementById("feedback-text");
+const nextBtn = document.getElementById("next-btn");
+const quizView = document.getElementById("quiz-view");
+const resultView = document.getElementById("result-view");
+const finalScoreEl = document.getElementById("final-score");
+const commentEl = document.getElementById("comment");
+
+function loadQuestion() {
+    feedbackEl.style.display = "none";
+    nextBtn.style.display = "none";
+    
+    const currentData = quizData[currentQuestionIndex];
+    
+    questionNumberEl.textContent = `第 ${currentQuestionIndex + 1} 問 / 全 ${quizData.length} 問`;
+    currentScoreEl.textContent = `スコア: ${score}`;
+    questionEl.textContent = currentData.q;
+    
+    const progressPercent = (currentQuestionIndex / quizData.length) * 100;
+    progressEl.style.width = `${progressPercent}%`;
+    
+    for (let i = 0; i < optionBtns.length; i++) {
+        optionBtns[i].textContent = currentData.a[i] || "";
+        optionBtns[i].className = "option-btn";
+        optionBtns[i].disabled = false;
+    }
+}
+
+function checkAnswer(selectedIndex) {
+    const currentData = quizData[currentQuestionIndex];
+    const correctIndex = currentData.c;
+    
+    for (let i = 0; i < optionBtns.length; i++) {
+        optionBtns[i].disabled = true;
+        if (i === correctIndex) {
+            optionBtns[i].classList.add("correct");
+        } else if (i === selectedIndex) {
+            optionBtns[i].classList.add("incorrect");
+        }
+    }
+    
+    if (selectedIndex === correctIndex) {
+        score++;
+        currentScoreEl.textContent = `スコア: ${score}`;
+        feedbackEl.style.backgroundColor = "#d4edda";
+        feedbackEl.style.color = "#155724";
+        feedbackTitleEl.textContent = "⭕ 正解！";
+    } else {
+        feedbackEl.style.backgroundColor = "#f8d7da";
+        feedbackEl.style.color = "#721c24";
+        feedbackTitleEl.textContent = "❌ 不正解...";
+    }
+    
+    feedbackTextEl.textContent = currentData.e;
+    feedbackEl.style.display = "block";
+    
+    drawExplanationDiagram(currentData.type, currentData.param);
+    
+    if (currentQuestionIndex === quizData.length - 1) {
+        nextBtn.textContent = "結果を見る ➔";
+    } else {
+        nextBtn.textContent = "次の問題へ ➔";
+    }
+    nextBtn.style.display = "inline-block";
+}
+
+function nextQuestion() {
+    currentQuestionIndex++;
+    if (currentQuestionIndex < quizData.length) {
+        loadQuestion();
+    } else {
+        showResult();
+    }
+}
+
+function drawExactSector(ctx, startPt, vertexPt, endPt, radius, color) {
+    let alpha = Math.atan2(startPt.y - vertexPt.y, startPt.x - vertexPt.x);
+    let beta = Math.atan2(endPt.y - vertexPt.y, endPt.x - vertexPt.x);
+    let diff = beta - alpha;
+    while (diff < -Math.PI) diff += Math.PI * 2;
+    while (diff > Math.PI) diff -= Math.PI * 2;
+    
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(vertexPt.x, vertexPt.y);
+    ctx.arc(vertexPt.x, vertexPt.y, radius, alpha, alpha + diff, diff < 0);
+    ctx.closePath();
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.restore();
+}
+
+function drawLabel(ctx, text, pt, cx, cy) {
+    const dx = pt.x - cx;
+    const dy = pt.y - cy;
+    const len = Math.sqrt(dx*dx + dy*dy) || 1;
+    const offsetX = (dx / len) * 14;
+    const offsetY = (dy / len) * 14;
+    
+    ctx.fillStyle = "black";
+    ctx.font = "bold 14px sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(text, pt.x + offsetX, pt.y + offsetY);
+}
+
+function drawRightAngle(ctx, pA, pC, pB, size = 10) {
+    let lenA = Math.hypot(pA.x - pC.x, pA.y - pC.y);
+    let lenB = Math.hypot(pB.x - pC.x, pB.y - pC.y);
+    if(lenA === 0 || lenB === 0) return;
+    let vA = { x: (pA.x - pC.x) / lenA, y: (pA.y - pC.y) / lenA };
+    let vB = { x: (pB.x - pC.x) / lenB, y: (pB.y - pC.y) / lenB };
+    let pt1 = { x: pC.x + vA.x * size, y: pC.y + vA.y * size };
+    let pt2 = { x: pC.x + vA.x * size + vB.x * size, y: pC.y + vA.y * size + vB.y * size };
+    let pt3 = { x: pC.x + vB.x * size, y: pC.y + vB.y * size };
+    ctx.beginPath();
+    ctx.moveTo(pt1.x, pt1.y); ctx.lineTo(pt2.x, pt2.y); ctx.lineTo(pt3.x, pt3.y);
+    ctx.strokeStyle = "red"; ctx.lineWidth = 1.5; ctx.stroke();
+}
+
+function drawExplanationDiagram(type, param) {
+    const canvas = document.getElementById("explainCanvas");
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    const cx = 160, cy = 135, r = 85;
+    
+    if (type !== "polygon") {
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.strokeStyle = "#bbb";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        
+        ctx.fillStyle = "black";
+        ctx.beginPath(); ctx.arc(cx, cy, 3, 0, Math.PI*2); ctx.fill();
+        ctx.font = "bold 13px sans-serif";
+        ctx.fillText("O", cx - 12, cy + 12);
+    }
+
+    const getPt = (deg) => {
+        const rad = deg * Math.PI / 180;
+        return { x: cx + r * Math.cos(rad), y: cy - r * Math.sin(rad) };
+    };
+
+    if (type.startsWith("basic") || type === "ratio_arc" || type === "ratio_reverse") {
+        const centerAngle = param[0] || 60;
+        const startAngle = 230; 
+        const pA = getPt(startAngle);
+        const pB = getPt(startAngle + centerAngle);
+        const pP = getPt(50); 
+        
+        ctx.save();
+        ctx.beginPath(); ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, 25, -startAngle*Math.PI/180, -(startAngle + centerAngle)*Math.PI/180, true);
+        ctx.closePath(); ctx.fillStyle = "rgba(0, 123, 255, 0.22)"; ctx.fill();
+        ctx.restore();
+
+        drawExactSector(ctx, pA, pP, pB, 25, "rgba(220, 53, 69, 0.22)");
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, -startAngle * Math.PI / 180, -(startAngle + centerAngle) * Math.PI / 180, true);
+        ctx.strokeStyle = "orange"; ctx.lineWidth = 5; ctx.stroke();
+        
+        ctx.beginPath(); ctx.moveTo(pA.x, pA.y); ctx.lineTo(cx, cy); ctx.lineTo(pB.x, pB.y);
+        ctx.strokeStyle = "blue"; ctx.lineWidth = 2; ctx.stroke();
+        
+        ctx.beginPath(); ctx.moveTo(pA.x, pA.y); ctx.lineTo(pP.x, pP.y); ctx.lineTo(pB.x, pB.y);
+        ctx.strokeStyle = "red"; ctx.lineWidth = 2; ctx.stroke();
+        
+        drawLabel(ctx, "A", pA, cx, cy); drawLabel(ctx, "B", pB, cx, cy); drawLabel(ctx, "P", pP, cx, cy);
+        ctx.fillStyle = "blue"; ctx.textAlign = "left"; ctx.fillText(`中心角:${param[0]}°`, cx + 15, cy - 20);
+        ctx.fillStyle = "red"; ctx.textAlign = "left"; ctx.fillText(`円周角:${param[1]}°`, pP.x - 75, pP.y + 25);
+        
+    } else if (type === "diameter" || type === "diameter_app") {
+        const pA = getPt(180); 
+        const pB = getPt(0);   
+        const cAngle = type === "diameter_app" ? param[0] * 2 : 120; 
+        const pC = getPt(cAngle); 
+
+        ctx.beginPath(); ctx.moveTo(pA.x, pA.y); ctx.lineTo(pB.x, pB.y);
+        ctx.strokeStyle = "blue"; ctx.lineWidth = 2.5; ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(pA.x, pA.y); ctx.lineTo(pC.x, pC.y); ctx.lineTo(pB.x, pB.y);
+        ctx.strokeStyle = "red"; ctx.lineWidth = 2; ctx.stroke();
+        
+        drawRightAngle(ctx, pA, pC, pB, 12);
+        
+        if (type === "diameter_app") {
+            drawExactSector(ctx, pC, pB, pA, 22, "rgba(40, 167, 69, 0.25)");
+        }
+
+        drawLabel(ctx, "A", pA, cx, cy); drawLabel(ctx, "B", pB, cx, cy); drawLabel(ctx, "C", pC, cx, cy);
+        ctx.fillStyle = "red"; ctx.textAlign = "center"; ctx.fillText("∠C = 90°", pC.x - 5, pC.y + 35);
+        
+        if (type === "diameter_app") {
+            ctx.fillStyle = "darkgreen"; ctx.textAlign = "right"; ctx.fillText(`${param[0]}°`, pB.x - 20, pB.y - 12);
+            ctx.fillStyle = "black"; ctx.textAlign = "left"; ctx.fillText(`${param[1]}°`, pA.x + 20, pA.y - 12);
+        }
+        
+    } else if (type === "same_arc_p" || type === "same_arc_ratio") {
+        const pA = getPt(320), pB = getPt(40), pP = getPt(140), pQ = getPt(200);
+        
+        drawExactSector(ctx, pA, pP, pB, 25, "rgba(220, 53, 69, 0.22)");
+        drawExactSector(ctx, pA, pQ, pB, 25, "rgba(40, 167, 69, 0.22)");
+
+        ctx.beginPath(); ctx.arc(cx, cy, r, -320*Math.PI/180, -40*Math.PI/180, true);
+        ctx.strokeStyle = "orange"; ctx.lineWidth = 5; ctx.stroke();
+        
+        ctx.beginPath(); ctx.moveTo(pA.x, pA.y); ctx.lineTo(pP.x, pP.y); ctx.lineTo(pB.x, pB.y);
+        ctx.strokeStyle = "red"; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(pA.x, pA.y); ctx.lineTo(pQ.x, pQ.y); ctx.lineTo(pB.x, pB.y);
+        ctx.strokeStyle = "green"; ctx.lineWidth = 1.5; ctx.stroke();
+        
+        drawLabel(ctx, "A", pA, cx, cy); drawLabel(ctx, "B", pB, cx, cy);
+        drawLabel(ctx, "P", pP, cx, cy); drawLabel(ctx, "Q", pQ, cx, cy);
+        
+    } else if (type === "same_arc_abcd") {
+        const pA = getPt(15), pB = getPt(70), pC = getPt(145), pD = getPt(200);
+        
+        drawExactSector(ctx, pA, pC, pB, 25, "rgba(220, 53, 69, 0.22)");
+        drawExactSector(ctx, pC, pB, pD, 25, "rgba(40, 167, 69, 0.22)");
+
+        ctx.beginPath(); ctx.arc(cx, cy, r, -15*Math.PI/180, -70*Math.PI/180, true); ctx.strokeStyle = "orange"; ctx.lineWidth = 5; ctx.stroke();
+        ctx.beginPath(); ctx.arc(cx, cy, r, -145*Math.PI/180, -200*Math.PI/180, true); ctx.strokeStyle = "orange"; ctx.lineWidth = 5; ctx.stroke();
+        
+        ctx.beginPath(); ctx.moveTo(pA.x, pA.y); ctx.lineTo(pC.x, pC.y); ctx.lineTo(pB.x, pB.y);
+        ctx.strokeStyle = "red"; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(pC.x, pC.y); ctx.lineTo(pB.x, pB.y); ctx.lineTo(pD.x, pD.y);
+        ctx.strokeStyle = "green"; ctx.lineWidth = 1.5; ctx.stroke();
+        
+        drawLabel(ctx, "A", pA, cx, cy); drawLabel(ctx, "B", pB, cx, cy);
+        drawLabel(ctx, "C", pC, cx, cy); drawLabel(ctx, "D", pD, cx, cy);
+
+    } else if (type === "major" || type === "major_huge") {
+        const centerAngle = param[0]; 
+        const startAngle = 40;        
+        const endAngle = startAngle + centerAngle; 
+        
+        const pA = getPt(startAngle);
+        const pB = getPt(endAngle);
+        
+        const pAngle = startAngle + (centerAngle / 2) + 180;
+        const pP = getPt(pAngle);
+        
+        ctx.save();
+        ctx.beginPath(); ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, 25, -startAngle*Math.PI/180, -endAngle*Math.PI/180, true); 
+        ctx.lineTo(cx, cy);
+        ctx.closePath();
+        ctx.fillStyle = "rgba(0, 123, 255, 0.22)"; ctx.fill();
+        ctx.restore();
+
+        drawExactSector(ctx, pA, pP, pB, 25, "rgba(220, 53, 69, 0.22)");
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, -startAngle * Math.PI / 180, -endAngle * Math.PI / 180, true);
+        ctx.strokeStyle = "orange"; ctx.lineWidth = 5; ctx.stroke();
+
+        ctx.beginPath(); ctx.moveTo(pA.x, pA.y); ctx.lineTo(cx, cy); ctx.lineTo(pB.x, pB.y);
+        ctx.strokeStyle = "blue"; ctx.lineWidth = 2; ctx.stroke();
+        
+        ctx.beginPath(); ctx.moveTo(pA.x, pA.y); ctx.lineTo(pP.x, pP.y); ctx.lineTo(pB.x, pB.y);
+        ctx.strokeStyle = "red"; ctx.lineWidth = 2; ctx.stroke();
+        
+        drawLabel(ctx, "A", pA, cx, cy); drawLabel(ctx, "B", pB, cx, cy); drawLabel(ctx, "P", pP, cx, cy);
+        
+        ctx.fillStyle = "blue"; ctx.textAlign = "center"; 
+        ctx.fillText(`中心角:${param[0]}°`, cx - 50, cy - 40);
+        ctx.fillStyle = "red"; ctx.textAlign = "center"; 
+        ctx.fillText(`円周角:${param[1]}°`, pP.x, pP.y > cy ? pP.y - 15 : pP.y + 25);
+        
+    } else if (type.startsWith("inscribed_quad") || type.startsWith("quad_exterior")) {
+        const pA = getPt(65);
+        const pB = getPt(145);
+        
+        let pC, pD;
+        if (type === "inscribed_quad_false") {
+            const badRad = (65 + 165) * Math.PI / 180; 
+            pC = { x: cx + (r - 25) * Math.cos(badRad), y: cy - (r - 25) * Math.sin(badRad) }; 
+            pD = getPt(325);
+        } else {
+            pC = getPt(235); 
+            pD = getPt(315);
+        }
+        
+        if (type === "quad_exterior") {
+            drawExactSector(ctx, pB, pA, pD, 22, "rgba(0, 123, 255, 0.25)"); 
+            const extX = pC.x + (pC.x - pB.x) * 0.4;
+            const extY = pC.y + (pC.y - pB.y) * 0.4;
+            ctx.beginPath(); ctx.moveTo(pC.x, pC.y); ctx.lineTo(extX, extY);
+            ctx.strokeStyle = "purple"; ctx.lineWidth = 2.5; ctx.stroke();
+            drawExactSector(ctx, pD, pC, {x:extX, y:extY}, 22, "rgba(220, 53, 69, 0.25)"); 
+            ctx.fillStyle = "blue"; ctx.textAlign = "center"; ctx.fillText(`内角 ∠A: ${param[0]}°`, pA.x + 10, pA.y + 20);
+            ctx.fillStyle = "red"; ctx.textAlign = "left"; ctx.fillText(`外角: ${param[0]}°`, pC.x - 10, pC.y + 30);
+
+        } else if (type === "quad_exterior_rev") {
+            drawExactSector(ctx, pC, pD, pA, 22, "rgba(220, 53, 69, 0.25)"); 
+            const extX = pB.x + (pB.x - pA.x) * 0.4;
+            const extY = pB.y + (pB.y - pA.y) * 0.4;
+            ctx.beginPath(); ctx.moveTo(pB.x, pB.y); ctx.lineTo(extX, extY);
+            ctx.strokeStyle = "purple"; ctx.lineWidth = 2.5; ctx.stroke();
+            drawExactSector(ctx, {x:extX, y:extY}, pB, pC, 22, "rgba(0, 123, 255, 0.25)"); 
+            ctx.fillStyle = "red"; ctx.textAlign = "center"; ctx.fillText(`内角 ∠D: ${param[0]}°`, pD.x - 10, pD.y - 20);
+            ctx.fillStyle = "blue"; ctx.textAlign = "right"; ctx.fillText(`外角: ${param[0]}°`, pB.x - 15, pB.y - 15);
+
+        } else {
+            drawExactSector(ctx, pB, pA, pD, 22, "rgba(0, 123, 255, 0.22)"); 
+            drawExactSector(ctx, pD, pC, pB, 22, "rgba(220, 53, 69, 0.22)"); 
+            ctx.fillStyle = "blue"; ctx.textAlign = "center"; ctx.fillText(`∠A: ${param[0]}°`, pA.x - 20, pA.y + 25);
+            ctx.fillStyle = "red"; ctx.textAlign = "center"; ctx.fillText(`∠C: ${param[1]}°`, pC.x + 25, pC.y - 25);
+        }
+        
+        ctx.beginPath();
+        ctx.moveTo(pA.x, pA.y); ctx.lineTo(pB.x, pB.y); ctx.lineTo(pC.x, pC.y); ctx.lineTo(pD.x, pD.y);
+        ctx.closePath();
+        ctx.strokeStyle = "purple"; ctx.lineWidth = 2.5; ctx.stroke();
+        
+        drawLabel(ctx, "A", pA, cx, cy); drawLabel(ctx, "B", pB, cx, cy);
+        drawLabel(ctx, "C", pC, cx, cy); drawLabel(ctx, "D", pD, cx, cy);
+        
+    } else if (type.startsWith("converse")) {
+        const pA = getPt(220), pB = getPt(320), pC = getPt(60), pD = getPt(120);
+        
+        drawExactSector(ctx, pA, pC, pB, 25, "rgba(40, 167, 69, 0.25)"); 
+        drawExactSector(ctx, pA, pD, pB, 25, "rgba(40, 167, 69, 0.25)"); 
+
+        ctx.beginPath(); ctx.moveTo(pA.x, pA.y); ctx.lineTo(pB.x, pB.y);
+        ctx.strokeStyle = "blue"; ctx.lineWidth = 3; ctx.stroke();
+        
+        ctx.beginPath(); 
+        ctx.moveTo(pA.x, pA.y); ctx.lineTo(pC.x, pC.y); ctx.lineTo(pB.x, pB.y);
+        ctx.moveTo(pA.x, pA.y); ctx.lineTo(pD.x, pD.y); ctx.lineTo(pB.x, pB.y);
+        ctx.strokeStyle = "darkgreen"; ctx.lineWidth = 1.5; ctx.stroke();
+        
+        drawLabel(ctx, "A", pA, cx, cy); drawLabel(ctx, "B", pB, cx, cy);
+        drawLabel(ctx, "C", pC, cx, cy); drawLabel(ctx, "D", pD, cx, cy);
+        
+        ctx.fillStyle = "darkgreen"; ctx.textAlign = "center"; 
+        if(type === "converse_side") {
+            ctx.fillText("ABに対して同じ側にC, Dがある", cx, cy + 50);
+        } else {
+            ctx.fillText(`∠C = ∠D = ${param[0]}°`, cx, cy + 50);
+        }
+        
+    } else if (type === "polygon") {
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.strokeStyle = "#007bff"; 
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        const pA = getPt(90), pB = getPt(210), pC = getPt(330);
+        ctx.beginPath(); ctx.moveTo(pA.x, pA.y); ctx.lineTo(pB.x, pB.y); ctx.lineTo(pC.x, pC.y); ctx.closePath();
+        ctx.strokeStyle = "darkgreen"; ctx.lineWidth = 2; 
+        ctx.stroke(); 
+        
+        drawLabel(ctx, "A", pA, cx, cy); drawLabel(ctx, "B", pB, cx, cy); drawLabel(ctx, "C", pC, cx, cy);
+    }
+}
+
+function showResult() {
+    quizView.style.display = "none";
+    resultView.style.display = "block";
+    progressEl.style.width = "100%";
+    finalScoreEl.textContent = score;
+    
+    let comment = "";
+    if (score === 20) {
+        comment = "完璧です！全ての問題を乗り越えて全問正解、真の幾何学マスターですね！🎉";
+    } else if (score >= 15) {
+        comment = "素晴らしい！定理の逆の条件もバッチリ理解できています。👍";
+    } else if (score >= 10) {
+        comment = "合格です！間違えた図解をもう一度見直して、知識を完璧にしましょう。✏️";
+    } else {
+        comment = "繰り返し挑戦して、中心角と円周角、内接四角形の性質をマスターしましょう！💪";
+    }
+    commentEl.textContent = comment;
+}
+
+function restartQuiz() {
+    currentQuestionIndex = 0;
+    score = 0;
+    quizView.style.display = "block";
+    resultView.style.display = "none";
+    nextBtn.textContent = "次の問題へ ➔";
+    generateQuizData();
+    loadQuestion();
+}
+
+generateQuizData();
+loadQuestion();
+</script>
+
+</body>
+</html>

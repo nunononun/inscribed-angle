@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>円周角の定理（直径と直角の確かめ - 点Pのみ）</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<a href="index.html" class="home-btn">🏠</a>
+
+<h2>直径に対する円周角の確かめ</h2>
+<p class="description">
+    青い線は円の<strong>直径（中心角 180°）</strong>です。<br>
+    円周上の赤い点 <strong>P</strong> をマウスや指で好きな場所にドラッグしてみましょう。<br>
+    どこへ動かしても、円周角が<strong>常に 90°（直角）</strong>になることを確かめられます。
+</p>
+
+<div class="controls">
+    <span id="pAngleDisplay" class="angle-display">∠APB (円周角): --°</span>
+</div>
+
+<canvas id="canvas" width="700" height="600"></canvas>
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+const cx = 350, cy = 300, r = 220;
+
+// 直計にするため、Aは0度(右端)、Bは180度(左端)で固定
+const angleA = 0;
+const angleB = 180;
+
+// Pの初期位置（度数）
+let pAngle = 70;
+let draggingP = false;
+
+const pAngleDisplay = document.getElementById("pAngleDisplay");
+
+function degToRad(d) { return d * Math.PI / 180; }
+
+function pointOnCircle(a) {
+    const t = degToRad(a);
+    return { x: cx + r * Math.cos(t), y: cy - r * Math.sin(t) };
+}
+
+function drawPoint(pt, color, label) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(pt.x, pt.y, 8, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "black";
+    ctx.font = "bold 16px sans-serif";
+    ctx.fillText(label, pt.x + 12, pt.y - 12);
+}
+
+// 3点からなす角に直角マークを描画する関数
+function drawRightAngleMark(ctx, pA, pVertex, pB, size = 15) {
+    let lenA = Math.hypot(pA.x - pVertex.x, pA.y - pVertex.y);
+    let lenB = Math.hypot(pB.x - pVertex.x, pB.y - pVertex.y);
+    if (lenA === 0 || lenB === 0) return;
+
+    let vA = { x: (pA.x - pVertex.x) / lenA, y: (pA.y - pVertex.y) / lenA };
+    let vB = { x: (pB.x - pVertex.x) / lenB, y: (pB.y - pVertex.y) / lenB };
+
+    let pt1 = { x: pVertex.x + vA.x * size, y: pVertex.y + vA.y * size };
+    let pt2 = { x: pVertex.x + vA.x * size + vB.x * size, y: pVertex.y + vA.y * size + vB.y * size };
+    let pt3 = { x: pVertex.x + vB.x * size, y: pVertex.y + vB.y * size };
+
+    ctx.beginPath();
+    ctx.moveTo(pt1.x, pt1.y);
+    ctx.lineTo(pt2.x, pt2.y);
+    ctx.lineTo(pt3.x, pt3.y);
+    ctx.strokeStyle = "purple";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+}
+
+function angleBetweenVectors(v1, v2) {
+    const dot = v1.x * v2.x + v1.y * v2.y;
+    return Math.acos(dot / (Math.hypot(v1.x, v1.y) * Math.hypot(v2.x, v2.y))) * 180 / Math.PI;
+}
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const A = pointOnCircle(angleA);
+    const B = pointOnCircle(angleB);
+    const P = pointOnCircle(pAngle);
+
+    // 点Pが上半分(0〜180)か下半分(180〜360)かを判定
+    let isUpperSide = (pAngle > 0 && pAngle < 180);
+
+    // 背景の円基盤
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.strokeStyle = "#ddd";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // 対応する半円の弧（180°）をピンクでハイライト表示
+    ctx.beginPath();
+    if (isUpperSide) {
+        ctx.arc(cx, cy, r, 0, -degToRad(180), false);
+    } else {
+        ctx.arc(cx, cy, r, 0, -degToRad(180), true);
+    }
+    ctx.strokeStyle = "rgba(255,105,180,0.8)";
+    ctx.lineWidth = 6;
+    ctx.stroke();
+
+    // 中心角180°の扇形（半円）の色塗り
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    if (isUpperSide) {
+        ctx.arc(cx, cy, 40, degToRad(180), degToRad(360), false);
+    } else {
+        ctx.arc(cx, cy, 40, degToRad(0), degToRad(180), false);
+    }
+    ctx.closePath();
+    ctx.fillStyle = "rgba(255,105,180,0.2)";
+    ctx.fill();
+
+    // 直径 AB (中心角180°)の描画
+    ctx.beginPath();
+    ctx.moveTo(A.x, A.y);
+    ctx.lineTo(B.x, B.y);
+    ctx.strokeStyle = "blue";
+    ctx.lineWidth = 4;
+    ctx.stroke();
+
+    // 中心角テキストの表示
+    ctx.fillStyle = "blue";
+    ctx.font = "bold 16px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("中心角: 180°", cx, cy + (isUpperSide ? 25 : -15));
+
+    // Pの三角形の描画
+    ctx.beginPath();
+    ctx.moveTo(P.x, P.y);
+    ctx.lineTo(A.x, A.y);
+    ctx.lineTo(B.x, B.y);
+    ctx.closePath();
+    ctx.fillStyle = "rgba(255,0,0,0.03)";
+    ctx.fill();
+    ctx.strokeStyle = "red";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // 直角マークの描画
+    drawRightAngleMark(ctx, A, P, B, 15);
+
+    // 各頂点・中心点の描画
+    drawPoint(A, "blue", "A");
+    drawPoint(B, "blue", "B");
+    drawPoint({ x: cx, y: cy }, "black", "O");
+    drawPoint(P, "red", "P");
+
+    // 選択中の外枠リングをPに付与
+    ctx.lineWidth = 3;
+    ctx.beginPath(); 
+    ctx.arc(P.x, P.y, 14, 0, Math.PI * 2);
+    ctx.strokeStyle = "deeppink"; 
+    ctx.stroke();
+
+    // 角度の厳密なベクトル計算
+    const inscribedP = angleBetweenVectors({ x: A.x - P.x, y: A.y - P.y }, { x: B.x - P.x, y: B.y - P.y });
+
+    // キャンバス内への角度数値テキスト表示
+    ctx.font = "bold 16px sans-serif";
+    ctx.fillStyle = "red";
+    ctx.fillText(inscribedP.toFixed(1) + "° (直角)", P.x + 10, P.y + 25);
+    
+    // 上部パーツのテキスト更新
+    pAngleDisplay.textContent = `∠APB (円周角): ${inscribedP.toFixed(1)}°`;
+}
+
+// マウスイベント処理
+canvas.addEventListener("mousedown", (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const P = pointOnCircle(pAngle);
+
+    if (Math.hypot(x - P.x, y - P.y) < 20) {
+        draggingP = true;
+    }
+    draw();
+});
+
+canvas.addEventListener("mousemove", (e) => {
+    if (!draggingP) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    let angle = Math.atan2(cy - y, x - cx) * 180 / Math.PI;
+    if (angle < 0) angle += 360;
+
+    // 点Aや点Bに完全に重なって三角形が潰れるのを防ぐ安全ブロック
+    if (Math.abs(angle - 0) < 2 || Math.abs(angle - 360) < 2) angle = 2;
+    if (Math.abs(angle - 180) < 2) angle = 178;
+
+    pAngle = angle;
+    draw();
+});
+
+canvas.addEventListener("mouseup", () => { draggingP = false; });
+canvas.addEventListener("mouseleave", () => { draggingP = false; });
+
+// 初回描画
+draw();
+</script>
+</body>
+</html>

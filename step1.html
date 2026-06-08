@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>円周角の定理 教材</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<a href="index.html" class="home-btn">🏠</a>
+
+<h2>円周角の定理</h2>
+
+<div class="controls">
+<label>中心角 ∠AOB(入力値) :
+<input type="number" id="angleInput" value="80" min="10" max="350">°
+</label>
+<button id="toggleP">Pを非表示</button>
+<button id="toggleQ">Qを表示</button>
+
+<span id="pAngleDisplay" class="angle-display">Pの中心角: --°</span>
+<span id="qAngleDisplay" class="angle-display">Qの中心角: --°</span>
+</div>
+
+<canvas id="canvas" width="700" height="600"></canvas>
+
+<script>
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
+
+const cx=350,cy=300,r=220;
+
+let centerAngle=80;
+let pAngle=220;
+let qAngle=140;
+
+let draggingP=false;
+let draggingQ=false;
+
+let showP=true;
+let showQ=false;
+let selectedPoint = "P";
+const angleInput=document.getElementById("angleInput");
+const toggleP=document.getElementById("toggleP");
+const toggleQ=document.getElementById("toggleQ");
+
+// ★ 上部表示用の要素を取得
+const pAngleDisplay = document.getElementById("pAngleDisplay");
+const qAngleDisplay = document.getElementById("qAngleDisplay");
+
+angleInput.addEventListener("input",()=>{
+ centerAngle=Number(angleInput.value);
+ draw();
+});
+
+toggleP.addEventListener("click",()=>{
+ showP=!showP;
+ toggleP.textContent=showP?"Pを非表示":"Pを表示";
+ draw();
+});
+
+toggleQ.addEventListener("click",()=>{
+ showQ=!showQ;
+ toggleQ.textContent=showQ?"Qを非表示":"Qを表示";
+ draw();
+});
+
+function degToRad(d){return d*Math.PI/180;}
+
+function pointOnCircle(a){
+ const t=degToRad(a);
+ return {x:cx+r*Math.cos(t),y:cy-r*Math.sin(t)};
+}
+
+function drawPoint(pt,color,label){
+ ctx.fillStyle=color;
+ ctx.beginPath();
+ ctx.arc(pt.x,pt.y,8,0,Math.PI*2);
+ ctx.fill();
+ ctx.fillStyle="black";
+ ctx.fillText(label,pt.x+10,pt.y-10);
+}
+
+function drawSector(x,y,rad,startDeg,endDeg,color){
+ let s=degToRad(startDeg);
+ let e=degToRad(endDeg);
+ ctx.beginPath();
+ ctx.moveTo(x,y);
+ ctx.arc(x,y,rad,-s,-e,true);
+ ctx.closePath();
+ ctx.fillStyle=color;
+ ctx.fill();
+}
+
+function angleBetweenVectors(v1,v2){
+ const dot=v1.x*v2.x+v1.y*v2.y;
+ return Math.acos(dot/(Math.hypot(v1.x,v1.y)*Math.hypot(v2.x,v2.y)))*180/Math.PI;
+}
+
+function drawAngleMark(x,y,a1,a2,color){
+ let diff=a2-a1;
+ while(diff>Math.PI) diff-=2*Math.PI;
+ while(diff<-Math.PI) diff+=2*Math.PI;
+
+ ctx.beginPath();
+ ctx.arc(x,y,35,a1,a1+diff,diff<0);
+ ctx.strokeStyle=color;
+ ctx.lineWidth=3;
+ ctx.stroke();
+}
+
+function draw(){
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    const A = pointOnCircle(0);
+    const B = pointOnCircle(centerAngle);
+
+    const P = pointOnCircle(pAngle);
+    const Q = pointOnCircle(qAngle);
+
+    // P・Qが小弧AB上にあるか判定
+
+    const onMinorArcP =
+    pAngle >= 0 &&
+    pAngle <= centerAngle;
+
+    const onMinorArcQ =
+    qAngle >= 0 &&
+    qAngle <= centerAngle;
+
+    let selectedOnMinorArc;
+
+    if(selectedPoint==="P"){
+        selectedOnMinorArc = onMinorArcP;
+    }else{
+        selectedOnMinorArc = onMinorArcQ;
+    }
+
+    console.log(
+        "selectedOnMinorArc =",
+        selectedOnMinorArc
+    );
+
+
+    // 円
+
+    ctx.beginPath();
+    ctx.arc(cx,cy,r,0,Math.PI*2);
+    ctx.strokeStyle="black";
+    ctx.lineWidth=2;
+    ctx.stroke();
+
+    // 表示する弧AB
+
+    ctx.beginPath();
+
+    if(selectedOnMinorArc){
+
+        // 大弧AB
+        ctx.arc(
+            cx,
+            cy,
+            r,
+            0,
+            -degToRad(centerAngle),
+            false
+        );
+    
+    }else{
+    
+        // 小弧AB
+        ctx.arc(
+            cx,
+            cy,
+            r,
+            0,
+            -degToRad(centerAngle),
+            true
+        );
+    }
+    
+    ctx.strokeStyle =
+        selectedPoint==="P"
+        ? "deeppink"
+        : "limegreen";
+    
+    ctx.lineWidth = 8;
+    ctx.stroke();
+
+    // 中心角扇形
+    let sectorColor =
+        selectedPoint==="P"
+        ? "rgba(255,105,180,0.35)"
+        : "rgba(50,205,50,0.35)";
+
+    if(selectedOnMinorArc){
+
+        drawSector(
+            cx,
+            cy,
+            45,
+            centerAngle,
+            360,
+            sectorColor
+        );
+
+    }else{
+
+        drawSector(
+            cx,
+            cy,
+            45,
+            0,
+            centerAngle,
+            sectorColor
+        );
+    }
+
+    // OA・OB
+
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.lineTo(A.x,A.y);
+    ctx.lineTo(B.x,B.y);
+    ctx.closePath();
+
+    ctx.strokeStyle="blue";
+    ctx.lineWidth=3;
+    ctx.stroke();
+
+    // Pの図形
+
+    if(showP){
+
+        ctx.beginPath();
+        ctx.moveTo(P.x,P.y);
+        ctx.lineTo(A.x,A.y);
+        ctx.lineTo(B.x,B.y);
+        ctx.closePath();
+
+        ctx.fillStyle="rgba(255,0,0,0.05)";
+        ctx.fill();
+
+        ctx.strokeStyle="red";
+        ctx.lineWidth=2;
+        ctx.stroke();
+    }
+
+    // Qの図形
+
+    if(showQ){
+
+        ctx.beginPath();
+        ctx.moveTo(Q.x,Q.y);
+        ctx.lineTo(A.x,A.y);
+        ctx.lineTo(B.x,B.y);
+        ctx.closePath();
+
+        ctx.fillStyle="rgba(0,255,0,0.05)";
+        ctx.fill();
+
+        ctx.strokeStyle="green";
+        ctx.lineWidth=2;
+        ctx.stroke();
+    }
+
+    // 円周角
+
+    let anglePA =
+        Math.atan2(A.y-P.y,A.x-P.x);
+
+    let anglePB =
+        Math.atan2(B.y-P.y,B.x-P.x);
+
+    let angleQA =
+        Math.atan2(A.y-Q.y,A.x-Q.x);
+
+    let angleQB =
+        Math.atan2(B.y-Q.y,B.x-Q.x);
+
+    if(showP){
+
+        drawAngleMark(
+            P.x,
+            P.y,
+            anglePA,
+            anglePB,
+            "red"
+        );
+    }
+
+    if(showQ){
+
+        drawAngleMark(
+            Q.x,
+            Q.y,
+            angleQA,
+            angleQB,
+            "green"
+        );
+    }
+
+    // 点
+
+    drawPoint(A,"blue","A");
+    drawPoint(B,"blue","B");
+
+    if(showP){
+        drawPoint(P,"red","P");
+    }
+
+    if(showQ){
+        drawPoint(Q,"green","Q");
+    }
+
+    if(selectedPoint==="P" && showP){
+
+        ctx.beginPath();
+        ctx.arc(P.x,P.y,14,0,Math.PI*2);
+        ctx.strokeStyle="deeppink";
+        ctx.lineWidth=4;
+        ctx.stroke();
+    }
+    
+    if(selectedPoint==="Q" && showQ){
+    
+        ctx.beginPath();
+        ctx.arc(Q.x,Q.y,14,0,Math.PI*2);
+        ctx.strokeStyle="limegreen";
+        ctx.lineWidth=4;
+        ctx.stroke();
+    }
+
+    drawPoint(
+        {x:cx,y:cy},
+        "black",
+        "O"
+    );
+
+    // 円周角計算
+
+    const inscribed =
+        angleBetweenVectors(
+            {
+                x:A.x-P.x,
+                y:A.y-P.y
+            },
+            {
+                x:B.x-P.x,
+                y:B.y-P.y
+            }
+        );
+
+    const inscribedQ =
+        angleBetweenVectors(
+            {
+                x:A.x-Q.x,
+                y:A.y-Q.y
+            },
+            {
+                x:B.x-Q.x,
+                y:B.y-Q.y
+            }
+        );
+
+    // 選択された点に対応する中心角
+
+    let displayedCenterAngle;
+    let midCenter;
+
+    if(selectedPoint === "P"){
+
+        displayedCenterAngle =
+            onMinorArcP
+            ? 360-centerAngle
+            : centerAngle;
+
+        midCenter =
+            onMinorArcP
+            ? centerAngle+(360-centerAngle)/2
+            : centerAngle/2;
+
+    }else{
+
+        displayedCenterAngle =
+            onMinorArcQ
+            ? 360-centerAngle
+            : centerAngle;
+
+        midCenter =
+            onMinorArcQ
+            ? centerAngle+(360-centerAngle)/2
+            : centerAngle/2;
+    }
+
+    let labelPos =
+        pointOnCircle(midCenter);
+
+    ctx.fillStyle =
+        selectedPoint==="P"
+        ? "deeppink"
+        : "limegreen";
+
+    ctx.font="18px sans-serif";
+
+    ctx.fillText(
+        displayedCenterAngle.toFixed(1)+"°",
+        cx+(labelPos.x-cx)*0.35,
+        cy+(labelPos.y-cy)*0.35
+    );
+
+    // P角度表示
+
+    if(showP){
+
+        ctx.fillStyle="red";
+
+        ctx.fillText(
+            inscribed.toFixed(1)+"°",
+            P.x+20,
+            P.y+20
+        );
+    }
+
+    // Q角度表示
+
+    if(showQ){
+
+        ctx.fillStyle="green";
+
+        ctx.fillText(
+            inscribedQ.toFixed(1)+"°",
+            Q.x+20,
+            Q.y+20
+        );
+    }
+
+    // ★ 左右それぞれの点に対応する「現在の中心角」を計算して上に反映
+    const currentCenterAngleP = onMinorArcP ? 360 - centerAngle : centerAngle;
+    const currentCenterAngleQ = onMinorArcQ ? 360 - centerAngle : centerAngle;
+
+    if(showP) {
+        pAngleDisplay.textContent = `Pの中心角: ${currentCenterAngleP.toFixed(1)}°`;
+        pAngleDisplay.style.display = "inline";
+    } else {
+        pAngleDisplay.style.display = "none";
+    }
+
+    if(showQ) {
+        qAngleDisplay.textContent = `Qの中心角: ${currentCenterAngleQ.toFixed(1)}°`;
+        qAngleDisplay.style.display = "inline";
+    } else {
+        qAngleDisplay.style.display = "none";
+    }
+
+}
+
+canvas.addEventListener("mousedown",(e)=>{
+
+    const rect = canvas.getBoundingClientRect();
+
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const P = pointOnCircle(pAngle);
+    const Q = pointOnCircle(qAngle);
+
+    if(
+        showP &&
+        Math.hypot(x-P.x,y-P.y) < 15
+    ){
+        draggingP = true;
+        selectedPoint = "P";
+    }
+
+    if(
+        showQ &&
+        Math.hypot(x-Q.x,y-Q.y) < 15
+    ){
+        draggingQ = true;
+        selectedPoint = "Q"
+    }
+
+});
+canvas.addEventListener("mousemove",(e)=>{
+
+    if(!draggingP && !draggingQ){
+        return;
+    }
+
+    const rect = canvas.getBoundingClientRect();
+
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    let angle =
+        Math.atan2(
+            cy - y,
+            x - cx
+        ) * 180 / Math.PI;
+
+    if(angle < 0){
+        angle += 360;
+    }
+
+    if(draggingP){
+        pAngle = angle;
+    }
+
+    if(draggingQ){
+        qAngle = angle;
+    }
+
+    draw();
+
+});
+canvas.addEventListener("mouseup",()=>{draggingP=false;draggingQ=false;});
+canvas.addEventListener("mouseleave",()=>{draggingP=false;draggingQ=false;});
+
+draw();
+</script>
+</body>
+</html>

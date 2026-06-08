@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>円周角の定理の逆：証明実験教材（大きい側の弧AB可動版）</title>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<link rel="stylesheet" href="style.css">
+<style>
+/* 左右分割レイアウト（左：図形、右：文章） */
+.container { 
+    display: flex; 
+    flex-direction: row; 
+    align-items: flex-end; /* 下側を揃える */
+    justify-content: center; 
+    gap: 50px; 
+    max-width: 1300px; 
+    margin: 40px auto; 
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+/* 左側：図形エリア */
+.canvas-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 0 0 auto;
+}
+
+/* スライダーエリアの余白調整 */
+.controls {
+    margin-bottom: 15px;
+    font-size: 0.95rem;
+    color: #334155;
+}
+
+/* 右側：文章パネルエリア */
+.panel {
+    flex: 1 1 580px; 
+    max-width: 580px; 
+    background: #f8fafc; 
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    box-sizing: border-box;
+    margin-bottom: 5px; 
+}
+
+/* 各ステップの最低高さを確保 */
+.proof-step {
+    min-height: 160px; 
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #334155;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 1024px) {
+    .container {
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+    }
+    .panel {
+        max-width: 100%;
+        width: 100%;
+    }
+}
+</style>
+</head>
+<body>
+
+<a href="index.html" class="home-btn">🏠</a>
+
+<h2 style="font-weight: 800; color: #0f172a; margin-top: 30px; margin-bottom: 5px; text-align: center;">円周角の定理の逆：4点が同じ円の上にある条件</h2>
+<p class="description" style="text-align: center; color: #64748b; margin-bottom: 20px;">スライダーを動かして基準の点Qの位置（大きい側の弧AB）を変えながら、定理の逆を確かめましょう。</p>
+
+<div class="container">
+    <div class="canvas-container">
+        <div class="controls">
+            <label>基準の点Qの位置: 
+                <input type="range" id="angleSlider" min="31" max="149" value="90" style="width: 280px; vertical-align: middle; margin-left: 10px;">
+            </label>
+        </div>
+        <canvas id="canvas" width="600" height="500"></canvas>
+    </div>
+
+    <div class="panel">
+        <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 1.2rem; color: #0f172a;">🧭 証明のステップ</h3>
+        <p style="font-size: 0.95rem; color: #64748b; margin-bottom: 20px; line-height: 1.6;">
+            2つの点 P, Q が直線 AB に対して同じ側（上側の大きい弧の側）にあるとき、\( \angle\text{APB} = \angle\text{AQB} \) ならば、4点 A, B, Q, P は同一円周上にあります。背理法を使って確かめてみましょう。
+        </p>
+        <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-bottom: 20px;">
+        
+        <div id="step1" class="proof-step active">
+            <strong style="color: #dc3545; font-size: 1.05rem;">① 点Pが円の外側にある場合</strong><br>
+            線分 AP と円との交点を <strong>P'</strong> とします。<br>
+            \(\triangle\text{P'BP}\) の外角の性質に注目すると、<br>
+            <div style="text-align: center; margin: 8px 0;">\( \angle\text{AP'B} = \angle\text{APB} + \angle\text{P'BP} \)</div>
+            円周角の定理より \( \angle\text{AP'B} = \angle\text{AQB} \) なので、<br>
+            \( \angle\text{AQB} > \angle\text{APB} \) となり、同じ角度になりません。
+        </div>
+
+        <div id="step2" class="proof-step" style="display:none;">
+            <strong style="color: #dc3545; font-size: 1.05rem;">② 点Pが円の内側にある場合</strong><br>
+            線分 AP を延長した線と円との交点を <strong>P'</strong> とします。<br>
+            \(\triangle\text{PBP'}\) の外角の性質に注目すると、<br>
+            <div style="text-align: center; margin: 8px 0;">\( \angle\text{APB} = \angle\text{AP'B} + \angle\text{PBP'} \)</div>
+            円周角の定理より \( \angle\text{AP'B} = \angle\text{AQB} \) なので、<br>
+            \( \angle\text{APB} > \angle\text{AQB} \) となり、やはり同じ角度になりません。
+        </div>
+
+        <div id="step3" class="proof-step" style="display:none;">
+            <strong style="color: #16a34a; font-size: 1.05rem;">③ 結論</strong><br>
+            点Pが円の外側でも内側でも矛盾するため、<br>
+            \( \angle\text{APB} = \angle\text{AQB} \) が成り立つのは、<br>
+            <strong>点Pがぴったり円周上（大きい側の弧ABの上）にあるときだけ</strong>です！<br>
+            <span style="font-size:0.92rem; color:#16a34a; font-weight: bold;">（このとき4点 A, B, Q, P はすべて同一円周上に存在します。）</span>
+        </div>
+
+        <div class="btn-group" style="margin-top: 20px; display: flex; gap: 10px;">
+            <button id="prevBtn" disabled style="padding: 8px 16px; flex: 1; cursor: pointer;">↩ 戻る</button>
+            <button id="nextBtn" style="padding: 8px 16px; flex: 1; cursor: pointer; background-color: #2563eb; color: white; border: none; border-radius: 4px; font-weight: bold;">次へ ↪</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+const cx = 300, cy = 260, r = 160;
+
+const angleA = 210; 
+const angleB = 330; 
+let angleQ = 90;    
+
+let pPos = { x: 200, y: 70 }; 
+
+let draggingP = false;
+let currentStep = 1;
+
+const angleSlider = document.getElementById("angleSlider");
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+
+function degToRad(d) { return d * Math.PI / 180; }
+
+function pointOnCircle(a) {
+    const t = degToRad(a);
+    return { x: cx + r * Math.cos(t), y: cy - r * Math.sin(t) };
+}
+
+function getLineY(x) {
+    const A = pointOnCircle(angleA);
+    const B = pointOnCircle(angleB);
+    const m = (B.y - A.y) / (B.x - A.x);
+    return A.y + m * (x - A.x);
+}
+
+function updateAngleQFromSlider() {
+    angleQ = Number(angleSlider.value);
+}
+
+function updateStepDisplay(newStep) {
+    document.getElementById(`step${currentStep}`).style.display = "none";
+    currentStep = newStep;
+    document.getElementById(`step${currentStep}`).style.display = "block";
+
+    prevBtn.disabled = (currentStep === 1);
+    if (currentStep === 3) {
+        nextBtn.textContent = "最初から見る ↪";
+    } else {
+        nextBtn.textContent = "次へ ↪";
+    }
+
+    updateAngleQFromSlider();
+
+    // 各ステップの切り替え「時」のみ、固定初期位置を与える
+    if (currentStep === 1) {
+        pPos = { x: 200, y: 70 };  // 円の外側（左上）
+    } else if (currentStep === 2) {
+        pPos = { x: 230, y: 180 }; // 円の内側（左寄り）
+    } else if (currentStep === 3) {
+        // 【修正】ステップ3でもQに強制吸着させず、円周上の独立した初期位置（右上付近）に配置
+        const initialRad = degToRad(50); 
+        pPos = { x: cx + r * Math.cos(initialRad), y: cy - r * Math.sin(initialRad) };
+    }
+
+    draw();
+}
+
+// スライダー（Q）操作イベント
+angleSlider.addEventListener("input", () => {
+    updateAngleQFromSlider();
+    
+    // 【修正】すべてのステップにおいて、スライダーを動かしてもpPosの座標（x, y）は1ミリも書き換えない！
+    // これにより、全ステップでQをどれだけ動かしてもPが勝手に吸い付くことは完全になくなります。
+    draw();
+});
+
+nextBtn.addEventListener("click", () => {
+    let nextStep = currentStep + 1;
+    if (nextStep > 3) nextStep = 1;
+    updateStepDisplay(nextStep);
+});
+
+prevBtn.addEventListener("click", () => {
+    let prevStep = currentStep - 1;
+    if (prevStep < 1) prevStep = 3;
+    updateStepDisplay(prevStep);
+});
+
+function angleBetweenVectors(v1, v2) {
+    const dot = v1.x * v2.x + v1.y * v2.y;
+    const len1 = Math.hypot(v1.x, v1.y);
+    const len2 = Math.hypot(v2.x, v2.y);
+    if(len1 === 0 || len2 === 0) return 0;
+    let cosTheta = dot / (len1 * len2);
+    if (cosTheta > 1) cosTheta = 1;
+    if (cosTheta < -1) cosTheta = -1;
+    return Math.acos(cosTheta) * 180 / Math.PI;
+}
+
+function drawAngleMark(pt, angleStartRad, angleEndRad, radius, color) {
+    let diff = angleEndRad - angleStartRad;
+    while (diff > Math.PI) diff -= Math.PI * 2;
+    while (diff < -Math.PI) diff += Math.PI * 2;
+
+    ctx.beginPath();
+    ctx.moveTo(pt.x, pt.y);
+    ctx.arc(pt.x, pt.y, radius, angleStartRad, angleStartRad + diff, diff < 0);
+    ctx.closePath();
+    ctx.fillStyle = color;
+    ctx.fill();
+}
+
+function getCircleIntersection(A, P) {
+    const dx = P.x - A.x;
+    const dy = P.y - A.y;
+    const len = Math.hypot(dx, dy);
+    if(len === 0) return A;
+    const ux = dx / len;
+    const uy = dy / len;
+
+    const ocx = A.x - cx;
+    const ocy = A.y - cy;
+    const b = 2 * (ocx * ux + ocy * uy);
+    const c = ocx * ocx + ocy * ocy - r * r;
+    const disc = b * b - 4 * c;
+
+    if (disc < 0) return null;
+    
+    const t1 = (-b + Math.sqrt(disc)) / 2;
+    const t2 = (-b - Math.sqrt(disc)) / 2;
+
+    const p1 = { x: A.x + ux * t1, y: A.y + uy * t1 };
+    const p2 = { x: A.x + ux * t2, y: A.y + uy * t2 };
+
+    if (currentStep === 1) {
+        if (t1 > 0 && t1 < len) return p1;
+        if (t2 > 0 && t2 < len) return p2;
+    } else if (currentStep === 2) {
+        const choice = (t1 > t2) ? p1 : p2;
+        if (choice.y <= getLineY(choice.x) + 5) return choice;
+        return (t1 > t2) ? p2 : p1;
+    }
+    return (p1.y < p2.y) ? p1 : p2;
+}
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const A = pointOnCircle(angleA);
+    const B = pointOnCircle(angleB);
+    const Q = pointOnCircle(angleQ);
+    
+    const P = { x: pPos.x, y: pPos.y }; 
+
+    const qToA = Math.atan2(A.y - Q.y, A.x - Q.x);
+    const qToB = Math.atan2(B.y - Q.y, B.x - Q.x);
+    const pToA = Math.atan2(A.y - P.y, A.x - P.x);
+    const pToB = Math.atan2(B.y - P.y, B.x - P.x);
+
+    const angleAQB = 60; 
+    const angleAPB = angleBetweenVectors({ x: A.x - P.x, y: A.y - P.y }, { x: B.x - P.x, y: B.y - P.y });
+
+    // 円の描画
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.strokeStyle = (currentStep === 3) ? "#16a34a" : "#cbd5e1";
+    ctx.lineWidth = (currentStep === 3) ? 3 : 2;
+    ctx.stroke();
+
+    // 青い角（Q側）
+    drawAngleMark(Q, qToB, qToA, 30, "rgba(59, 130, 246, 0.25)");
+    ctx.beginPath();
+    ctx.moveTo(A.x, A.y); ctx.lineTo(Q.x, Q.y); ctx.lineTo(B.x, B.y);
+    ctx.strokeStyle = "#2563eb";
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    // 赤または緑の角（P側）
+    drawAngleMark(P, pToB, pToA, 30, (currentStep === 3) ? "rgba(22, 163, 74, 0.25)" : "rgba(220, 53, 69, 0.25)");
+    ctx.beginPath();
+    ctx.moveTo(A.x, A.y); ctx.lineTo(P.x, P.y); ctx.lineTo(B.x, B.y);
+    ctx.strokeStyle = (currentStep === 3) ? "#16a34a" : "#dc3545"; 
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    // ステップ1, 2の背理法用補助線（P'）
+    if (currentStep === 1 || currentStep === 2) {
+        const P_prime = getCircleIntersection(A, P);
+        if (P_prime) {
+            ctx.beginPath();
+            ctx.moveTo(A.x, A.y);
+            ctx.lineTo(P_prime.x, P_prime.y);
+            ctx.strokeStyle = "#dc3545";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(P_prime.x, P_prime.y);
+            ctx.lineTo(B.x, B.y);
+            ctx.strokeStyle = "#16a34a";
+            ctx.lineWidth = 2;
+            ctx.setLineDash([4, 4]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            ctx.fillStyle = "#16a34a";
+            ctx.beginPath(); ctx.arc(P_prime.x, P_prime.y, 6, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = "#0f172a";
+            ctx.font = "bold 14px sans-serif";
+            ctx.fillText("P'", P_prime.x - 18, P_prime.y - 6);
+
+            const ppToA = Math.atan2(A.y - P_prime.y, A.x - P_prime.x);
+            const ppToB = Math.atan2(B.y - P_prime.y, B.x - P_prime.x);
+            drawAngleMark(P_prime, ppToB, ppToA, 20, "rgba(22, 163, 74, 0.3)");
+        }
+    }
+
+    // 角度のテキスト表示
+    ctx.font = "bold 15px sans-serif";
+    ctx.fillStyle = "#2563eb";
+    ctx.fillText(`∠AQB = ${angleAQB.toFixed(0)}°`, Q.x - 30, Q.y - 18);
+
+    ctx.fillStyle = (currentStep === 3) ? "#16a34a" : "#dc3545";
+    ctx.fillText(`∠APB = ${angleAPB.toFixed(1)}°`, P.x - 30, P.y + 45);
+
+    if (currentStep === 3) {
+        ctx.fillStyle = "#16a34a";
+        ctx.font = "bold 16px sans-serif";
+        ctx.fillText("✨ ぴったり円周上にあるときだけ角度が一致します！", 110, cy + 210);
+    }
+
+    function drawNode(pt, color, label, isDraggable = false) {
+        ctx.font = "bold 16px sans-serif";
+        if (isDraggable) {
+            ctx.beginPath(); ctx.arc(pt.x, pt.y, 11, 0, Math.PI * 2);
+            ctx.fillStyle = (currentStep === 3) ? "#16a34a" : "#dc3545"; ctx.fill();
+            ctx.beginPath(); ctx.arc(pt.x, pt.y, 5, 0, Math.PI * 2);
+            ctx.fillStyle = "white"; ctx.fill();
+        } else {
+            ctx.fillStyle = color;
+            ctx.beginPath(); ctx.arc(pt.x, pt.y, 7, 0, Math.PI * 2); ctx.fill();
+        }
+        ctx.fillStyle = "#0f172a";
+        ctx.fillText(label, pt.x + 14, pt.y - 5);
+    }
+
+    drawNode(A, "#2563eb", "A");
+    drawNode(B, "#2563eb", "B");
+    drawNode(Q, "#2563eb", "Q");
+    drawNode(P, "#dc3545", "P", true); 
+    
+    ctx.beginPath();
+    ctx.moveTo(A.x, A.y); ctx.lineTo(B.x, B.y);
+    ctx.strokeStyle = "#64748b"; ctx.lineWidth = 1.5;
+    ctx.setLineDash([5, 5]); ctx.stroke(); ctx.setLineDash([]);
+}
+
+function isMouseOverP(e) {
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    return Math.hypot(x - pPos.x, y - pPos.y) < 22;
+}
+
+canvas.addEventListener("mousedown", (e) => {
+    if (isMouseOverP(e)) { draggingP = true; }
+});
+
+canvas.addEventListener("mousemove", (e) => {
+    if (isMouseOverP(e) || draggingP) { canvas.style.cursor = "pointer"; } 
+    else { canvas.style.cursor = "default"; }
+
+    if (!draggingP) return;
+    const rect = canvas.getBoundingClientRect();
+    let mouseX = e.clientX - rect.left;
+    let mouseY = e.clientY - rect.top;
+
+    if (mouseX < 15) mouseX = 15;
+    if (mouseX > canvas.width - 15) mouseX = canvas.width - 15;
+    if (mouseY < 15) mouseY = 15;
+
+    let finalX = mouseX;
+    let finalY = mouseY;
+    
+    const lineOffset = 25; 
+    const orbitBuffer = 15; 
+    const limitR = r + orbitBuffer; 
+
+    if (currentStep === 1) {
+        const dist = Math.hypot(mouseX - cx, mouseY - cy);
+        if (dist < limitR) {
+            const rad = Math.atan2(cy - mouseY, mouseX - cx);
+            finalX = cx + limitR * Math.cos(rad);
+            finalY = cy - limitR * Math.sin(rad);
+        }
+
+        const currentLineY = getLineY(finalX);
+        if (finalY > currentLineY - lineOffset) {
+            finalY = currentLineY - lineOffset;
+            
+            const checkDist = Math.hypot(finalX - cx, finalY - cy);
+            if (checkDist < limitR) {
+                const requiredDx = Math.sqrt(Math.max(0, limitR * limitR - (finalY - cy) * (finalY - cy)));
+                finalX = (mouseX < cx) ? cx - requiredDx : cx + requiredDx;
+            }
+        }
+
+    } else if (currentStep === 2) {
+        const innerLimitR = r - orbitBuffer;
+        const dist = Math.hypot(mouseX - cx, mouseY - cy);
+        if (dist > innerLimitR) {
+            const rad = Math.atan2(cy - mouseY, mouseX - cx);
+            finalX = cx + innerLimitR * Math.cos(rad);
+            finalY = cy - innerLimitR * Math.sin(rad);
+        }
+
+        const currentLineY = getLineY(finalX);
+        if (finalY > currentLineY - lineOffset) {
+            finalY = currentLineY - lineOffset;
+        }
+
+    } else if (currentStep === 3) {
+        // ステップ3では円周上に拘束する
+        let rad = Math.atan2(cy - mouseY, mouseX - cx);
+        let angleDeg = rad * 180 / Math.PI;
+        if (angleDeg < 0) angleDeg += 360;
+
+        if (angleDeg < 31 || angleDeg > 149) {
+            if (mouseX < cx) {
+                angleDeg = 149;
+            } else {
+                angleDeg = 31;
+            }
+        }
+
+        rad = degToRad(angleDeg);
+        finalX = cx + r * Math.cos(rad);
+        finalY = cy - r * Math.sin(rad);
+    }
+
+    pPos.x = finalX;
+    pPos.y = finalY;
+    draw();
+});
+
+canvas.addEventListener("mouseup", () => { draggingP = false; canvas.style.cursor = "default"; });
+canvas.addEventListener("mouseleave", () => { draggingP = false; canvas.style.cursor = "default"; });
+
+updateStepDisplay(1);
+</script>
+</body>
+</html>
