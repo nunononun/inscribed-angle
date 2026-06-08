@@ -486,7 +486,7 @@ button:disabled {
 
 
 /* ==========================================================================
-   【完全版】ボタンサイズ縮小時のアイコン・コンパクト化設定
+   【確定版】ボタンサイズ縮小時のアイコン・コンパクト化設定
    ========================================================================== */
 
 /* 1. 画面幅 576px 以下のとき：ボタンの文字や余白を少し小さくして収まりやすくする */
@@ -497,63 +497,69 @@ button:disabled {
     }
 }
 
-/* 2. 画面幅 400px 以下のとき：文字を消して、家ボタンのようにアイコン（絵文字）化する */
-@media (max-width: 400px) {
+/* 2. 画面幅 420px 以下のとき：文字を消して、家ボタンのようにアイコン（絵文字）化する */
+@media (max-width: 420px) {
     
-    /* 対象となるすべてのボタンのテキスト（日本語）を透明にして隠し、正円の形にする */
+    /* 対象となるすべてのボタンのテキスト（日本語）を強制非表示にし、きれいな正円にする */
     .next-btn, .restart-btn, #overlapBtn, #resetBtn {
-        width: 50px;
-        height: 50px;
-        padding: 0 !important;
-        border-radius: 50% !important; /* 丸いボタンに変形 */
-        text-align: center;
-        line-height: 50px;
-        font-size: 1.3rem !important;
-        overflow: hidden;
-        white-space: nowrap;
-        color: transparent !important; /* 元の文字を非表示に */
-        position: relative;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
+        width: 50px !important;       /* 強制的に幅を50pxに固定 */
+        max-width: 50px !important;   /* 上限も50pxに縛る */
+        height: 50px !important;      /* 高さを50pxに固定 */
+        padding: 0 !important;        /* 内側の余白を完全にゼロにする */
+        border-radius: 50% !important; /* 完全な正円にする */
+        
+        overflow: hidden !important;
+        white-space: nowrap !important;
+        color: transparent !important; /* 元の日本語テキストを透明化 */
+        
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-shrink: 0 !important;     /* 周りの要素に潰されるのを防ぐ */
+        position: relative !important;
     }
 
     /* 各ボタンの中央に、家ボタンのようなアイコン（絵文字）を浮かび上がらせる */
     
     /* クイズ：次の問題へ ➔ */
     .next-btn::after {
-        content: "➔";
-        color: white;
-        font-size: 1.2rem;
-        position: absolute;
+        content: "➔" !important;
+        color: white !important;
+        font-size: 1.2rem !important;
+        position: absolute !important;
     }
     
     /* クイズ：最初からやり直す */
     .restart-btn::after {
-        content: "🔄";
-        position: absolute;
+        content: "🔄" !important;
+        font-size: 1.2rem !important;
+        position: absolute !important;
     }
 
     /* ★ STEP2：左右の図形を1つにまとめるボタン */
     #overlapBtn::after {
-        content: "👥"; /* 図形が重なるイメージの絵文字 */
-        position: absolute;
+        content: "👥" !important; /* 重なるイメージの絵文字 */
+        font-size: 1.2rem !important;
+        color: white !important;   /* 文字色を白に強制指定 */
+        position: absolute !important;
     }
     
     /* ★ STEP2：初期位置に戻すボタン */
     #resetBtn::after {
-        content: "🔄"; /* リセットの絵文字 */
-        position: absolute;
+        content: "🔄" !important; /* リセットの絵文字 */
+        font-size: 1.2rem !important;
+        color: white !important;   /* 文字色を白に強制指定 */
+        position: absolute !important;
     }
 
     /* ポータル画面の「教材を開く ➔」ボタンもコンパクトに */
     .btn-link {
-        font-size: 0px !important; /* 文字を消す */
+        font-size: 0px !important; 
         padding: 8px 16px !important;
-        border-radius: 20px;
+        border-radius: 20px !important;
     }
     .btn-link::after {
-        content: "📖 ➔";
-        font-size: 1rem;
+        content: "📖 ➔" !important;
+        font-size: 1rem !important;
     }
 }
