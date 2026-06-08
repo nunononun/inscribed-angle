@@ -192,7 +192,7 @@ let qAngle = DEFAULT_Q_ANGLE;
 
 let isOverlapped = false; 
 let dragging = null;              
-let dragOffsetC = 0; // C連動用
+let dragOffsetC = 0; 
 
 const arcInput = document.getElementById("arcInput");
 const overlapBtn = document.getElementById("overlapBtn");
@@ -355,24 +355,25 @@ function isAngleInArc(angle, start, duration) {
     return normAngle >= 0 && normAngle <= duration;
 }
 
-// 【修正】オフセットを0にして二重丸の「完全な真上・内側」を正確に判定
+// 【重要変更】文字一つ分右にずれていた判定を「左に15ピクセル」修正して二重丸の真上に合わせる
+const clickOffsetX = -15; 
 const clickRadius = 24; 
 
 function getHoveredPoint(x, y) {
     if (isOverlapped && y > cy3 - r - 50) {
         const pPt3 = getPointOnCircle(cx3, cy3, pAngle);
-        if (Math.hypot(x - pPt3.x, y - pPt3.y) < clickRadius) return "P";
+        if (Math.hypot((x - clickOffsetX) - pPt3.x, y - pPt3.y) < clickRadius) return "P";
         const qPt3 = getPointOnCircle(cx3, cy3, qAngle);
-        if (Math.hypot(x - qPt3.x, y - qPt3.y) < clickRadius) return "Q";
+        if (Math.hypot((x - clickOffsetX) - qPt3.x, y - qPt3.y) < clickRadius) return "Q";
         const cPt3 = getPointOnCircle(cx3, cy3, startC);
-        if (Math.hypot(x - cPt3.x, y - cPt3.y) < clickRadius) return "C";
+        if (Math.hypot((x - clickOffsetX) - cPt3.x, y - cPt3.y) < clickRadius) return "C";
     } else {
         const pPt = getPointOnCircle(cx1, cy, pAngle);
-        if (Math.hypot(x - pPt.x, y - pPt.y) < clickRadius) return "P";
+        if (Math.hypot((x - clickOffsetX) - pPt.x, y - pPt.y) < clickRadius) return "P";
         const qPt = getPointOnCircle(cx2, cy, qAngle);
-        if (Math.hypot(x - qPt.x, y - qPt.y) < clickRadius) return "Q";
+        if (Math.hypot((x - clickOffsetX) - qPt.x, y - qPt.y) < clickRadius) return "Q";
         const cPt = getPointOnCircle(cx2, cy, startC);
-        if (Math.hypot(x - cPt.x, y - cPt.y) < clickRadius) return "C";
+        if (Math.hypot((x - clickOffsetX) - cPt.x, y - cPt.y) < clickRadius) return "C";
     }
     return null;
 }
@@ -385,8 +386,16 @@ canvas.addEventListener("mousedown", (e) => {
     dragging = getHoveredPoint(x, y);
     if(dragging) {
         canvas.style.cursor = "grabbing"; 
+        
+        let isBottomArea = (isOverlapped && y > cy3 - r - 50);
+        let activeCx = isBottomArea ? cx3 : cx2;
+        let activeCy = isBottomArea ? cy3 : cy;
+        
+        // ドラッグ開始時の正確な角度計算時にもオフセットを適用
+        let mouseAngle = Math.atan2(activeCy - y, (x - clickOffsetX) - activeCx) * 180 / Math.PI;
+        mouseAngle = normalizeAngle(mouseAngle);
+
         if(dragging === "C") {
-            // つかんだ瞬間のQとCの位置関係を保持
             dragOffsetC = normalizeAngle(qAngle - startC);
         }
     }
@@ -408,11 +417,10 @@ canvas.addEventListener("mousemove", (e) => {
     let angle;
     let isBottomArea = (isOverlapped && y > cy3 - r - 50);
 
-    // 【P・Q・C共通】マウスがある座標の角度を基準円から正確に算出するロジックに完全統一
     if(dragging === "P"){
         let activeCx = isBottomArea ? cx3 : cx1;
         let activeCy = isBottomArea ? cy3 : cy;
-        angle = Math.atan2(activeCy - y, x - activeCx) * 180 / Math.PI;
+        angle = Math.atan2(activeCy - y, (x - clickOffsetX) - activeCx) * 180 / Math.PI;
         angle = normalizeAngle(angle);
         
         if (isAngleInArc(angle, 0, arcAngle)) {
@@ -425,10 +433,9 @@ canvas.addEventListener("mousemove", (e) => {
     if(dragging === "C"){
         let activeCx = isBottomArea ? cx3 : cx2;
         let activeCy = isBottomArea ? cy3 : cy;
-        angle = Math.atan2(activeCy - y, x - activeCx) * 180 / Math.PI;
+        angle = Math.atan2(activeCy - y, (x - clickOffsetX) - activeCx) * 180 / Math.PI;
         startC = normalizeAngle(angle); 
         
-        // 連動するQの位置を再計算
         qAngle = normalizeAngle(startC + dragOffsetC);
         if (isAngleInArc(qAngle, startC, arcAngle)) {
             let diff = normalizeAngle(qAngle - startC);
@@ -441,7 +448,7 @@ canvas.addEventListener("mousemove", (e) => {
     if(dragging === "Q"){
         let activeCx = isBottomArea ? cx3 : cx2;
         let activeCy = isBottomArea ? cy3 : cy;
-        angle = Math.atan2(activeCy - y, x - activeCx) * 180 / Math.PI;
+        angle = Math.atan2(activeCy - y, (x - clickOffsetX) - activeCx) * 180 / Math.PI;
         angle = normalizeAngle(angle);
         
         if (isAngleInArc(angle, startC, arcAngle)) {
