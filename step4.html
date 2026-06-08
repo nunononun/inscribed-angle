@@ -3,170 +3,451 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>円周角の定理（直径と直角の確かめ - 点Pのみ）</title>
+<title>円周角の定理：証明実践教材</title>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 <link rel="stylesheet" href="style.css">
+<style>
+    /* 左右分割レイアウトの調整（step5の美しい構造に統一） */
+    .container { 
+        display: flex; 
+        flex-direction: row; 
+        align-items: flex-end; 
+        justify-content: center; 
+        gap: 50px; 
+        max-width: 1300px; 
+        margin: 40px auto; 
+        padding: 0 20px;
+        box-sizing: border-box;
+    }
+
+    .canvas-area {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex: 0 0 auto;
+    }
+
+    .panel {
+        flex: 1 1 580px; 
+        max-width: 580px; 
+        background: #f8fafc; 
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        box-sizing: border-box;
+        margin-bottom: 5px; 
+    }
+
+    /* 【最適化】ステップ切り替え時にガタつかないよう、高さを固定化して今いるものだけを表示 */
+    .proof-step {
+        display: none;
+        min-height: 130px; /* ステップ間で高さが変わってもボタンが跳ねないように確保 */
+        font-size: 0.95rem;
+        line-height: 1.7;
+        color: #334155;
+    }
+    
+    .proof-step.active {
+        display: block !important;
+    }
+
+    .click-notice {
+        background-color: #fef08a;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        margin-bottom: 15px;
+        color: #713f12;
+        font-weight: bold;
+    }
+
+    .btn-group button {
+        padding: 8px 16px;
+        flex: 1;
+        cursor: pointer;
+        border-radius: 4px;
+        font-weight: bold;
+    }
+    #nextBtn {
+        background-color: #2563eb;
+        color: white;
+        border: none;
+    }
+    #prevBtn {
+        background-color: #e2e8f0;
+        color: #334155;
+        border: none;
+    }
+    #prevBtn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    #resetBlanksBtn {
+        background-color: #ef4444;
+        color: white;
+        border: none;
+    }
+
+    @media (max-width: 1024px) {
+        .container {
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+        }
+        .panel {
+            max-width: 100%;
+            width: 100%;
+        }
+    }
+</style>
 </head>
 <body>
 
-<a href="index.html" class="home-btn">🏠</a>
+<a href="index.html" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 22px; box-shadow: 0 4px 12px rgba(37,99,235,0.3); font-weight: bold; transition: all 0.2s ease;" title="ポータルに戻る" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">🏠</a>
 
-<div class="view-switcher">
-    <button id="switchAuto" class="active">🔄 自動</button>
-    <button id="switchMobile">📱 スマホ版</button>
-    <button id="switchPc">💻 PC版</button>
+<h2 style="font-weight: 800; color: #0f172a; margin-top: 30px; margin-bottom: 5px; text-align: center;">円周角の定理：なぜ2倍になるの？（証明の実験）</h2>
+<p style="text-align: center; color: #64748b; margin-bottom: 20px;">補助線を動かしながら、中心角と円周角の関係を段階的に解き明かしましょう。</p>
+
+<div class="container">
+    <div class="canvas-area">
+        <div class="controls" style="margin-bottom: 15px; font-size: 0.95rem; color: #334155;">
+            <label>中心角（基本設定）: 
+                <input type="range" id="angleSlider" min="40" max="150" value="80" style="width: 200px; vertical-align: middle; margin-left: 10px;">
+                <span id="angleVal" style="font-weight: bold;">80</span>°
+            </label>
+        </div>
+        <canvas id="canvas" width="600" height="520"></canvas>
+        <p class="hint" style="color: #64748b; font-size: 0.85rem; margin-top: 10px;">※点Pをドラッグして、補助線の位置や三角形の形を自由に変えられます。</p>
+    </div>
+
+    <div class="panel">
+        <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 1.2rem; color: #0f172a;">🧭 証明のステップ</h3>
+        
+        <div class="click-notice">
+            💡 黄色の網掛けをタッチして、隠された数式を確認してみよう！
+        </div>
+
+        <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 15px; line-height: 1.6;">
+            点Pと中心Oを通る補助線（直径）を引いて考えてみましょう。
+        </p>
+        <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-bottom: 20px;">
+        
+        <div id="step1" class="proof-step active">
+            <strong style="color: #2563eb; font-size: 1.05rem;">① 二等辺三角形を見つける</strong><br><br>
+            線分 OA, OB, OP はすべて円の半径なので長さが等しいです。<br>
+            よって、
+            <span id="blankOAP" class="secret-blank" style="background-color: #fef08a; padding: 2px 6px; border-radius: 4px; cursor: pointer; font-weight: bold;">\(\triangle\text{OAP}\)</span> と 
+            <span id="blankOBP" class="secret-blank" style="background-color: #fef08a; padding: 2px 6px; border-radius: 4px; cursor: pointer; font-weight: bold;">\(\triangle\text{OBP}\)</span> はどちらも<strong><span id="blankIso" class="secret-blank" style="background-color: #fef08a; padding: 2px 6px; border-radius: 4px; cursor: pointer; text-decoration: underline;">二等辺三角形</span></strong>になります。<br>
+            底角をそれぞれ <span style="color:red; font-weight: bold;">角 \(a\)</span>, <span style="color:green; font-weight: bold;">角 \(b\)</span> とおきます。
+        </div>
+
+        <div id="step2" class="proof-step">
+            <strong style="color: #2563eb; font-size: 1.05rem;">② 三角形の「外角の性質」を使う</strong><br><br>
+            三角形の1つの外角は、それと隣り合わない2つの内角の和に等しいので：<br>
+            ・∠AOK（赤側の中心角）＝ <span id="blankExtA" class="secret-blank" style="background-color: #fef08a; padding: 2px 6px; border-radius: 4px; cursor: pointer; font-weight: bold;">\(a + a = 2a\)</span><br>
+            ・∠BOK（緑側の中心角）＝ <span id="blankExtB" class="secret-blank" style="background-color: #fef08a; padding: 2px 6px; border-radius: 4px; cursor: pointer; font-weight: bold;">\(b + b = 2b\)</span>
+        </div>
+
+        <div id="step3" class="proof-step">
+            <strong style="color: #16a34a; font-size: 1.05rem;">③ 合計して定理を導く</strong><br><br>
+            ・円周角 ∠APB ＝ <span id="blankTotalP" class="secret-blank" style="background-color: #fef08a; padding: 2px 6px; border-radius: 4px; cursor: pointer; font-weight: bold;">\(a + b\)</span><br>
+            ・中心角 ∠AOB ＝ <span id="blankTotalO" class="secret-blank" style="background-color: #fef08a; padding: 2px 6px; border-radius: 4px; cursor: pointer; font-weight: bold;">\(2a + 2b = 2(a + b)\)</span><br><br>
+            したがって、<strong>中心角 ∠AOB は 円周角 ∠APB のちょうど2倍</strong>になります！
+        </div>
+
+        <div class="btn-group" style="margin-top: 20px; display: flex; gap: 10px;">
+            <button id="prevBtn" disabled>↩ 戻る</button>
+            <button id="nextBtn">次へ ↪</button>
+            <button id="resetBlanksBtn">🔄 リセット</button>
+        </div>
+    </div>
 </div>
-
-<h2>直径に対する円周角の確かめ</h2>
-<p class="description">
-    青い線は円の<strong>直径（中心角 180°）</strong>です。<br>
-    円周上の赤い点 <strong>P</strong> をマウスや指で好きな場所にドラッグしてみましょう。<br>
-    どこへ動かしても、円周角が<strong>常に 90°（直角）</strong>になることを確かめられます。
-</p>
-
-<div class="controls">
-    <span id="pAngleDisplay" class="angle-display">∠APB (円周角): --°</span>
-</div>
-
-<canvas id="canvas" width="700" height="600"></canvas>
 
 <script>
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-const cx = 350, cy = 300, r = 220;
+const cx = 300, cy = 260, r = 180; // step5と揃えるため少し上の配置に微調整
 
-// 直計にするため、Aは0度(右端)、Bは180度(左端)で固定
-const angleA = 0;
-const angleB = 180;
-
-let pAngle = 70; // 初期位置
+let centerAngle = 80;
+let pAngle = 230; 
 let draggingP = false;
+let currentStep = 1;
 
-const pAngleDisplay = document.getElementById("pAngleDisplay");
+const angleSlider = document.getElementById("angleSlider");
+const angleVal = document.getElementById("angleVal");
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+const resetBlanksBtn = document.getElementById("resetBlanksBtn");
 
-function pointOnCircle(angleDeg) {
-    const rad = angleDeg * Math.PI / 180;
-    return {
-        x: cx + r * Math.cos(rad),
-        y: cy - r * Math.sin(rad)
-    };
+const blankOAP = document.getElementById("blankOAP");
+const blankOBP = document.getElementById("blankOBP");
+const blankExtA = document.getElementById("blankExtA");
+const blankExtB = document.getElementById("blankExtB");
+const blankTotalP = document.getElementById("blankTotalP");
+const blankTotalO = document.getElementById("blankTotalO");
+
+// 伏せ字クリック処理
+document.querySelectorAll('.secret-blank').forEach(blank => {
+    blank.addEventListener('click', function() {
+        const parentStep = this.closest('.proof-step');
+        if (parentStep && parentStep.classList.contains('active')) {
+            this.style.backgroundColor = "transparent"; // 背景の黄色を消す
+            this.classList.add('revealed');
+            draw(); 
+        }
+    });
+});
+
+function resetBlanksInStep(stepNum) {
+    document.querySelectorAll(`#step${stepNum} .secret-blank`).forEach(blank => {
+        blank.style.backgroundColor = "#fef08a";
+        blank.classList.remove('revealed');
+    });
 }
 
-// 2つのベクトルのなす角を計算する関数
-function angleBetweenVectors(v1, v2) {
-    const dot = v1.x * v2.x + v1.y * v2.y;
-    const mag1 = Math.hypot(v1.x, v1.y);
-    const mag2 = Math.hypot(v1.x, v1.y);
-    const cosTheta = dot / (mag1 * mag2);
-    // 浮動小数点のエラー対策
-    const clampedCos = Math.max(-1, Math.min(1, cosTheta));
-    return Math.acos(clampedCos) * 180 / Math.PI;
+resetBlanksBtn.addEventListener("click", () => {
+    resetBlanksInStep(1);
+    resetBlanksInStep(2);
+    resetBlanksInStep(3);
+    draw();
+});
+
+angleSlider.addEventListener("input", (e) => {
+    centerAngle = Number(e.target.value);
+    angleVal.textContent = centerAngle;
+    
+    const minAngle = 180 + 10;
+    const maxAngle = 180 + centerAngle - 10;
+    if (pAngle < minAngle) pAngle = minAngle;
+    if (pAngle > maxAngle) pAngle = maxAngle;
+
+    draw();
+});
+
+function updateStepDisplay(newStep) {
+    document.getElementById(`step${currentStep}`).classList.remove("active");
+    
+    currentStep = newStep;
+    document.getElementById(`step${currentStep}`).classList.add("active");
+
+    resetBlanksInStep(currentStep);
+
+    prevBtn.disabled = (currentStep === 1);
+    
+    if (currentStep === 3) {
+        nextBtn.textContent = "最初から見る ↪";
+    } else {
+        nextBtn.textContent = "次へ ↪";
+    }
+    
+    draw();
+}
+
+nextBtn.addEventListener("click", () => {
+    let nextStep = currentStep + 1;
+    if (nextStep > 3) {
+        nextStep = 1;
+        resetBlanksInStep(1);
+        resetBlanksInStep(2);
+        resetBlanksInStep(3);
+    }
+    updateStepDisplay(nextStep);
+});
+
+prevBtn.addEventListener("click", () => {
+    let prevStep = currentStep - 1;
+    if (prevStep < 1) prevStep = 3;
+    updateStepDisplay(prevStep);
+});
+
+function degToRad(d) { return d * Math.PI / 180; }
+function radToDeg(r) { return r * 180 / Math.PI; }
+
+function pointOnCircle(a) {
+    const t = degToRad(a);
+    return { x: cx + r * Math.cos(t), y: cy - r * Math.sin(t) };
+}
+
+function drawSimpleArc(pt, angleStartRad, angleEndRad, radius, color) {
+    let diff = angleEndRad - angleStartRad;
+    while (diff > Math.PI) diff -= Math.PI * 2;
+    while (diff < -Math.PI) diff += Math.PI * 2;
+
+    ctx.beginPath();
+    ctx.moveTo(pt.x, pt.y);
+    ctx.arc(pt.x, pt.y, radius, angleStartRad, angleStartRad + diff, diff < 0);
+    ctx.closePath();
+    ctx.fillStyle = color;
+    ctx.fill();
 }
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // ベースの円
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, 0, 2 * Math.PI);
-    ctx.strokeStyle = "#cbd5e1";
-    ctx.lineWidth = 3;
-    ctx.stroke();
-
-    // 中心点 O
-    ctx.beginPath();
-    ctx.arc(cx, cy, 5, 0, 2 * Math.PI);
-    ctx.fillStyle = "#475569";
-    ctx.fill();
-    ctx.font = "bold 16px sans-serif";
-    ctx.fillText("O", cx - 20, cy + 5);
-
-    const A = pointOnCircle(angleA);
-    const B = pointOnCircle(angleB);
+    const A = pointOnCircle(0);
+    const B = pointOnCircle(centerAngle);
     const P = pointOnCircle(pAngle);
+    const K = pointOnCircle(pAngle + 180);
 
-    // 点ラベルの描画
-    ctx.fillStyle = "#0f172a";
-    ctx.fillText("A", A.x + 12, A.y + 5);
-    ctx.fillText("B", B.x - 22, B.y + 5);
-    ctx.fillText("P", P.x - 5, P.y - 15);
+    const pToA = Math.atan2(A.y - P.y, A.x - P.x);
+    const pToB = Math.atan2(B.y - P.y, B.x - P.x);
+    const pToO = Math.atan2(cy - P.y, cx - P.x);
 
-    // 直径 AB (青い線) の描画
+    const aToP = Math.atan2(P.y - A.y, P.x - A.x);
+    const aToO = Math.atan2(cy - A.y, cx - A.x);
+
+    const bToP = Math.atan2(P.y - B.y, P.x - B.x);
+    const bToO = Math.atan2(cy - B.y, cx - B.x);
+
+    const oToA = Math.atan2(A.y - cy, A.x - cx);
+    const oToB = Math.atan2(B.y - cy, B.x - cx);
+    const oToK = Math.atan2(K.y - cy, K.x - cx);
+
     ctx.beginPath();
-    ctx.moveTo(A.x, A.y);
-    ctx.lineTo(B.x, B.y);
-    ctx.strokeStyle = "#2563eb";
-    ctx.lineWidth = 4;
-    ctx.stroke();
-
-    // 円周角の軌跡・三角形 APB (赤い線)
-    ctx.beginPath();
-    ctx.moveTo(A.x, A.y);
-    ctx.lineTo(P.x, P.y);
-    ctx.lineTo(B.x, B.y);
-    ctx.strokeStyle = "rgba(220, 38, 38, 0.85)";
-    ctx.lineWidth = 3;
-    ctx.stroke();
-
-    // 可動点 P のピン丸
-    ctx.beginPath();
-    ctx.arc(P.x, P.y, 11, 0, 2 * Math.PI);
-    ctx.fillStyle = "#dc2626";
-    ctx.fill();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.strokeStyle = "#cbd5e0";
     ctx.lineWidth = 2;
-    ctx.strokeStyle = "#ffffff";
     ctx.stroke();
 
-    // ★ 直角マーク (Pの部分に小さな正方形・または直角インジケータを描く)
-    // ベクトル PA と PB の単位ベクトルを求める
-    const dxA = A.x - P.x, dyA = A.y - P.y;
-    const dxB = B.x - P.x, dyB = B.y - P.y;
-    const lenA = Math.hypot(dxA, dyA);
-    const lenB = Math.hypot(dxB, dyB);
-    
-    // 直角マークの1辺の長さ
-    const size = 18;
-    const uxA = (dxA / lenA) * size;
-    const uyA = (dyA / lenA) * size;
-    const uxB = (dxB / lenB) * size;
-    const uyB = (dyB / lenB) * size;
+    const showAngleA = blankOAP.classList.contains("revealed");
+    const showAngleB = blankOBP.classList.contains("revealed");
+    const showExtA   = blankExtA.classList.contains("revealed");
+    const showExtB   = blankExtB.classList.contains("revealed");
+    const showTotalP = blankTotalP.classList.contains("revealed");
+    const showTotalO = blankTotalO.classList.contains("revealed");
+
+    if (currentStep >= 2) {
+        if (showExtA || (currentStep === 3 && showTotalO)) {
+            drawSimpleArc({x:cx, y:cy}, oToK, oToA, 45, "rgba(239, 68, 68, 0.25)");
+        }
+        if (showExtB || (currentStep === 3 && showTotalO)) {
+            drawSimpleArc({x:cx, y:cy}, oToB, oToK, 45, "rgba(34, 197, 94, 0.25)");
+        }
+    }
+
+    if (showAngleA || (currentStep === 3 && showTotalP)) {
+        drawSimpleArc(P, pToO, pToA, 35, "rgba(239, 68, 68, 0.25)");
+        drawSimpleArc(A, aToP, aToO, 30, "rgba(239, 68, 68, 0.25)");
+    }
+    if (showAngleB || (currentStep === 3 && showTotalP)) {
+        drawSimpleArc(P, pToB, pToO, 35, "rgba(34, 197, 94, 0.25)");
+        drawSimpleArc(B, bToP, bToO, 30, "rgba(34, 197, 94, 0.25)");
+    }
 
     ctx.beginPath();
-    ctx.moveTo(P.x + uxA, P.y + uyA);
-    ctx.lineTo(P.x + uxA + uxB, P.y + uyA + uyB);
-    ctx.lineTo(P.x + uxB, P.y + uyB);
-    ctx.strokeStyle = "deeppink"; 
+    ctx.moveTo(P.x, P.y); ctx.lineTo(K.x, K.y);
+    ctx.strokeStyle = "#718096";
+    ctx.lineWidth = 2;
+    ctx.setLineDash([6, 4]); 
+    ctx.stroke();
+    ctx.setLineDash([]); 
+
+    ctx.beginPath();
+    ctx.moveTo(A.x, A.y); ctx.lineTo(P.x, P.y); ctx.lineTo(B.x, B.y);
+    ctx.strokeStyle = "#2d3748";
+    ctx.lineWidth = 2.5;
     ctx.stroke();
 
-    // 角度の厳密なベクトル計算
-    const inscribedP = 90.0; // 直径に対する円周角は幾何学的に常に90度固定
+    ctx.beginPath();
+    ctx.moveTo(cx, cy); ctx.lineTo(A.x, A.y);
+    ctx.moveTo(cx, cy); ctx.lineTo(B.x, B.y);
+    ctx.moveTo(cx, cy); ctx.lineTo(P.x, P.y);
+    ctx.strokeStyle = "#3182ce";
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
 
-    // キャンバス内への角度数値テキスト表示
     ctx.font = "bold 16px sans-serif";
-    ctx.fillStyle = "red";
-    ctx.fillText(inscribedP.toFixed(1) + "° (直角)", P.x + 10, P.y + 25);
     
-    // 上部パーツのテキスト更新
-    pAngleDisplay.textContent = `∠APB (円周角): ${inscribedP.toFixed(1)}°`;
+    if (showAngleA || (currentStep === 3 && showTotalP)) {
+        let midPA = pToO + (pToA - pToO) / 2;
+        if (Math.abs(pToA - pToO) > Math.PI) midPA += Math.PI;
+        ctx.fillStyle = "#e53e3e";
+        ctx.fillText("a", P.x + Math.cos(midPA) * 55 - 5, P.y + Math.sin(midPA) * 55 + 5);
+
+        let midAO = aToP + (aToO - aToP) / 2;
+        if (Math.abs(aToO - aToP) > Math.PI) midAO += Math.PI;
+        ctx.fillText("a", A.x + Math.cos(midAO) * 45 - 5, A.y + Math.sin(midAO) * 45 + 5);
+    }
+
+    if (showAngleB || (currentStep === 3 && showTotalP)) {
+        let midPB = pToB + (pToO - pToB) / 2;
+        if (Math.abs(pToO - pToB) > Math.PI) midPB += Math.PI;
+        ctx.fillStyle = "#38a169";
+        ctx.fillText("b", P.x + Math.cos(midPB) * 55 - 5, P.y + Math.sin(midPB) * 55 + 5);
+
+        let midBO = bToP + (bToO - bToP) / 2;
+        if (Math.abs(bToO - bToP) > Math.PI) midBO += Math.PI;
+        ctx.fillText("b", B.x + Math.cos(midBO) * 45 - 5, B.y + Math.sin(midBO) * 45 + 5);
+    }
+
+    if (currentStep >= 2) {
+        if (showExtA || (currentStep === 3 && showTotalO)) {
+            let mid2a = oToK + (oToA - oToK) / 2;
+            if (Math.abs(oToA - oToK) > Math.PI) mid2a += Math.PI;
+            ctx.fillStyle = "#e53e3e";
+            ctx.fillText("2a", cx + Math.cos(mid2a) * 65 - 10, cy + Math.sin(mid2a) * 65 + 5);
+        }
+
+        if (showExtB || (currentStep === 3 && showTotalO)) {
+            let mid2b = oToB + (oToK - oToB) / 2;
+            if (Math.abs(oToK - oToB) > Math.PI) mid2b += Math.PI;
+            ctx.fillStyle = "#38a169";
+            ctx.fillText("2b", cx + Math.cos(mid2b) * 65 - 10, cy + Math.sin(mid2b) * 65 + 5);
+        }
+    }
+
+    function drawNode(pt, color, label, isDraggable = false) {
+        if (isDraggable) {
+            ctx.beginPath();
+            ctx.arc(pt.x, pt.y, 9, 0, Math.PI * 2);
+            ctx.fillStyle = "#e53e3e";
+            ctx.fill();
+            
+            ctx.beginPath();
+            ctx.arc(pt.x, pt.y, 5, 0, Math.PI * 2);
+            ctx.fillStyle = "white";
+            ctx.fill();
+        } else {
+            ctx.fillStyle = color;
+            ctx.beginPath(); ctx.arc(pt.x, pt.y, 7, 0, Math.PI*2); ctx.fill();
+        }
+        ctx.fillStyle = "#2d3748";
+        ctx.fillText(label, pt.x + 12, pt.y - 12);
+    }
+    
+    drawNode(A, "#3182ce", "A");
+    drawNode(B, "#3182ce", "B");
+    drawNode(P, "#e53e3e", "P", true); 
+    drawNode({x:cx, y:cy}, "#2d3748", "O");
+
+    ctx.fillStyle = "#718096";
+    ctx.beginPath(); ctx.arc(K.x, K.y, 4, 0, Math.PI*2); ctx.fill();
+    ctx.fillText("K", K.x + 8, K.y + 12);
 }
 
-// マウスイベント処理
-canvas.addEventListener("mousedown", (e) => {
+function isMouseOverP(e) {
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-
     const P = pointOnCircle(pAngle);
+    return Math.hypot(x - P.x, y - P.y) < 20;
+}
 
-    if (Math.hypot(x - P.x, y - P.y) < 20) {
+canvas.addEventListener("mousedown", (e) => {
+    if (isMouseOverP(e)) {
         draggingP = true;
     }
-    draw();
 });
 
 canvas.addEventListener("mousemove", (e) => {
-    if (!draggingP) return;
+    if (isMouseOverP(e) || draggingP) {
+        canvas.style.cursor = "pointer";
+    } else {
+        canvas.style.cursor = "default";
+    }
 
+    if (!draggingP) return;
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
@@ -174,41 +455,19 @@ canvas.addEventListener("mousemove", (e) => {
     let angle = Math.atan2(cy - y, x - cx) * 180 / Math.PI;
     if (angle < 0) angle += 360;
 
-    // A(0度)やB(180度)と完全に重なると三角形が潰れるため、わずかに制限をかける
-    if (angle > 1 && angle < 179) {
+    const minAngle = 180 + 10;                  
+    const maxAngle = 180 + centerAngle - 10;     
+
+    if (angle >= minAngle && angle <= maxAngle) {
         pAngle = angle;
-    } else if (angle > 181 && angle < 359) {
-        pAngle = angle;
+        draw();
     }
-
-    draw();
 });
 
-window.addEventListener("mouseup", () => {
-    draggingP = false;
-});
+canvas.addEventListener("mouseup", () => { draggingP = false; canvas.style.cursor = "default"; });
+canvas.addEventListener("mouseleave", () => { draggingP = false; canvas.style.cursor = "default"; });
 
-// 初期描画
 draw();
-
-// ⚙️ 画面サイズ切り替えスクリプト
-document.addEventListener("DOMContentLoaded", () => {
-    const btnAuto = document.getElementById("switchAuto");
-    const btnMobile = document.getElementById("switchMobile");
-    const btnPc = document.getElementById("switchPc");
-    const body = document.body;
-
-    function removeClasses() {
-        body.classList.remove("forced-mobile", "forced-pc");
-        btnAuto.classList.remove("active");
-        btnMobile.classList.remove("active");
-        btnPc.classList.remove("active");
-    }
-
-    btnAuto.addEventListener("click", () => { removeClasses(); btnAuto.classList.add("active"); });
-    btnMobile.addEventListener("click", () => { removeClasses(); body.classList.add("forced-mobile"); btnMobile.classList.add("active"); });
-    btnPc.addEventListener("click", () => { removeClasses(); body.classList.add("forced-pc"); btnPc.classList.add("active"); });
-});
 </script>
 </body>
 </html>
