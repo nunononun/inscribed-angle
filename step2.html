@@ -33,8 +33,6 @@
         box-sizing: border-box;
         font-family: sans-serif;
         background-color: #f8fafc;
-        position: relative;
-        min-height: 100vh;
     }
 
     main {
@@ -44,7 +42,32 @@
         margin: 0;
     }
 
-    /* ヘッダーの横幅と完全に一致させ、中央寄せにする */
+    .view-switcher {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 25px;
+    }
+
+    .view-switcher button {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #64748b;
+        background-color: #ffffff;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .view-switcher button.active, .view-switcher button:hover {
+        color: #2563eb;
+        background-color: #eff6ff;
+        border-color: #3b82f6;
+    }
+
+    /* ヘッダーの横幅（max-width: 1200px）と完全に一致させ、中央寄せにする */
     .panel {
         background: #ffffff;
         border-radius: 16px;
@@ -59,7 +82,7 @@
         align-items: center;
     }
 
-    /* コントロールエリア */
+    /* キャンバスの直上に綺麗に収まるコントロールエリア */
     .controls {
         display: flex;
         flex-wrap: wrap;
@@ -97,6 +120,7 @@
         flex-wrap: wrap;
     }
 
+    /* ボタンの視認性とスタイルを最適化 */
     .controls button {
         padding: 10px 18px;
         font-size: 0.9rem;
@@ -108,20 +132,19 @@
         border: none;
     }
 
+    /* 左右をまとめるボタン */
     #overlapBtn {
         background-color: #2563eb;
         color: #ffffff !important;
-        box-shadow: 0 2px 4px rgba(37, 99, 235, 0.15);
     }
     #overlapBtn:hover {
         background-color: #1d4ed8;
     }
     #overlapBtn.active {
         background-color: #dc2626;
-        box-shadow: 0 2px 4px rgba(220, 38, 38, 0.15);
     }
 
-    /* 初期位置に戻すボタンを明るく爽やかなデザインに変更 */
+    /* 初期位置に戻すボタン（ミントグリーン調にトーンアップして視認性を確保） */
     #resetBtn {
         background-color: #f0fdf4;
         color: #16a34a !important;
@@ -148,41 +171,16 @@
         box-shadow: 0 4px 12px rgba(0,0,0,0.03);
         display: inline-block;
     }
-
-    /* 右下の家ボタン：通常時は青背景、ホバー時に「淡い水色背景×青アイコン」へ変化 */
-    .home-btn {
-        position: fixed;
-        bottom: 25px;
-        right: 25px;
-        background-color: #2563eb;
-        color: #ffffff !important;
-        border: 2px solid #2563eb;
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        text-decoration: none;
-        font-size: 1.4rem;
-        box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        z-index: 100;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .home-btn:hover {
-        background-color: #eff6ff;
-        color: #2563eb !important;
-        border-color: #3b82f6;
-        transform: scale(1.08);
-        box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
-    }
 </style>
 </head>
+
 <body>
+
 <a href="index.html" class="home-btn">🏠</a>
+
 <main>
     <header>
-        <h1>等しい弧に対する円周角</h1>
+       <h1>等しい弧に対する円周角</h1>
     </header>
 
     <div class="panel">
@@ -196,8 +194,9 @@
                 <button id="resetBtn">🔄 初期位置に戻す</button>
             </div>
         </div>
+
         <div class="canvas-container">
-            <canvas id="canvas" width="900" height="500"></canvas>
+            <canvas id="canvas" width="900" height="750"></canvas>
         </div>
     </div>
 </main>
@@ -206,214 +205,51 @@
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-const r = 130;
-const cx1 = 230; 
-const cx2 = 670; 
-const cy = 250;  
+const r = 130;      
+const cx1 = 230;    
+const cx2 = 670;    
+const cy = 180;     
 
-const cx3 = 450; 
-const cy3 = 250; 
+const cx3 = 450;    
+const cy3 = 540;    
 
 const DEFAULT_ARC_ANGLE = 80;
-const DEFAULT_P_ANGLE = 200;
+const DEFAULT_P_ANGLE = 200; 
 const DEFAULT_C_START = 120;
-const DEFAULT_Q_ANGLE = 320;
+const DEFAULT_Q_ANGLE = 320; 
 
-let arcAngle = DEFAULT_ARC_ANGLE;
-let pAngle = DEFAULT_P_ANGLE;
-let startC = DEFAULT_C_START;
-let qAngle = DEFAULT_Q_ANGLE;
-let isOverlapped = false;
-let dragging = null;
-let dragOffsetC = 0;
+let arcAngle = DEFAULT_ARC_ANGLE; 
+let pAngle = DEFAULT_P_ANGLE;      
+let startC = DEFAULT_C_START;    
+let qAngle = DEFAULT_Q_ANGLE;     
+
+let isOverlapped = false; 
+let dragging = null;              
+let dragOffsetC = 0; 
+let dragOffsetQ = 0; // Q用のオフセットを追加してより精密化
 
 const arcInput = document.getElementById("arcInput");
 const overlapBtn = document.getElementById("overlapBtn");
 const resetBtn = document.getElementById("resetBtn");
 
-function normalizeAngle(a) {
-    while (a < 0) a += 360;
-    while (a >= 360) a -= 360;
-    return a;
-}
-
-function getPos(cx, cy, angle) {
-    const rad = (angle * Math.PI) / 180;
-    return { x: cx + r * Math.cos(rad), y: cy - r * Math.sin(rad) };
-}
-
-function drawAngleArc(ox, oy, p1, p2, radius, color) {
-    let a1 = Math.atan2(oy - p1.y, p1.x - ox);
-    let a2 = Math.atan2(oy - p2.y, p2.x - ox);
-    if (a1 < 0) a1 += Math.PI * 2;
-    if (a2 < 0) a2 += Math.PI * 2;
-    let start = Math.min(a1, a2);
-    let end = Math.max(a1, a2);
-    if (end - start > Math.PI) {
-        const tmp = start;
-        start = end;
-        end = tmp + Math.PI * 2;
-    }
-    ctx.beginPath();
-    ctx.moveTo(ox, oy);
-    ctx.arc(ox, oy, radius, -end, -start);
-    ctx.closePath();
-    ctx.fillStyle = color;
-    ctx.fill();
-}
-
-function drawCircleGroup(cx, cy, sA, sC, labelSuffix, showLeft, showRight) {
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, 0, Math.PI * 2);
-    ctx.strokeStyle = "#e2e8f0";
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    const A = getPos(cx, cy, sA);
-    const B = getPos(cx, cy, sA + arcAngle);
-    const C = getPos(cx, cy, sC);
-    const D = getPos(cx, cy, sC + arcAngle);
-    const P = getPos(cx, cy, pAngle);
-    const Q = getPos(cx, cy, qAngle);
-
-    function drawNode(pt, color, label) {
-        ctx.beginPath();
-        ctx.arc(pt.x, pt.y, 6, 0, Math.PI * 2);
-        ctx.fillStyle = color;
-        ctx.fill();
-        ctx.strokeStyle = "#ffffff";
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        ctx.fillStyle = "#1e293b";
-        ctx.font = "bold 14px sans-serif";
-        ctx.fillText(label, pt.x + 10, pt.y + 4);
-    }
-
-    function drawDraggableNode(pt, color, label) {
-        ctx.beginPath();
-        ctx.arc(pt.x, pt.y, 10, 0, Math.PI * 2);
-        ctx.fillStyle = color;
-        ctx.fill();
-        
-        ctx.beginPath();
-        ctx.arc(pt.x, pt.y, 7, 0, Math.PI * 2);
-        ctx.strokeStyle = "#ffffff";
-        ctx.lineWidth = 2;
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.arc(pt.x, pt.y, 4, 0, Math.PI * 2);
-        ctx.fillStyle = color;
-        ctx.fill();
-
-        ctx.fillStyle = "#1e293b";
-        ctx.font = "bold 15px sans-serif";
-        ctx.fillText(label, pt.x + 14, pt.y + 5);
-    }
-
-    if (showLeft) {
-        ctx.beginPath();
-        ctx.arc(cx, cy, r, -normalizeAngle(sA + arcAngle) * Math.PI / 180, -normalizeAngle(sA) * Math.PI / 180);
-        ctx.strokeStyle = "#3b82f6";
-        ctx.lineWidth = 5;
-        ctx.stroke();
-
-        drawAngleArc(cx, cy, A, B, 25, "rgba(59, 130, 246, 0.12)");
-        ctx.beginPath();
-        ctx.moveTo(A.x, A.y); ctx.lineTo(cx, cy); ctx.lineTo(B.x, B.y);
-        ctx.strokeStyle = "rgba(59, 130, 246, 0.4)";
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-
-        drawAngleArc(cx, cy, P, B, 18, "rgba(239, 68, 68, 0.05)");
-        ctx.beginPath();
-        ctx.moveTo(A.x, A.y); ctx.lineTo(P.x, P.y); ctx.lineTo(B.x, B.y);
-        ctx.strokeStyle = "#ef4444";
-        ctx.lineWidth = 2.5;
-        ctx.stroke();
-
-        drawNode(A, "#3b82f6", "A" + labelSuffix);
-        drawNode(B, "#3b82f6", "B" + labelSuffix);
-        drawDraggableNode(P, "#ef4444", "P" + labelSuffix);
-    }
-
-    if (showRight) {
-        ctx.beginPath();
-        ctx.arc(cx, cy, r, -normalizeAngle(sC + arcAngle) * Math.PI / 180, -normalizeAngle(sC) * Math.PI / 180);
-        ctx.strokeStyle = "#10b981";
-        ctx.lineWidth = 5;
-        ctx.stroke();
-
-        drawAngleArc(cx, cy, C, D, 25, "rgba(16, 185, 129, 0.12)");
-        ctx.beginPath();
-        ctx.moveTo(C.x, C.y); ctx.lineTo(cx, cy); ctx.lineTo(D.x, D.y);
-        ctx.strokeStyle = "rgba(16, 185, 129, 0.4)";
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-
-        drawAngleArc(cx, cy, Q, D, 18, "rgba(245, 158, 11, 0.05)");
-        ctx.beginPath();
-        ctx.moveTo(C.x, C.y); ctx.lineTo(Q.x, Q.y); ctx.lineTo(D.x, D.y);
-        ctx.strokeStyle = "#f59e0b";
-        ctx.lineWidth = 2.5;
-        ctx.stroke();
-
-        drawNode(D, "#10b981", "D" + labelSuffix);
-        drawDraggableNode(C, "#10b981", "C" + labelSuffix);
-        drawDraggableNode(Q, "#f59e0b", "Q" + labelSuffix);
-    }
-
-    drawNode({ x: cx, y: cy }, "#64748b", "O" + labelSuffix);
-}
-
-function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    ctx.font = "bold 15px sans-serif";
-    
-    ctx.fillStyle = "#1e293b";
-    ctx.fillText(`⚙️ 弧の長さ (中心角) = ${arcAngle}°`, 40, 45);
-    
-    ctx.fillStyle = "#ef4444";
-    ctx.fillText(`  |  ∠APB (円周角) = ${(arcAngle / 2).toFixed(1)}°`, 310, 45);
-    
-    ctx.fillStyle = "#f59e0b";
-    ctx.fillText(`  |  ∠CQD (円周角) = ${(arcAngle / 2).toFixed(1)}°`, 580, 45);
-
-    if (!isOverlapped) {
-        ctx.fillStyle = "#475569";
-        ctx.font = "bold 15px sans-serif";
-        ctx.fillText("【図形 1】 弧ABの円周角", cx1 - 80, cy - 140);
-        ctx.fillText("【図形 2】 弧CDの円周角", cx2 - 80, cy - 140);
-
-        drawCircleGroup(cx1, cy, 0, startC, "₁", true, false);
-        drawCircleGroup(cx2, cy, 0, startC, "₂", false, true);
-
-        ctx.fillStyle = "#64748b";
-        ctx.font = "14px sans-serif";
-        ctx.fillText("💡 各円周上の二重丸の点 (P, Q, C) をドラッグして自由に動かせます。", 40, cy + 180);
-    } else {
-        ctx.fillStyle = "#1e293b";
-        ctx.font = "bold 16px sans-serif";
-        ctx.fillText("【重ね合わせの検証】 2つの図形が完全に一致します", cx3 - 180, cy3 - 140);
-
-        drawCircleGroup(cx3, cy3, 0, startC, "", true, true);
-
-        ctx.fillStyle = "#2563eb";
-        ctx.font = "bold 15px sans-serif";
-        ctx.fillText("✨ 弧の長さが等しければ、円周角の大きさはどこにあってもすべて等しくなります！", 80, cy3 + 180);
-    }
-}
-
 arcInput.addEventListener("input", (e) => {
     arcAngle = parseInt(e.target.value);
+    
+    if (isAngleInArc(pAngle, 0, arcAngle)) {
+        pAngle = arcAngle + 5;
+    }
+    
+    if (isAngleInArc(qAngle, startC, arcAngle)) {
+        qAngle = normalizeAngle(startC + arcAngle + 5);
+    }
+    
     draw();
 });
 
 overlapBtn.addEventListener("click", () => {
     isOverlapped = !isOverlapped;
     if (isOverlapped) {
-        overlapBtn.textContent = "元の2つの図形に戻す";
+        overlapBtn.textContent = "図形を元に戻す";
         overlapBtn.classList.add("active");
     } else {
         overlapBtn.textContent = "左右の図形を1つにまとめる";
@@ -423,50 +259,215 @@ overlapBtn.addEventListener("click", () => {
 });
 
 resetBtn.addEventListener("click", () => {
+    isOverlapped = false;
+    overlapBtn.textContent = "左右の図形を1つにまとめる";
+    overlapBtn.classList.remove("active");
+    
     arcAngle = DEFAULT_ARC_ANGLE;
     pAngle = DEFAULT_P_ANGLE;
     startC = DEFAULT_C_START;
     qAngle = DEFAULT_Q_ANGLE;
-    isOverlapped = false;
+    
     arcInput.value = DEFAULT_ARC_ANGLE;
-    overlapBtn.textContent = "左右の図形を1つにまとめる";
-    overlapBtn.classList.remove("active");
+    
     draw();
 });
+
+function getPointOnCircle(cx, cy, angleDeg) {
+    const rad = angleDeg * Math.PI / 180;
+    return {
+        x: cx + r * Math.cos(rad),
+        y: cy - r * Math.sin(rad)
+    };
+}
+
+function drawCircleBase(cx, cy, title, currentCx) {
+    ctx.beginPath();
+    ctx.arc(currentCx, cy, r, 0, Math.PI * 2);
+    ctx.strokeStyle = "#cbd5e1";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    
+    ctx.fillStyle = "rgba(255,255,255,0.8)";
+    ctx.fill();
+
+    ctx.font = "bold 16px sans-serif";
+    ctx.fillStyle = "#64748b";
+    ctx.fillText(title, currentCx - r + 15, cy - r + 25);
+}
+
+function drawDoubleCircle(x, y, color) {
+    ctx.beginPath();
+    ctx.arc(x, y, 10, 0, Math.PI * 2);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    
+    ctx.beginPath();
+    ctx.arc(x, y, 5, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+}
+
+function drawArcParts(currentCx, cy, startAngle, color, labelStart, labelEnd, showDoubleCircleC = false) {
+    const radStart = startAngle * Math.PI / 180;
+    const radEnd = (startAngle + arcAngle) * Math.PI / 180;
+    
+    ctx.beginPath();
+    ctx.arc(currentCx, cy, r, -radStart, -radEnd, true);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 5;
+    ctx.stroke();
+
+    const pStart = getPointOnCircle(currentCx, cy, startAngle);
+    const pEnd = getPointOnCircle(currentCx, cy, startAngle + arcAngle);
+    
+    ctx.font = "bold 16px sans-serif";
+    ctx.fillStyle = "#334155";
+    
+    let offsetStart = { x: 13, y: 5 };
+    let offsetEnd = { x: 13, y: 5 };
+    
+    if (Math.cos(radStart) < 0) offsetStart.x = -25;
+    if (Math.sin(radStart) < 0) offsetStart.y = 18;
+    if (Math.cos(radEnd) < 0) offsetEnd.x = -25; 
+    if (Math.sin(radEnd) < 0) offsetEnd.y = 18;
+    
+    ctx.fillText(labelStart, pStart.x + offsetStart.x, pStart.y + offsetStart.y);
+    ctx.fillText(labelEnd, pEnd.x + offsetEnd.x, pEnd.y + offsetEnd.y);
+
+    if (showDoubleCircleC) {
+        // 点C（始点）を緑色の掴める二重丸として分かりやすく強調
+        drawDoubleCircle(pStart.x, pStart.y, "#10b981");
+    }
+}
+
+function drawAngleLines(currentCx, cy, pX, pY, startAngle, color, labelP, labelAngleText, isDraggable = true) {
+    const pStart = getPointOnCircle(currentCx, cy, startAngle);
+    const pEnd = getPointOnCircle(currentCx, cy, startAngle + arcAngle);
+    
+    ctx.beginPath();
+    ctx.moveTo(pStart.x, pStart.y);
+    ctx.lineTo(pX, pY);
+    ctx.lineTo(pEnd.x, pEnd.y);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    if (isDraggable) {
+        drawDoubleCircle(pX, pY, color);
+    } else {
+        ctx.beginPath();
+        ctx.arc(pX, pY, 6, 0, Math.PI * 2);
+        ctx.fillStyle = color;
+        ctx.fill();
+    }
+    
+    ctx.font = "bold 16px sans-serif";
+    ctx.fillStyle = "#1e293b";
+    ctx.fillText(labelP, pX - 5, pY - 18);
+    
+    ctx.font = "bold 15px sans-serif";
+    ctx.fillStyle = color;
+    ctx.fillText(labelAngleText, pX - 25, pY + 25);
+}
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // --- 1. 円1 (左側: 弧AB) の描画 ---
+    drawCircleBase(cx1, cy, "円 (1)", cx1);
+    drawArcParts(cx1, cy, 0, "#3b82f6", "B", "A", false);
+    
+    const pPt = getPointOnCircle(cx1, cy, pAngle);
+    const inscribedP = arcAngle / 2;
+    drawAngleLines(cx1, cy, pPt.x, pPt.y, 0, "#e11d48", "P", `∠APB=${inscribedP.toFixed(1)}°`, true);
+    
+    // --- 2. 円2 (右側: 弧CD) の描画 ---
+    drawCircleBase(cx2, cy, "円 (2)", cx2);
+    drawArcParts(cx2, cy, startC, "#10b981", "D", "C", true); 
+    
+    const qPt = getPointOnCircle(cx2, cy, qAngle);
+    const inscribedQ = arcAngle / 2;
+    drawAngleLines(cx2, cy, qPt.x, qPt.y, startC, "#f59e0b", "Q", `∠CQD=${inscribedQ.toFixed(1)}°`, true);
+    
+    // --- 3. 下段：重ね合わせた図形の描画 ---
+    if (isOverlapped) {
+        drawCircleBase(cx3, cy3, "重ね合わせた図形", cx3);
+        
+        drawArcParts(cx3, cy3, 0, "rgba(59, 130, 246, 0.4)", "B", "A", false);
+        drawArcParts(cx3, cy3, startC, "rgba(16, 185, 129, 0.4)", "D", "C", true); // 重ね合わせ時もCを操作可能に
+        
+        const pPt3 = getPointOnCircle(cx3, cy3, pAngle);
+        drawAngleLines(cx3, cy3, pPt3.x, pPt3.y, 0, "#e11d48", "P", `∠APB=${inscribedP.toFixed(1)}°`, true);
+        
+        const qPt3 = getPointOnCircle(cx3, cy3, qAngle);
+        drawAngleLines(cx3, cy3, qPt3.x, qPt3.y, startC, "#f59e0b", "Q", `∠CQD=${inscribedQ.toFixed(1)}°`, true);
+    }
+}
+
+function normalizeAngle(angle) {
+    while (angle < 0) angle += 360;
+    while (angle >= 360) angle -= 360;
+    return angle;
+}
+
+function isAngleInArc(angle, start, duration) {
+    let normAngle = normalizeAngle(angle - start);
+    return normAngle >= 0 && normAngle <= duration;
+}
+
+/* 【重要修正】文字のまわりではなく、描画された二重丸の「真上・内側」を判定するように完全に同期 */
+function getHoveredPoint(x, y) {
+    const clickRadius = 20; // つかみ判定の有効半径(二重丸の内側・周辺にフィット)
+
+    if (isOverlapped && y > cy3 - r - 50) {
+        // 下段（重ね合わせ）の二重丸位置を正確に追跡
+        const pPt3 = getPointOnCircle(cx3, cy3, pAngle);
+        if (Math.hypot(x - pPt3.x, y - pPt3.y) < clickRadius) return "P";
+        
+        const qPt3 = getPointOnCircle(cx3, cy3, qAngle);
+        if (Math.hypot(x - qPt3.x, y - qPt3.y) < clickRadius) return "Q";
+
+        const cPt3 = getPointOnCircle(cx3, cy3, startC);
+        if (Math.hypot(x - cPt3.x, y - cPt3.y) < clickRadius) return "C";
+    } else {
+        // 上段（左右の円）の二重丸位置を正確に追跡
+        const pPt = getPointOnCircle(cx1, cy, pAngle);
+        if (Math.hypot(x - pPt.x, y - pPt.y) < clickRadius) return "P";
+        
+        const qPt = getPointOnCircle(cx2, cy, qAngle);
+        if (Math.hypot(x - qPt.x, y - qPt.y) < clickRadius) return "Q";
+        
+        const cPt = getPointOnCircle(cx2, cy, startC);
+        if (Math.hypot(x - cPt.x, y - cPt.y) < clickRadius) return "C";
+    }
+    return null;
+}
 
 canvas.addEventListener("mousedown", (e) => {
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    if (!isOverlapped) {
-        const dP = Math.hypot(x - getPos(cx1, cy, pAngle).x, y - getPos(cx1, cy, pAngle).y);
-        if (dP < 22) { dragging = "P"; return; }
+    dragging = getHoveredPoint(x, y);
 
-        const dQ = Math.hypot(x - getPos(cx2, cy, qAngle).x, y - getPos(cx2, cy, qAngle).y);
-        if (dQ < 22) { dragging = "Q"; return; }
+    if(dragging) {
+        canvas.style.cursor = "grabbing"; 
+        
+        // 重ね合わせの有無に応じて正確な中心点を取得
+        let activeCx = (isOverlapped && y > cy3 - r - 50) ? cx3 : cx2;
+        let activeCy = (isOverlapped && y > cy3 - r - 50) ? cy3 : cy;
+        let mouseAngle = Math.atan2(activeCy - y, x - activeCx) * 180 / Math.PI;
+        mouseAngle = normalizeAngle(mouseAngle);
 
-        const dC = Math.hypot(x - getPos(cx2, cy, startC).x, y - getPos(cx2, cy, startC).y);
-        if (dC < 22) {
-            dragging = "C";
-            let angle = Math.atan2(cy - y, x - cx2) * 180 / Math.PI;
-            dragOffsetC = normalizeAngle(angle - startC);
-            return;
+        if(dragging === "C") {
+            // つかんだ真上の位置からズレずに回転させるためのオフセット
+            dragOffsetC = normalizeAngle(mouseAngle - startC);
         }
-    } else {
-        const dP = Math.hypot(x - getPos(cx3, cy3, pAngle).x, y - getPos(cx3, cy3, pAngle).y);
-        if (dP < 22) { dragging = "P"; return; }
-
-        // 【修正】重ね合わせ時のQの中心座標をcx2から「cx3」に修正し、判定を完全に同期
-        const dQ = Math.hypot(x - getPos(cx3, cy3, qAngle).x, y - getPos(cx3, cy3, qAngle).y);
-        if (dQ < 22) { dragging = "Q"; return; }
-
-        const dC = Math.hypot(x - getPos(cx3, cy3, startC).x, y - getPos(cx3, cy3, startC).y);
-        if (dC < 22) {
-            dragging = "C";
-            let angle = Math.atan2(cy3 - y, x - cx3) * 180 / Math.PI;
-            dragOffsetC = normalizeAngle(angle - startC);
-            return;
+        if(dragging === "Q") {
+            // Qにもオフセットを設定し、つかんだ場所を完全維持
+            dragOffsetQ = normalizeAngle(mouseAngle - qAngle);
         }
     }
 });
@@ -476,50 +477,62 @@ canvas.addEventListener("mousemove", (e) => {
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    if (!dragging) {
-        let pActive = false, qActive = false, cActive = false;
-        if (!isOverlapped) {
-            pActive = Math.hypot(x - getPos(cx1, cy, pAngle).x, y - getPos(cx1, cy, pAngle).y) < 22;
-            qActive = Math.hypot(x - getPos(cx2, cy, qAngle).x, y - getPos(cx2, cy, qAngle).y) < 22;
-            cActive = Math.hypot(x - getPos(cx2, cy, startC).x, y - getPos(cx2, cy, startC).y) < 22;
-        } else {
-            pActive = Math.hypot(x - getPos(cx3, cy3, pAngle).x, y - getPos(cx3, cy3, pAngle).y) < 22;
-            qActive = Math.hypot(x - getPos(cx3, cy3, qAngle).x, y - getPos(cx3, cy3, qAngle).y) < 22;
-            cActive = Math.hypot(x - getPos(cx3, cy3, startC).x, y - getPos(cx3, cy3, startC).y) < 22;
-        }
-
-        if (pActive || qActive || cActive) {
-            canvas.style.cursor = "pointer";
-        } else {
-            canvas.style.cursor = "default";
-        }
-        return;
+    if (dragging || getHoveredPoint(x, y)) {
+        canvas.style.cursor = dragging ? "grabbing" : "pointer";
+    } else {
+        canvas.style.cursor = "default";
     }
 
-    canvas.style.cursor = "grabbing";
+    if(!dragging) return;
 
-    if (dragging === "P") {
-        let activeCx = isOverlapped ? cx3 : cx1;
-        let activeCy = isOverlapped ? cy3 : cy;
-        let angle = Math.atan2(activeCy - y, x - activeCx) * 180 / Math.PI;
-        pAngle = normalizeAngle(angle);
-    } else if (dragging === "Q") {
-        let activeCx = isOverlapped ? cx3 : cx2;
-        let activeCy = isOverlapped ? cy3 : cy;
-        let angle = Math.atan2(activeCy - y, x - activeCx) * 180 / Math.PI;
-        qAngle = normalizeAngle(angle);
-    } else if (dragging === "C") {
-        let activeCx = isOverlapped ? cx3 : cx2;
-        let activeCy = isOverlapped ? cy3 : cy;
-        let angle = Math.atan2(activeCy - y, x - activeCx) * 180 / Math.PI;
+    let angle;
+    // 重ね合わせ部分のドラッグ時、判定エリアに応じて基準中心を完全に切り替え
+    let isBottomArea = (isOverlapped && y > cy3 - r - 50);
+
+    if(dragging === "P"){
+        let activeCx = isBottomArea ? cx3 : cx1;
+        let activeCy = isBottomArea ? cy3 : cy;
+        angle = Math.atan2(activeCy - y, x - activeCx) * 180 / Math.PI;
+        angle = normalizeAngle(angle);
         
-        // 【修正】つかんだ位置（真上）からズレずに回転するようにオフセットの適用順序を補正
+        if (isAngleInArc(angle, 0, arcAngle)) {
+            pAngle = (angle < arcAngle / 2) ? arcAngle : 0;
+        } else {
+            pAngle = angle;
+        }
+    }
+
+    if(dragging === "C"){
+        let activeCx = isBottomArea ? cx3 : cx2;
+        let activeCy = isBottomArea ? cy3 : cy;
+        angle = Math.atan2(activeCy - y, x - activeCx) * 180 / Math.PI;
+        angle = normalizeAngle(angle);
+
+        // 二重丸の真上を掴んだまま回せるよう計算
         let targetStartC = normalizeAngle(angle - dragOffsetC);
         let delta = normalizeAngle(targetStartC - startC);
         if (delta > 180) delta -= 360;
-        
+
         startC = targetStartC;
         qAngle = normalizeAngle(qAngle + delta);
+    }
+
+    if(dragging === "Q"){
+        let activeCx = isBottomArea ? cx3 : cx2;
+        let activeCy = isBottomArea ? cy3 : cy;
+        angle = Math.atan2(activeCy - y, x - activeCx) * 180 / Math.PI;
+        angle = normalizeAngle(angle);
+
+        // オフセットを適用し真上の連動を保障
+        let targetQAngle = normalizeAngle(angle - dragOffsetQ);
+
+        if (isAngleInArc(targetQAngle, startC, arcAngle)) {
+            let diff = normalizeAngle(targetQAngle - startC);
+            let snapAngle = (diff < arcAngle / 2) ? arcAngle : 0;
+            qAngle = normalizeAngle(startC + snapAngle);
+        } else {
+            qAngle = targetQAngle;
+        }
     }
 
     draw();
@@ -531,6 +544,25 @@ window.addEventListener("mouseup", () => {
 });
 
 draw();
+
+document.addEventListener("DOMContentLoaded", () => {
+    const btnAuto = document.getElementById("switchAuto");
+    const btnMobile = document.getElementById("switchMobile");
+    const btnPc = document.getElementById("switchPc");
+    const body = document.body;
+
+    function removeClasses() {
+        if(body.classList.contains("forced-mobile")) body.classList.remove("forced-mobile");
+        if(body.classList.contains("forced-pc")) body.classList.remove("forced-pc");
+        if(btnAuto) btnAuto.classList.remove("active");
+        if(btnMobile) btnMobile.classList.remove("active");
+        if(btnPc) btnPc.classList.remove("active");
+    }
+
+    if(btnAuto) btnAuto.addEventListener("click", () => { removeClasses(); btnAuto.classList.add("active"); });
+    if(btnMobile) btnMobile.addEventListener("click", () => { removeClasses(); body.classList.add("forced-mobile"); btnMobile.classList.add("active"); });
+    if(btnPc) btnPc.addEventListener("click", () => { removeClasses(); body.classList.add("forced-pc"); btnPc.classList.add("active"); });
+});
 </script>
 </body>
 </html>
