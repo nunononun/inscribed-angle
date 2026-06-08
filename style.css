@@ -554,6 +554,84 @@ button:disabled {
     transform: translateX(-50%) scale(1) !important;
 }
 
+/* ==========================================================================
+   スマホ・PC表示の手動切り替えシステム ＆ 横並び維持設定
+   ========================================================================== */
+
+/* 手動切り替えボタンのスタイル */
+.view-switcher {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    z-index: 10000;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 6px;
+    border-radius: 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    display: flex;
+    gap: 5px;
+    border: 1px solid #e2e8f0;
+}
+.view-switcher button {
+    padding: 6px 12px !important;
+    font-size: 0.85rem !important;
+    border-radius: 20px !important;
+    height: auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    color: #64748b !important;
+    transform: none !important;
+    text-shadow: none !important;
+}
+.view-switcher button.active {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8) !important;
+    color: white !important;
+    font-weight: bold !important;
+}
+
+/* --- 【重要】スマホ化してもボタンの横並びを絶対に維持する設定 --- */
+.controls {
+    display: flex !important;
+    flex-direction: row !important; /* 常に横並び */
+    flex-wrap: nowrap !important;   /* 絶対に折り返さない */
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 10px !important;
+    overflow-x: auto !important;    /* 万が一はみ出たらコントロール内だけでスクロール */
+}
+
+/* ボタン自体が小さくなっても潰れない最低限のサイズ指定 */
+.controls button, .btn-group button {
+    flex-shrink: 0 !important; /* 横幅が狭くなってもボタンを縮小・変形させない */
+}
+
+/* 元のCSSにあった「400px未満で縦にする」挙動を無効化 */
+@media (max-width: 399px) {
+    .controls { flex-direction: row !important; }
+}
+
+/* --- 手動切り替え用のコンテナ制御 --- */
+/* スマホ画面強制モード */
+body.forced-mobile .container {
+    flex-direction: column !important; /* 図形と解説を縦並びにする */
+    align-items: center !important;
+    max-width: 480px !important;
+    margin: 40px auto !important;
+}
+body.forced-mobile canvas {
+    max-width: 100% !important; /* キャンバスを画面幅にフィットさせる */
+    height: auto !important;
+}
+
+/* PC画面強制モード（画面が小さくなってもPCの横並びを無理やり維持） */
+body.forced-pc .container {
+    flex-direction: row !important;
+    align-items: flex-end !important;
+    overflow-x: auto !important; /* 画面からはみ出したらページ全体を横スクロール */
+}
+
 /* スマホ等、ホバーがない画面用の対策 */
 @media (max-width: 768px) {
     #overlapBtn:hover::before, #resetBtn:hover::before {
