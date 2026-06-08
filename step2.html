@@ -6,138 +6,431 @@
 <title>等しい弧に対する円周角</title>
 <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-<header class="custom-header">
-    <a href="index.html" class="enhanced-home-btn">🏠 ホーム</a>
-    <button id="toggleViewBtn" class="toggle-view-btn">
-        <span id="toggleViewIcon">📱</span> <span id="toggleViewText">スマホ版に切り替える</span>
-    </button>
-</header>
+<a href="index.html" class="home-btn">🏠</a>
+
+<div class="view-switcher">
+    <button id="switchAuto" class="active">🔄 自動</button>
+    <button id="switchMobile">📱 スマホ版</button>
+    <button id="switchPc">💻 PC版</button>
+</div>
 
 <h2>等しい弧に対する円周角</h2>
 
-<div class="container">
-    <div class="canvas-area">
-        <div class="controls">
-            弧の長さ調整: <input type="range" id="arcInput" min="20" max="150" value="70">
-            <span id="arcValue">70°</span>
-            <div class="nav-tooltip-wrapper">
-                <button id="overlapBtn">
-                    <span class="btn-text-normal">2つの図形を1つにまとめる</span>
-                    <span class="btn-text-icon">🧬</span>
-                </button>
-                <span class="tooltip-text">左右の図を重ねて比較する</span>
-            </div>
-            <div class="nav-tooltip-wrapper">
-                <button id="resetBtn">
-                    <span class="btn-text-normal">位置リセット</span>
-                    <span class="btn-text-icon">🔄</span>
-                </button>
-                <span class="tooltip-text">図形の位置を初期状態に戻す</span>
-            </div>
-        </div>
-        <canvas id="canvas" width="850" height="500"></canvas>
-    </div>
+<div class="controls">
+    弧AB = 弧CD =
+    <input type="range" id="arcInput" min="20" max="170" value="80">
+    <span id="arcValue"> </span>
+    <br>
+    <button id="overlapBtn">左右の図形を1つにまとめる</button>
+    <button id="resetBtn">初期位置に戻す</button>
 </div>
 
+<canvas id="canvas" width="900" height="750"></canvas>
+
 <script>
+
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-let cx1 = 230, cy1 = 250, cx2 = 620, cy2 = 250;
-const r = 160;
-let arcAngle = 70;
-let isOverlapped = false;
+const r = 130;      
+const cx1 = 230;    
+const cx2 = 670;    
+const cy = 180;     
 
-let pAngle = 90;  // 左円の円周角頂点
-let qAngle = 270; // 右円の円周角頂点
+const cx3 = 450;    
+const cy3 = 540;    
 
-function drawCircleData(cx, cy, startArc, endArc, pAng, color, label1, label2, pLabel) {
-    // 円
-    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.strokeStyle = "#cbd5e1"; ctx.lineWidth = 1.5; ctx.stroke();
-    // 弧
-    ctx.beginPath(); ctx.arc(cx, cy, r, -endArc*Math.PI/180, -startArc*Math.PI/180, false); ctx.strokeStyle = color; ctx.lineWidth = 5; ctx.stroke();
+const DEFAULT_ARC_ANGLE = 80;
+const DEFAULT_P_ANGLE = 50;
+const DEFAULT_C_START = 120;
+const DEFAULT_Q_ANGLE = 45;
+
+let arcAngle = DEFAULT_ARC_ANGLE; 
+let pAngle = DEFAULT_P_ANGLE;     
+let startC = DEFAULT_C_START;     
+let qAngle = DEFAULT_Q_ANGLE;     
+
+let isOverlapped = false;          
+let transitionProgress = 0;       
+let animationId = null;
+
+let dragging = null;              
+
+const arcInput = document.getElementById("arcInput");
+const arcValue = document.getElementById("arcValue");
+const overlapBtn = document.getElementById("overlapBtn");
+const resetBtn = document.getElementById("resetBtn");
+
+arcInput.addEventListener("input", (e) => {
+    arcAngle = parseInt(e.target.value);
+    arcValue.textContent = arcAngle + "°";
     
-    const A = { x: cx + r*Math.cos(startArc*Math.PI/180), y: cy - r*Math.sin(startArc*Math.PI/180) };
-    const B = { x: cx + r*Math.cos(endArc*Math.PI/180), y: cy - r*Math.sin(endArc*Math.PI/180) };
-    const P = { x: cx + r*Math.cos(pAng*Math.PI/180), y: cy - r*Math.sin(pAng*Math.PI/180) };
+    pAngle = clampAngle(pAngle, 0, arcAngle);
+    
+    if (!isAngleInArc(qAngle, startC, arcAngle)) {
+        startC = normalizeAngle(qAngle - arcAngle / 2);
+    }
+    
+    draw();
+});
 
-    // 円周角の線
-    ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(P.x, P.y); ctx.lineTo(B.x, B.y); ctx.strokeStyle = "#475569"; ctx.lineWidth = 2; ctx.stroke();
+overlapBtn.addEventListener("click", () => {
+    if (isOverlapped) return;
+    isOverlapped = true;
+    animateTransition(true);
+});
 
-    // 点
-    ctx.fillStyle = "#334155"; ctx.beginPath(); ctx.arc(A.x, A.y, 5, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(B.x, B.y, 5, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = color; ctx.beginPath(); ctx.arc(P.x, P.y, 7, 0, Math.PI*2); ctx.fill();
+resetBtn.addEventListener("click", () => {
+    if (animationId) cancelAnimationFrame(animationId);
+    isOverlapped = false;
+    transitionProgress = 0;
+    
+    arcAngle = DEFAULT_ARC_ANGLE;
+    pAngle = DEFAULT_P_ANGLE;
+    startC = DEFAULT_C_START;
+    qAngle = DEFAULT_Q_ANGLE;
+    
+    arcInput.value = DEFAULT_ARC_ANGLE;
+    arcValue.textContent = DEFAULT_ARC_ANGLE + "°";
+    
+    draw();
+});
 
-    ctx.font = "bold 14px sans-serif"; ctx.fillStyle = "#1e293b";
-    ctx.fillText(label1, A.x + 8, A.y + 5); ctx.fillText(label2, B.x - 15, B.y - 8);
-    ctx.fillText(`${pLabel} (${(arcAngle/2).toFixed(1)}°)`, P.x - 15, P.y - 12);
+function animateTransition(forward) {
+    if (animationId) cancelAnimationFrame(animationId);
+    
+    const startTimestamp = performance.now();
+    const duration = 800; 
+    const startProgress = transitionProgress;
+    
+    function step(now) {
+        const elapsed = now - startTimestamp;
+        let p = elapsed / duration;
+        if (p > 1) p = 1;
+        
+        // イージング関数 (Cubic)
+        const ease = p * p * (3 - 2 * p);
+        
+        if (forward) {
+            transitionProgress = startProgress + (1 - startProgress) * ease;
+        } else {
+            transitionProgress = startProgress - startProgress * ease;
+        }
+        
+        draw();
+        
+        if (p < 1) {
+            animationId = requestAnimationFrame(step);
+        } else {
+            transitionProgress = forward ? 1 : 0;
+            draw();
+        }
+    }
+    
+    animationId = requestAnimationFrame(step);
+}
+
+function getPointOnCircle(cx, cy, angleDeg) {
+    const rad = angleDeg * Math.PI / 180;
+    return {
+        x: cx + r * Math.cos(rad),
+        y: cy - r * Math.sin(rad)
+    };
+}
+
+function drawCircleBase(cx, cy, title, isLeft, currentCx) {
+    ctx.beginPath();
+    ctx.arc(currentCx, cy, r, 0, Math.PI * 2);
+    ctx.strokeStyle = "#cbd5e1";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    
+    ctx.fillStyle = "rgba(255,255,255,0.8)";
+    ctx.fill();
+
+    ctx.font = "bold 16px sans-serif";
+    ctx.fillStyle = "#64748b";
+    ctx.fillText(title, currentCx - r + 15, cy - r + 25);
+}
+
+function drawArcParts(currentCx, cy, startAngle, color, labelStart, labelEnd, isFlippedLabels = false) {
+    const radStart = startAngle * Math.PI / 180;
+    const radEnd = (startAngle + arcAngle) * Math.PI / 180;
+    
+    ctx.beginPath();
+    ctx.arc(currentCx, cy, r, -radStart, -radEnd, true);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 5;
+    ctx.stroke();
+
+    const pStart = getPointOnCircle(currentCx, cy, startAngle);
+    const pEnd = getPointOnCircle(currentCx, cy, startAngle + arcAngle);
+    
+    ctx.font = "bold 16px sans-serif";
+    ctx.fillStyle = "#334155";
+    
+    let offsetStart = { x: 10, y: 5 };
+    let offsetEnd = { x: 10, y: 5 };
+    
+    if (isFlippedLabels) {
+        offsetStart = { x: -20, y: 15 };
+        offsetEnd = { x: -20, y: 15 };
+    } else {
+        if (Math.cos(radStart) < 0) offsetStart.x = -20;
+        if (Math.sin(radStart) < 0) offsetStart.y = 15;
+        if (Math.cos(radEnd) < 0) offsetX = -20;
+        if (Math.sin(radEnd) < 0) offsetEnd.y = 15;
+    }
+    
+    ctx.fillText(labelStart, pStart.x + offsetStart.x, pStart.y + offsetStart.y);
+    ctx.fillText(labelEnd, pEnd.x + offsetEnd.x, pEnd.y + offsetEnd.y);
+}
+
+function drawAngleLines(currentCx, cy, pX, pY, startAngle, color, labelP, labelAngleText) {
+    const pStart = getPointOnCircle(currentCx, cy, startAngle);
+    const pEnd = getPointOnCircle(currentCx, cy, startAngle + arcAngle);
+    
+    ctx.beginPath();
+    ctx.moveTo(pStart.x, pStart.y);
+    ctx.lineTo(pX, pY);
+    ctx.lineTo(pEnd.x, pEnd.y);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(pX, pY, 8, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+    
+    ctx.font = "bold 16px sans-serif";
+    ctx.fillStyle = "#1e293b";
+    ctx.fillText(labelP, pX - 5, pY - 15);
+    
+    ctx.font = "bold 15px sans-serif";
+    ctx.fillStyle = color;
+    ctx.fillText(labelAngleText, pX - 25, pY + 22);
 }
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    if (isOverlapped) {
-        drawCircleData(425, cy1, 0, arcAngle, pAngle, "#3b82f6", "A", "B", "P");
-        drawCircleData(425, cy1, 180, 180 + arcAngle, qAngle, "#ef4444", "C", "D", "Q");
-    } else {
-        drawCircleData(cx1, cy1, 0, arcAngle, pAngle, "#3b82f6", "A", "B", "P");
-        drawCircleData(cx2, cy2, 40, 40 + arcAngle, qAngle, "#ef4444", "C", "D", "Q");
+    
+    arcValue.textContent = arcAngle + "°";
+    
+    const t = transitionProgress; 
+    
+    // -------------------------------------------------------------------------
+    // 上段の描画 (1-t) の不透明度で消えていく、または位置が中央に移動
+    // -------------------------------------------------------------------------
+    
+    // 円1（左）の現在のX座標
+    const currentCx1 = cx1 + (cx3 - cx1) * t;
+    const currentCy1 = cy + (cy3 - cy) * t;
+    
+    // 円2（右）の現在のX座標
+    const currentCx2 = cx2 + (cx3 - cx2) * t;
+    const currentCy2 = cy + (cy3 - cy) * t;
+    
+    // --- 円1 (左側: 弧AB) の描画 ---
+    if (t < 1) {
+        ctx.save();
+        if(!isOverlapped) ctx.globalAlpha = 1 - t; 
+        drawCircleBase(cx1, cy, "円 (1)", true, currentCx1);
+        
+        // 弧ABは 0度 からスタート
+        drawArcParts(currentCx1, cy, 0, "#3b82f6", "B", "A");
+        
+        // 点Pの座標
+        const pPt = getPointOnCircle(currentCx1, cy, pAngle);
+        // 円周角の計算
+        const inscribedP = arcAngle / 2;
+        drawAngleLines(currentCx1, cy, pPt.x, pPt.y, 0, "#e11d48", "P", `∠APB=${inscribedP.toFixed(1)}°`);
+        ctx.restore();
+    }
+    
+    // --- 円2 (右側: 弧CD) の描画 ---
+    if (t < 1) {
+        ctx.save();
+        if(!isOverlapped) ctx.globalAlpha = 1 - t;
+        drawCircleBase(cx2, cy, "円 (2)", false, currentCx2);
+        
+        // 弧CDは startC からスタート
+        drawArcParts(currentCx2, cy, startC, "#10b981", "D", "C");
+        
+        // 点Qの座標
+        const qPt = getPointOnCircle(currentCx2, cy, qAngle);
+        const inscribedQ = arcAngle / 2;
+        drawAngleLines(currentCx2, cy, qPt.x, qPt.y, startC, "#16a34a", "Q", `∠CQD=${inscribedQ.toFixed(1)}°`);
+        ctx.restore();
+    }
+    
+    // -------------------------------------------------------------------------
+    // 下段の描画（アニメーション進行度 t に応じてせり上がる、または最初から表示）
+    // -------------------------------------------------------------------------
+    if (t > 0) {
+        ctx.save();
+        ctx.globalAlpha = t;
+        
+        // ベースの円3
+        drawCircleBase(cx3, cy3, "重ね合わせた図形", false, cx3);
+        
+        // 共通の弧（重ね合わせ用、角度0からスタート固定）
+        // 2つの弧がぴったり合わさっていることを示すために2色をブレンド、または並列描画
+        drawArcParts(cx3, cy3, 0, "#2563eb", "B / D", "A / C");
+        
+        // 1つにまとまった円におけるPとQの円周角を描写
+        const pPt3 = getPointOnCircle(cx3, cy3, pAngle);
+        const inscribedP3 = arcAngle / 2;
+        drawAngleLines(cx3, cy3, pPt3.x, pPt3.y, 0, "#e11d48", "P", `∠APB=${inscribedP3.toFixed(1)}°`);
+        
+        // Qの描写角度。重ね合わせ時、弧CDは0度に補正されるため、Qの相対位置は qAngle - startC になる
+        let relativeQAngle = qAngle - startC;
+        relativeQAngle = normalizeAngle(relativeQAngle);
+        
+        const qPt3 = getPointOnCircle(cx3, cy3, relativeQAngle);
+        const inscribedQ3 = arcAngle / 2;
+        drawAngleLines(cx3, cy3, qPt3.x, qPt3.y, 0, "#16a34a", "Q", `∠CQD=${inscribedQ3.toFixed(1)}°`);
+        
+        ctx.restore();
     }
 }
 
-document.getElementById("arcInput").addEventListener("input", (e) => {
-    arcAngle = parseInt(e.target.value);
-    document.getElementById("arcValue").textContent = arcAngle + "°";
-    draw();
-});
+function clampAngle(angle, min, max) {
+    if (angle < min) return min;
+    if (angle > max) return max;
+    return angle;
+}
 
-document.getElementById("overlapBtn").addEventListener("click", () => {
-    isOverlapped = !isOverlapped;
-    document.getElementById("overlapBtn").querySelector(".btn-text-normal").textContent = isOverlapped ? "元に戻す" : "2つの図形を1つにまとめる";
-    draw();
-});
+function normalizeAngle(angle) {
+    while (angle < 0) angle += 360;
+    while (angle >= 360) angle -= 360;
+    return angle;
+}
 
-document.getElementById("resetBtn").addEventListener("click", () => { pAngle = 90; qAngle = 270; draw(); });
+function isAngleInArc(angle, start, duration) {
+    let normAngle = normalizeAngle(angle - start);
+    return normAngle >= 0 && normAngle <= duration;
+}
 
-let draggingP = false, draggingQ = false;
+function getHoveredPoint(x, y) {
+    if (isOverlapped) {
+        // 重ね合わせ完了時は下段の円3で判定
+        const pPt3 = getPointOnCircle(cx3, cy3, pAngle);
+        if (Math.hypot(x - pPt3.x, y - pPt3.y) < 15) return "P";
+        
+        let relativeQAngle = normalizeAngle(qAngle - startC);
+        const qPt3 = getPointOnCircle(cx3, cy3, relativeQAngle);
+        if (Math.hypot(x - qPt3.x, y - qPt3.y) < 15) return "Q";
+    } else {
+        // 通常時は上段のそれぞれの円で判定
+        const pPt = getPointOnCircle(cx1, cy, pAngle);
+        if (Math.hypot(x - pPt.x, y - pPt.y) < 15) return "P";
+        
+        const qPt = getPointOnCircle(cx2, cy, qAngle);
+        if (Math.hypot(x - qPt.x, y - qPt.y) < 15) return "Q";
+        
+        const cPt = getPointOnCircle(cx2, cy, startC);
+        if (Math.hypot(x - cPt.x, y - cPt.y) < 15) return "C";
+    }
+    return null;
+}
+
 canvas.addEventListener("mousedown", (e) => {
     const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left, y = e.clientY - rect.top;
-    const curCx1 = isOverlapped ? 425 : cx1;
-    const curCx2 = isOverlapped ? 425 : cx2;
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
 
-    const P = { x: curCx1 + r*Math.cos(pAngle*Math.PI/180), y: cy1 - r*Math.sin(pAngle*Math.PI/180) };
-    const Q = { x: curCx2 + r*Math.cos(qAngle*Math.PI/180), y: cy2 - r*Math.sin(qAngle*Math.PI/180) };
+    dragging = getHoveredPoint(x, y);
 
-    if (Math.hypot(x - P.x, y - P.y) < 20) draggingP = true;
-    else if (Math.hypot(x - Q.x, y - Q.y) < 20) draggingQ = true;
+    if(dragging) {
+        canvas.style.cursor = "grabbing"; 
+    }
 });
 
 canvas.addEventListener("mousemove", (e) => {
-    if (!draggingP && !draggingQ) return;
     const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left, y = e.clientY - rect.top;
-    const curCx = draggingP ? (isOverlapped ? 425 : cx1) : (isOverlapped ? 425 : cx2);
-    let ang = Math.atan2(cy1 - y, x - curCx) * 180 / Math.PI;
-    if (ang < 0) ang += 360;
-    if (draggingP) pAngle = ang; else qAngle = ang;
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    if (dragging || getHoveredPoint(x, y)) {
+        canvas.style.cursor = dragging ? "grabbing" : "pointer";
+    } else {
+        canvas.style.cursor = "default";
+    }
+
+    if(!dragging) return;
+
+    let angle;
+
+    if(dragging === "P"){
+        if (isOverlapped) {
+            angle = Math.atan2(cy3 - y, x - cx3) * 180 / Math.PI;
+        } else {
+            angle = Math.atan2(cy - y, x - cx1) * 180 / Math.PI;
+        }
+        pAngle = clampAngle(normalizeAngle(angle), 0, arcAngle); 
+    }
+
+    if(dragging === "C" && !isOverlapped){
+        angle = Math.atan2(cy - y, x - cx2) * 180 / Math.PI;
+        angle = normalizeAngle(angle);
+        
+        let testStartC = angle;
+        
+        if (!isAngleInArc(qAngle, testStartC, arcAngle)) {
+            startC = testStartC;
+            qAngle = testStartC + arcAngle / 2;
+        } else {
+            startC = testStartC;
+        }
+    }
+
+    if(dragging === "Q"){
+        if (isOverlapped) {
+            angle = Math.atan2(cy3 - y, x - cx3) * 180 / Math.PI;
+            angle = normalizeAngle(angle);
+            let relQ = clampAngle(angle, 0, arcAngle);
+            qAngle = normalizeAngle(startC + relQ); 
+        } else {
+            angle = Math.atan2(cy - y, x - cx2) * 180 / Math.PI;
+            angle = normalizeAngle(angle);
+            if (isAngleInArc(angle, startC, arcAngle)) {
+                qAngle = angle;
+            }
+        }
+    }
+
     draw();
 });
 
-window.addEventListener("mouseup", () => { draggingP = false; draggingQ = false; });
+window.addEventListener("mouseup", () => {
+    dragging = null;
+    canvas.style.cursor = "default";
+});
 
+arcValue.textContent = arcAngle + "°";
+draw();
+
+// ⚙️ 画面サイズ切り替えスクリプト
 document.addEventListener("DOMContentLoaded", () => {
-    const toggleViewBtn = document.getElementById("toggleViewBtn");
-    const toggleViewIcon = document.getElementById("toggleViewIcon");
-    const toggleViewText = document.getElementById("toggleViewText");
+    const btnAuto = document.getElementById("switchAuto");
+    const btnMobile = document.getElementById("switchMobile");
+    const btnPc = document.getElementById("switchPc");
     const body = document.body;
-    if(localStorage.getItem("forcedMobile") === "true") { body.classList.add("forced-mobile"); toggleViewIcon.textContent = "💻"; toggleViewText.textContent = "PC版に切り替える"; }
-    toggleViewBtn.addEventListener("click", () => {
-        if (body.classList.contains("forced-mobile")) { body.classList.remove("forced-mobile"); localStorage.setItem("forcedMobile", "false"); toggleViewIcon.textContent = "📱"; toggleViewText.textContent = "スマホ版に切り替える"; }
-        else { body.classList.add("forced-mobile"); localStorage.setItem("forcedMobile", "true"); toggleViewIcon.textContent = "💻"; toggleViewText.textContent = "PC版に切り替える"; }
-    });
-    draw();
+
+    function removeClasses() {
+        body.classList.remove("forced-mobile", "forced-pc");
+        btnAuto.classList.remove("active");
+        btnMobile.classList.remove("active");
+        btnPc.classList.remove("active");
+    }
+
+    btnAuto.addEventListener("click", () => { removeClasses(); btnAuto.classList.add("active"); });
+    btnMobile.addEventListener("click", () => { removeClasses(); body.classList.add("forced-mobile"); btnMobile.classList.add("active"); });
+    btnPc.addEventListener("click", () => { removeClasses(); body.classList.add("forced-pc"); btnPc.classList.add("active"); });
 });
 </script>
 </body>
