@@ -1,25 +1,167 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>円周角の定理 教材</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>円周角の定理 教材</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* step4と100%統一された、美しく深みのあるグラデーションヘッダー */
+        header {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.25);
+            max-width: 1200px;
+            margin: 0 auto 35px auto;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.15);
+            box-sizing: border-box;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            font-family: sans-serif;
+            background-color: #f8fafc;
+        }
+
+        .container {
+            max-width: 760px;
+            width: 100%;
+            margin: 0 auto 30px auto;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 50, 100, 0.06), 0 1px 3px rgba(0,0,0,0.02);
+            padding: 35px 30px;
+            box-sizing: border-box;
+            border: 1px solid rgba(0,0,0,0.01);
+        }
+
+        .view-switcher {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .view-switcher button {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #64748b;
+            background-color: #ffffff;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .view-switcher button.active, .view-switcher button:hover {
+            color: #2563eb;
+            background-color: #eff6ff;
+            border-color: #3b82f6;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            background-color: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .controls label {
+            font-weight: 700;
+            color: #334155;
+            font-size: 0.95rem;
+        }
+
+        .controls input[type="number"] {
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 2px solid #cbd5e1;
+            font-weight: bold;
+            font-size: 1rem;
+            width: 70px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .controls input[type="number"]:focus {
+            border-color: #3b82f6;
+        }
+
+        .controls button {
+            padding: 7px 14px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            background-color: #ffffff;
+            border: 2px solid #cbd5e1;
+            border-radius: 6px;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        #toggleP:hover { border-color: #ef4444; color: #ef4444; }
+        #toggleQ:hover { border-color: #22c55e; color: #22c55e; }
+
+        .angle-display {
+            font-size: 0.9rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+
+        #pAngleDisplay { color: #ef4444; }
+        #qAngleDisplay { color: #22c55e; }
+
+        .canvas-container {
+            text-align: center;
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        #canvas {
+            background-color: #ffffff;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            max-width: 100%;
+            height: auto;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            cursor: grab;
+        }
+        #canvas:active { cursor: grabbing; }
+    </style>
 </head>
 <body>
 
 <a href="index.html" class="home-btn">🏠</a>
 
-<div class="view-switcher">
-    <button id="switchAuto" class="active">🔄 自動</button>
-    <button id="switchMobile">📱 スマホ版</button>
-    <button id="switchPc">💻 PC版</button>
-</div>
+<header>
+    <h1>円周角の定理</h1>
+</header>
 
-<h2>円周角の定理</h2>
 
 <div class="container">
-    
     <div class="canvas-area">
         <div class="controls">
             <label>中心角 ∠AOB(入力値) :
@@ -32,9 +174,10 @@
             <span id="qAngleDisplay" class="angle-display">Qの中心角: --°</span>
         </div>
 
-        <canvas id="canvas" width="700" height="600"></canvas>
+        <div class="canvas-container">
+            <canvas id="canvas" width="700" height="600"></canvas>
+        </div>
     </div>
-
 </div>
 
 <script>
@@ -109,7 +252,6 @@ function angleBetweenVectors(v1, v2) {
     return Math.acos(dot / (Math.hypot(v1.x, v1.y) * Math.hypot(v2.x, v2.y))) * 180 / Math.PI;
 }
 
-// 角度マークを綺麗に丸く描く
 function drawAngleMark(x, y, a1, a2, color) {
     let diff = a2 - a1;
     while (diff > Math.PI) diff -= 2 * Math.PI;
@@ -130,31 +272,27 @@ function draw() {
     const P = pointOnCircle(pAngle);
     const Q = pointOnCircle(qAngle);
 
-    // P・Qが小弧AB上にあるか判定
     const onMinorArcP = pAngle >= 0 && pAngle <= centerAngle;
     const onMinorArcQ = qAngle >= 0 && qAngle <= centerAngle;
 
     let selectedOnMinorArc = (selectedPoint === "P") ? onMinorArcP : onMinorArcQ;
 
-    // 外枠の円
     ctx.beginPath();
     ctx.arc(cx, cy, r, 0, Math.PI * 2);
     ctx.strokeStyle = "black";
     ctx.lineWidth = 2;
     ctx.stroke();
 
-    // 注目している弧ABを太く塗る
     ctx.beginPath();
     if (selectedOnMinorArc) {
-        ctx.arc(cx, cy, r, 0, -degToRad(centerAngle), false); // 大弧AB
+        ctx.arc(cx, cy, r, 0, -degToRad(centerAngle), false);
     } else {
-        ctx.arc(cx, cy, r, 0, -degToRad(centerAngle), true);  // 小弧AB
+        ctx.arc(cx, cy, r, 0, -degToRad(centerAngle), true);
     }
     ctx.strokeStyle = (selectedPoint === "P") ? "deeppink" : "limegreen";
     ctx.lineWidth = 8;
     ctx.stroke();
 
-    // 中心角の扇形カラーを設定
     let sectorColor = (selectedPoint === "P") ? "rgba(255,105,180,0.35)" : "rgba(50,205,50,0.35)";
     if (selectedOnMinorArc) {
         drawSector(cx, cy, 45, centerAngle, 360, sectorColor);
@@ -162,7 +300,6 @@ function draw() {
         drawSector(cx, cy, 45, 0, centerAngle, sectorColor);
     }
 
-    // 中心からA, Bへの直線 (OA, OB)
     ctx.beginPath();
     ctx.moveTo(cx, cy);
     ctx.lineTo(A.x, A.y);
@@ -172,7 +309,6 @@ function draw() {
     ctx.lineWidth = 3;
     ctx.stroke();
 
-    // 点Pの円周角を描画
     if (showP) {
         ctx.beginPath();
         ctx.moveTo(P.x, P.y);
@@ -186,7 +322,6 @@ function draw() {
         ctx.stroke();
     }
 
-    // 点Qの円周角を描画
     if (showQ) {
         ctx.beginPath();
         ctx.moveTo(Q.x, Q.y);
@@ -200,7 +335,6 @@ function draw() {
         ctx.stroke();
     }
 
-    // 円周角の頂点部分の円弧マーク
     let anglePA = Math.atan2(A.y - P.y, A.x - P.x);
     let anglePB = Math.atan2(B.y - P.y, B.x - P.x);
     let angleQA = Math.atan2(A.y - Q.y, A.x - Q.x);
@@ -209,13 +343,11 @@ function draw() {
     if (showP) drawAngleMark(P.x, P.y, anglePA, anglePB, "red");
     if (showQ) drawAngleMark(Q.x, Q.y, angleQA, angleQB, "green");
 
-    // 各頂点プロット
     drawPoint(A, "blue", "A");
     drawPoint(B, "blue", "B");
     if (showP) drawPoint(P, "red", "P");
     if (showQ) drawPoint(Q, "green", "Q");
 
-    // 選択中の点にハイライト外輪
     if (selectedPoint === "P" && showP) {
         ctx.beginPath();
         ctx.arc(P.x, P.y, 14, 0, Math.PI * 2);
@@ -232,11 +364,9 @@ function draw() {
     }
     drawPoint({ x: cx, y: cy }, "black", "O");
 
-    // ベクトルから角度の数値を精密計算
     const inscribed = angleBetweenVectors({ x: A.x - P.x, y: A.y - P.y }, { x: B.x - P.x, y: B.y - P.y });
     const inscribedQ = angleBetweenVectors({ x: A.x - Q.x, y: A.y - Q.y }, { x: B.x - Q.x, y: B.y - Q.y });
 
-    // 中心角テキストの配置
     let displayedCenterAngle;
     let midCenter;
 
@@ -253,7 +383,6 @@ function draw() {
     ctx.font = "18px sans-serif";
     ctx.fillText(displayedCenterAngle.toFixed(1) + "°", cx + (labelPos.x - cx) * 0.35, cy + (labelPos.y - cy) * 0.35);
 
-    // キャンバス上の角度数値テキスト表示
     if (showP) {
         ctx.fillStyle = "red";
         ctx.fillText(inscribed.toFixed(1) + "°", P.x + 20, P.y + 20);
@@ -263,7 +392,6 @@ function draw() {
         ctx.fillText(inscribedQ.toFixed(1) + "°", Q.x + 20, Q.y + 20);
     }
 
-    // 上部のバッジ要素に状態を反映
     const currentCenterAngleP = onMinorArcP ? 360 - centerAngle : centerAngle;
     const currentCenterAngleQ = onMinorArcQ ? 360 - centerAngle : centerAngle;
 
@@ -282,32 +410,30 @@ function draw() {
     }
 }
 
-// マウスイベント処理
-canvas.addEventListener("mousedown", (e) => {
+function handleStart(clientX, clientY) {
     const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
 
     const P = pointOnCircle(pAngle);
     const Q = pointOnCircle(qAngle);
 
-    if (showP && Math.hypot(x - P.x, y - P.y) < 15) {
+    if (showP && Math.hypot(x - P.x, y - P.y) < 25) {
         draggingP = true;
         selectedPoint = "P";
-    }
-    if (showQ && Math.hypot(x - Q.x, y - Q.y) < 15) {
+    } else if (showQ && Math.hypot(x - Q.x, y - Q.y) < 25) {
         draggingQ = true;
         selectedPoint = "Q";
     }
     draw();
-});
+}
 
-canvas.addEventListener("mousemove", (e) => {
+function handleMove(clientX, clientY) {
     if (!draggingP && !draggingQ) return;
 
     const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
 
     let angle = Math.atan2(cy - y, x - cx) * 180 / Math.PI;
     if (angle < 0) angle += 360;
@@ -316,15 +442,34 @@ canvas.addEventListener("mousemove", (e) => {
     if (draggingQ) qAngle = angle;
 
     draw();
-});
+}
 
-canvas.addEventListener("mouseup", () => { draggingP = false; draggingQ = false; });
-canvas.addEventListener("mouseleave", () => { draggingP = false; draggingQ = false; });
+function handleEnd() {
+    draggingP = false;
+    draggingQ = false;
+}
 
-// 読み込み時初期描写
+canvas.addEventListener("mousedown", (e) => handleStart(e.clientX, e.clientY));
+window.addEventListener("mousemove", (e) => handleMove(e.clientX, e.clientY));
+window.addEventListener("mouseup", handleEnd);
+
+canvas.addEventListener("touchstart", (e) => {
+    if (e.touches.length > 0) {
+        handleStart(e.touches[0].clientX, e.touches[0].clientY);
+        e.preventDefault();
+    }
+}, { passive: false });
+window.addEventListener("touchmove", (e) => {
+    if (e.touches.length > 0) {
+        handleMove(e.touches[0].clientX, e.touches[0].clientY);
+        e.preventDefault();
+    }
+}, { passive: false });
+window.addEventListener("touchend", handleEnd);
+window.addEventListener("touchcancel", handleEnd);
+
 draw();
 
-// ⚙️ 画面サイズ表示の手動切り替えスクリプト制御
 document.addEventListener("DOMContentLoaded", () => {
     const btnAuto = document.getElementById("switchAuto");
     const btnMobile = document.getElementById("switchMobile");
