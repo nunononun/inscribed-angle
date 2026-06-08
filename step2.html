@@ -410,14 +410,13 @@ canvas.addEventListener("mousedown", (e) => {
     const y = e.clientY - rect.top;
 
     if (!isOverlapped) {
-        // 文字の表示ズレ（+14px）の位置に判定を完全に一致させる修正
-        const dP = Math.hypot(x - (getPos(cx1, cy, pAngle).x + 14), y - getPos(cx1, cy, pAngle).y);
+        const dP = Math.hypot(x - getPos(cx1, cy, pAngle).x, y - getPos(cx1, cy, pAngle).y);
         if (dP < 20) { dragging = "P"; return; }
 
-        const dQ = Math.hypot(x - (getPos(cx2, cy, qAngle).x + 14), y - getPos(cx2, cy, qAngle).y);
+        const dQ = Math.hypot(x - getPos(cx2, cy, qAngle).x, y - getPos(cx2, cy, qAngle).y);
         if (dQ < 20) { dragging = "Q"; return; }
 
-        const dC = Math.hypot(x - (getPos(cx2, cy, startC).x + 14), y - getPos(cx2, cy, startC).y);
+        const dC = Math.hypot(x - getPos(cx2, cy, startC).x, y - getPos(cx2, cy, startC).y);
         if (dC < 20) {
             dragging = "C";
             let angle = Math.atan2(cy - y, x - cx2) * 180 / Math.PI;
@@ -425,10 +424,10 @@ canvas.addEventListener("mousedown", (e) => {
             return;
         }
     } else {
-        const dP = Math.hypot(x - (getPos(cx3, cy3, pAngle).x + 14), y - getPos(cx3, cy3, pAngle).y);
+        const dP = Math.hypot(x - getPos(cx3, cy3, pAngle).x, y - getPos(cx3, cy3, pAngle).y);
         if (dP < 20) { dragging = "P"; return; }
 
-        const dQ = Math.hypot(x - (getPos(cx3, cy3, qAngle).x + 14), y - getPos(cx3, cy3, qAngle).y);
+        const dQ = Math.hypot(x - getPos(cx3, cy3, qAngle).x, y - getPos(cx3, cy3, qAngle).y);
         if (dQ < 20) { dragging = "Q"; return; }
     }
 });
@@ -441,13 +440,12 @@ canvas.addEventListener("mousemove", (e) => {
     if (!dragging) {
         let pActive = false, qActive = false, cActive = false;
         if (!isOverlapped) {
-            // 文字の表示ズレ（+14px）の位置に判定を完全に一致させる修正
-            pActive = Math.hypot(x - (getPos(cx1, cy, pAngle).x + 14), y - getPos(cx1, cy, pAngle).y) < 20;
-            qActive = Math.hypot(x - (getPos(cx2, cy, qAngle).x + 14), y - getPos(cx2, cy, qAngle).y) < 20;
-            cActive = Math.hypot(x - (getPos(cx2, cy, startC).x + 14), y - getPos(cx2, cy, startC).y) < 20;
+            pActive = Math.hypot(x - getPos(cx1, cy, pAngle).x, y - getPos(cx1, cy, pAngle).y) < 20;
+            qActive = Math.hypot(x - getPos(cx2, cy, qAngle).x, y - getPos(cx2, cy, qAngle).y) < 20;
+            cActive = Math.hypot(x - getPos(cx2, cy, startC).x, y - getPos(cx2, cy, startC).y) < 20;
         } else {
-            pActive = Math.hypot(x - (getPos(cx3, cy3, pAngle).x + 14), y - getPos(cx3, cy3, pAngle).y) < 20;
-            qActive = Math.hypot(x - (getPos(cx3, cy3, qAngle).x + 14), y - getPos(cx3, cy3, qAngle).y) < 20;
+            pActive = Math.hypot(x - getPos(cx3, cy3, pAngle).x, y - getPos(cx3, cy3, pAngle).y) < 20;
+            qActive = Math.hypot(x - getPos(cx3, cy3, qAngle).x, y - getPos(cx3, cy3, qAngle).y) < 20;
         }
 
         if (pActive || qActive || cActive) {
