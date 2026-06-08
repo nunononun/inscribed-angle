@@ -33,6 +33,8 @@
         box-sizing: border-box;
         font-family: sans-serif;
         background-color: #f8fafc;
+        position: relative;
+        min-height: 100vh;
     }
 
     main {
@@ -40,6 +42,7 @@
         box-sizing: border-box;
         padding: 0;
         margin: 0;
+        padding-bottom: 80px; /* 右下のホームボタンと被らないように余白を確保 */
     }
 
     /* ヘッダーの横幅と完全に一致させ、中央寄せにする */
@@ -119,7 +122,7 @@
         box-shadow: 0 2px 4px rgba(220, 38, 38, 0.15);
     }
 
-    /* 【修正】初期位置に戻すボタンを明るく爽やかなデザインに変更 */
+    /* 初期位置に戻すボタンを明るく爽やかなデザインに変更 */
     #resetBtn {
         background-color: #f0fdf4; /* 明るいミント系の白 */
         color: #16a34a !important;   /* くっきりとした緑色の文字 */
@@ -146,10 +149,38 @@
         box-shadow: 0 4px 12px rgba(0,0,0,0.03);
         display: inline-block;
     }
+
+    /* カーソルを合わせると「明るい水色背景×青アイコン」に変わる家ボタン（外部CSS不問） */
+    .home-btn {
+        position: fixed;
+        bottom: 25px;
+        right: 25px;
+        background-color: #2563eb; /* 通常時：青背景 */
+        color: #ffffff !important;  /* 通常時：白アイコン */
+        border: 2px solid #2563eb;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        text-decoration: none;
+        font-size: 1.4rem;
+        box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .home-btn:hover {
+        background-color: #eff6ff; /* ホバー時：淡い水色 */
+        color: #2563eb !important;  /* ホバー時：青アイコン */
+        border-color: #3b82f6;     /* ホバー時：くっきり青枠 */
+        transform: scale(1.08);
+        box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+    }
 </style>
 </head>
 <body>
-<a href="index.html" class="home-btn">🏠</a>
+
 <main>
     <header>
         <h1>等しい弧に対する円周角</h1>
@@ -171,6 +202,8 @@
         </div>
     </div>
 </main>
+
+<a href="index.html" class="home-btn">🏠</a>
 
 <script>
 const canvas = document.getElementById("canvas");
@@ -207,6 +240,7 @@ function normalizeAngle(a) {
     return a;
 }
 
+// 座標取得ロジック（CanvasのY軸下向きに完全対応）
 function getPos(cx, cy, angle) {
     const rad = (angle * Math.PI) / 180;
     return { x: cx + r * Math.cos(rad), y: cy - r * Math.sin(rad) };
@@ -329,8 +363,8 @@ function drawCircleGroup(cx, cy, sA, sC, labelSuffix, showLeft, showRight) {
         ctx.stroke();
 
         drawNode(D, "#10b981", "D" + labelSuffix);
-        drawDraggableNode(C, "#10b981", "C" + labelSuffix);
-        drawDraggableNode(Q, "#f59e0b", "Q" + labelSuffix);
+        drawDraggableNode(C, "#10b981", "C" + labelSuffix); // 動かせる点C
+        drawDraggableNode(Q, "#f59e0b", "Q" + labelSuffix); // 動かせる点Q
     }
 
     drawNode({ x: cx, y: cy }, "#64748b", "O" + labelSuffix);
@@ -404,6 +438,7 @@ resetBtn.addEventListener("click", () => {
     draw();
 });
 
+// マウスクリック判定の修正（当たり判定を24pxに広げて掴みやすく調整）
 canvas.addEventListener("mousedown", (e) => {
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -411,13 +446,13 @@ canvas.addEventListener("mousedown", (e) => {
 
     if (!isOverlapped) {
         const dP = Math.hypot(x - getPos(cx1, cy, pAngle).x, y - getPos(cx1, cy, pAngle).y);
-        if (dP < 20) { dragging = "P"; return; }
+        if (dP < 24) { dragging = "P"; return; }
 
         const dQ = Math.hypot(x - getPos(cx2, cy, qAngle).x, y - getPos(cx2, cy, qAngle).y);
-        if (dQ < 20) { dragging = "Q"; return; }
+        if (dQ < 24) { dragging = "Q"; return; }
 
         const dC = Math.hypot(x - getPos(cx2, cy, startC).x, y - getPos(cx2, cy, startC).y);
-        if (dC < 20) {
+        if (dC < 24) {
             dragging = "C";
             let angle = Math.atan2(cy - y, x - cx2) * 180 / Math.PI;
             dragOffsetC = normalizeAngle(angle - startC);
@@ -425,13 +460,14 @@ canvas.addEventListener("mousedown", (e) => {
         }
     } else {
         const dP = Math.hypot(x - getPos(cx3, cy3, pAngle).x, y - getPos(cx3, cy3, pAngle).y);
-        if (dP < 20) { dragging = "P"; return; }
+        if (dP < 24) { dragging = "P"; return; }
 
         const dQ = Math.hypot(x - getPos(cx3, cy3, qAngle).x, y - getPos(cx3, cy3, qAngle).y);
-        if (dQ < 20) { dragging = "Q"; return; }
+        if (dQ < 24) { dragging = "Q"; return; }
     }
 });
 
+// マウス移動（ドラッグ処理）の完全同期化修正
 canvas.addEventListener("mousemove", (e) => {
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -440,12 +476,12 @@ canvas.addEventListener("mousemove", (e) => {
     if (!dragging) {
         let pActive = false, qActive = false, cActive = false;
         if (!isOverlapped) {
-            pActive = Math.hypot(x - getPos(cx1, cy, pAngle).x, y - getPos(cx1, cy, pAngle).y) < 20;
-            qActive = Math.hypot(x - getPos(cx2, cy, qAngle).x, y - getPos(cx2, cy, qAngle).y) < 20;
-            cActive = Math.hypot(x - getPos(cx2, cy, startC).x, y - getPos(cx2, cy, startC).y) < 20;
+            pActive = Math.hypot(x - getPos(cx1, cy, pAngle).x, y - getPos(cx1, cy, pAngle).y) < 24;
+            qActive = Math.hypot(x - getPos(cx2, cy, qAngle).x, y - getPos(cx2, cy, qAngle).y) < 24;
+            cActive = Math.hypot(x - getPos(cx2, cy, startC).x, y - getPos(cx2, cy, startC).y) < 24;
         } else {
-            pActive = Math.hypot(x - getPos(cx3, cy3, pAngle).x, y - getPos(cx3, cy3, pAngle).y) < 20;
-            qActive = Math.hypot(x - getPos(cx3, cy3, qAngle).x, y - getPos(cx3, cy3, qAngle).y) < 20;
+            pActive = Math.hypot(x - getPos(cx3, cy3, pAngle).x, y - getPos(cx3, cy3, pAngle).y) < 24;
+            qActive = Math.hypot(x - getPos(cx3, cy3, qAngle).x, y - getPos(cx3, cy3, qAngle).y) < 24;
         }
 
         if (pActive || qActive || cActive) {
@@ -458,6 +494,7 @@ canvas.addEventListener("mousemove", (e) => {
 
     canvas.style.cursor = "grabbing";
 
+    // 各点の移動ロジックにおける Y座標系の計算方向のブレを完全統合
     if (dragging === "P") {
         let activeCx = isOverlapped ? cx3 : cx1;
         let activeCy = isOverlapped ? cy3 : cy;
@@ -482,6 +519,7 @@ window.addEventListener("mouseup", () => {
 });
 
 draw();
+
 </script>
 </body>
 </html>
