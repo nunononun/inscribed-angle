@@ -119,7 +119,7 @@
         box-shadow: 0 2px 4px rgba(220, 38, 38, 0.15);
     }
 
-    /* 初期位置に戻すボタンを明るく爽やかなデザインに変更 */
+    /* 【修正】初期位置に戻すボタンを明るく爽やかなデザインに変更 */
     #resetBtn {
         background-color: #f0fdf4; /* 明るいミント系の白 */
         color: #16a34a !important;   /* くっきりとした緑色の文字 */
@@ -259,7 +259,6 @@ function drawCircleGroup(cx, cy, sA, sC, labelSuffix, showLeft, showRight) {
         ctx.fillText(label, pt.x + 10, pt.y + 4);
     }
 
-    // 【修正】つかめる二重丸の文字（P, Q, C）を二重丸の「真上」に表示するよう修正
     function drawDraggableNode(pt, color, label) {
         ctx.beginPath();
         ctx.arc(pt.x, pt.y, 10, 0, Math.PI * 2);
@@ -279,9 +278,7 @@ function drawCircleGroup(cx, cy, sA, sC, labelSuffix, showLeft, showRight) {
 
         ctx.fillStyle = "#1e293b";
         ctx.font = "bold 15px sans-serif";
-        ctx.textAlign = "center"; // 文字を中央揃え
-        ctx.fillText(label, pt.x, pt.y - 14); // 真上に14pxずらして描画
-        ctx.textAlign = "left"; // 描画設定を元に戻す
+        ctx.fillText(label, pt.x + 14, pt.y + 5);
     }
 
     if (showLeft) {
@@ -412,29 +409,27 @@ canvas.addEventListener("mousedown", (e) => {
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    // 【重要】クリック判定の有効半径を 20px から 25px へ少し広げてつかみやすく調整
-    const clickArea = 25;
-
     if (!isOverlapped) {
-        const dP = Math.hypot(x - getPos(cx1, cy, pAngle).x, y - getPos(cx1, cy, pAngle).y);
-        if (dP < clickArea) { dragging = "P"; return; }
+        // 文字の表示ズレ（+14px）の位置に判定を完全に一致させる修正
+        const dP = Math.hypot(x - (getPos(cx1, cy, pAngle).x + 14), y - getPos(cx1, cy, pAngle).y);
+        if (dP < 20) { dragging = "P"; return; }
 
-        const dQ = Math.hypot(x - getPos(cx2, cy, qAngle).x, y - getPos(cx2, cy, qAngle).y);
-        if (dQ < clickArea) { dragging = "Q"; return; }
+        const dQ = Math.hypot(x - (getPos(cx2, cy, qAngle).x + 14), y - getPos(cx2, cy, qAngle).y);
+        if (dQ < 20) { dragging = "Q"; return; }
 
-        const dC = Math.hypot(x - getPos(cx2, cy, startC).x, y - getPos(cx2, cy, startC).y);
-        if (dC < clickArea) {
+        const dC = Math.hypot(x - (getPos(cx2, cy, startC).x + 14), y - getPos(cx2, cy, startC).y);
+        if (dC < 20) {
             dragging = "C";
             let angle = Math.atan2(cy - y, x - cx2) * 180 / Math.PI;
             dragOffsetC = normalizeAngle(angle - startC);
             return;
         }
     } else {
-        const dP = Math.hypot(x - getPos(cx3, cy3, pAngle).x, y - getPos(cx3, cy3, pAngle).y);
-        if (dP < clickArea) { dragging = "P"; return; }
+        const dP = Math.hypot(x - (getPos(cx3, cy3, pAngle).x + 14), y - getPos(cx3, cy3, pAngle).y);
+        if (dP < 20) { dragging = "P"; return; }
 
-        const dQ = Math.hypot(x - getPos(cx3, cy3, qAngle).x, y - getPos(cx3, cy3, qAngle).y);
-        if (dQ < clickArea) { dragging = "Q"; return; }
+        const dQ = Math.hypot(x - (getPos(cx3, cy3, qAngle).x + 14), y - getPos(cx3, cy3, qAngle).y);
+        if (dQ < 20) { dragging = "Q"; return; }
     }
 });
 
@@ -443,17 +438,16 @@ canvas.addEventListener("mousemove", (e) => {
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    const clickArea = 25;
-
     if (!dragging) {
         let pActive = false, qActive = false, cActive = false;
         if (!isOverlapped) {
-            pActive = Math.hypot(x - getPos(cx1, cy, pAngle).x, y - getPos(cx1, cy, pAngle).y) < clickArea;
-            qActive = Math.hypot(x - getPos(cx2, cy, qAngle).x, y - getPos(cx2, cy, qAngle).y) < clickArea;
-            cActive = Math.hypot(x - getPos(cx2, cy, startC).x, y - getPos(cx2, cy, startC).y) < clickArea;
+            // 文字の表示ズレ（+14px）の位置に判定を完全に一致させる修正
+            pActive = Math.hypot(x - (getPos(cx1, cy, pAngle).x + 14), y - getPos(cx1, cy, pAngle).y) < 20;
+            qActive = Math.hypot(x - (getPos(cx2, cy, qAngle).x + 14), y - getPos(cx2, cy, qAngle).y) < 20;
+            cActive = Math.hypot(x - (getPos(cx2, cy, startC).x + 14), y - getPos(cx2, cy, startC).y) < 20;
         } else {
-            pActive = Math.hypot(x - getPos(cx3, cy3, pAngle).x, y - getPos(cx3, cy3, pAngle).y) < clickArea;
-            qActive = Math.hypot(x - getPos(cx3, cy3, qAngle).x, y - getPos(cx3, cy3, qAngle).y) < clickArea;
+            pActive = Math.hypot(x - (getPos(cx3, cy3, pAngle).x + 14), y - getPos(cx3, cy3, pAngle).y) < 20;
+            qActive = Math.hypot(x - (getPos(cx3, cy3, qAngle).x + 14), y - getPos(cx3, cy3, qAngle).y) < 20;
         }
 
         if (pActive || qActive || cActive) {
