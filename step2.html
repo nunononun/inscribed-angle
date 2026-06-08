@@ -5,29 +5,199 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>等しい弧に対する円周角</title>
 <link rel="stylesheet" href="style.css">
+<style>
+    /* 他のステップと100%統一された、美しく深みのあるグラデーションヘッダー */
+    header {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        color: white;
+        padding: 40px 20px;
+        text-align: center;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(37, 99, 235, 0.25);
+        max-width: 1200px;
+        margin: 0 auto 35px auto;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        box-sizing: border-box;
+    }
+
+    header h1 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+    }
+
+    body {
+        margin: 0;
+        padding: 20px;
+        box-sizing: border-box;
+        font-family: sans-serif;
+        background-color: #f8fafc;
+    }
+
+    main {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 0;
+        margin: 0;
+    }
+
+    .view-switcher {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 25px;
+    }
+
+    .view-switcher button {
+        padding: 8px 16px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #64748b;
+        background-color: #ffffff;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .view-switcher button.active, .view-switcher button:hover {
+        color: #2563eb;
+        background-color: #eff6ff;
+        border-color: #3b82f6;
+    }
+
+    /* ヘッダーの横幅（max-width: 1200px）と完全に一致させ、中央寄せにする */
+    .panel {
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 50, 100, 0.06);
+        padding: 35px 30px;
+        box-sizing: border-box;
+        max-width: 1200px; /* ヘッダーの幅と完全同期 */
+        margin: 0 auto 30px auto; /* 画面中央に配置 */
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    /* キャンバスの直上に綺麗に収まるコントロールエリア */
+    .controls {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+        background-color: #f8fafc;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 15px 25px;
+        margin-bottom: 25px;
+        font-weight: 700;
+        color: #334155;
+        width: 100%;
+        max-width: 900px; /* キャンバス自体の幅にフィット */
+        box-sizing: border-box;
+    }
+
+    .controls .slider-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .controls input[type="range"] {
+        cursor: pointer;
+        width: 200px;
+        margin: 0;
+        vertical-align: middle;
+    }
+
+    .controls .btn-group {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    /* ボタンの視認性とスタイルを最適化 */
+    .controls button {
+        padding: 10px 18px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+        border: none;
+    }
+
+    /* 左右をまとめるボタン（プライマリ：鮮やかな青） */
+    #overlapBtn {
+        background-color: #2563eb;
+        color: #ffffff !important;
+    }
+    #overlapBtn:hover {
+        background-color: #1d4ed8;
+    }
+    #overlapBtn.active {
+        background-color: #dc2626; /* 有効時は警告色（赤）に変化 */
+    }
+
+    /* 初期位置に戻すボタン（セカンダリ：落ち着いたグレー） */
+    #resetBtn {
+        background-color: #e2e8f0;
+        color: #334155 !important;
+        border: 1px solid #cbd5e1;
+    }
+    #resetBtn:hover {
+        background-color: #cbd5e1;
+    }
+
+    .canvas-container {
+        text-align: center;
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    #canvas {
+        background-color: #ffffff;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        max-width: 100%;
+        height: auto;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        display: inline-block;
+    }
+</style>
 </head>
 
 <body>
 
 <a href="index.html" class="home-btn">🏠</a>
 
-<div class="view-switcher">
-    <button id="switchAuto" class="active">🔄 自動</button>
-    <button id="switchMobile">📱 スマホ版</button>
-    <button id="switchPc">💻 PC版</button>
-</div>
+<main>
+    <header>
+       <h1>等しい弧に対する円周角</h1>
+    </header>
 
-<h2>等しい弧に対する円周角</h2>
+    <div class="panel">
+        <div class="controls">
+            <div class="slider-wrapper">
+                <span>弧AB = 弧CD の調整:</span>
+                <input type="range" id="arcInput" min="20" max="170" value="80">
+            </div>
+            <div class="btn-group">
+                <button id="overlapBtn">左右の図形を1つにまとめる</button>
+                <button id="resetBtn">初期位置に戻す</button>
+            </div>
+        </div>
 
-<div class="controls">
-    弧AB = 弧CD
-    <input type="range" id="arcInput" min="20" max="170" value="80">
-    <br>
-    <button id="overlapBtn">左右の図形を1つにまとめる</button>
-    <button id="resetBtn">初期位置に戻す</button>
-</div>
-
-<canvas id="canvas" width="900" height="750"></canvas>
+        <div class="canvas-container">
+            <canvas id="canvas" width="900" height="750"></canvas>
+        </div>
+    </div>
+</main>
 
 <script>
 const canvas = document.getElementById("canvas");
