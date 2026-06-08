@@ -483,3 +483,78 @@ button:disabled {
         min-width: 100%;
     }
 }
+
+/* ==========================================================================
+   【新規追加】ボタンサイズ縮小時のアイコン・コンパクト化設定
+   ========================================================================== */
+
+/* 1. ポータルの「教材を開く ➔」などのカード用ボタン */
+@media (max-width: 576px) {
+    /* 横並びのカードやボタンが狭くなった時 */
+    .btn-link, .next-btn, .restart-btn, .option-btn {
+        padding: 10px 14px !important;
+        font-size: 0.95rem !important;
+    }
+
+    /* クイズの「次の問題へ ➔」ボタンなどをスマホ用にアイコン風に短縮 */
+    #next-btn {
+        position: relative;
+    }
+}
+
+/* 2. 画面幅がかなり狭くなった時（極小デバイス・スマホ縦向き）の文字切り替え */
+@media (max-width: 400px) {
+    /* 文字が入り切らなくなるサイズになったら、
+       ボタンの中のテキストを非表示にする、または家ボタンのように記号化する
+    */
+    
+    /* 「次の問題へ ➔」などのテキストを矢印だけにするテクニック */
+    .next-btn, .restart-btn {
+        width: 50px;
+        height: 50px;
+        padding: 0 !important;
+        border-radius: 50% !important; /* 丸いボタンにする */
+        text-align: center;
+        line-height: 50px;
+        font-size: 1.3rem !important;
+        overflow: hidden;
+        white-space: nowrap;
+        text-shadow: none;
+        color: transparent; /* 元の文字を透明にする */
+    }
+
+    /* 文字を透明にした代わりに、家ボタンのように中央に「➔」や「🔄」の記号だけを浮かび上がらせる */
+    .next-btn::after {
+        content: "➔";
+        color: white;
+        position: absolute;
+        left: 0; top: 0; width: 100%; height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .restart-btn {
+        position: relative;
+    }
+    .restart-btn::after {
+        content: "🔄";
+        color: white;
+        position: absolute;
+        left: 0; top: 0; width: 100%; height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* ポータル画面の「教材を開く ➔」ボタンもコンパクトな矢印に変形 */
+    .btn-link {
+        font-size: 0px !important; /* 文字を消す */
+        padding: 8px 16px !important;
+        border-radius: 20px;
+    }
+    .btn-link::after {
+        content: "📖 ➔"; /* 本のアイコンと矢印にする */
+        font-size: 1rem;
+    }
+}
