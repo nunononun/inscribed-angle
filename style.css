@@ -396,193 +396,107 @@ button:disabled {
 .secret-blank.revealed mjx-container { visibility: visible; }
 
 /* ==========================================================================
-   右下：固定配置の家ボタン（🏠）＆極上モダンツールチップ
+   【仕様変更】最初から図形（アイコン）表示 ＋ カーソルホバーで文字表示
    ========================================================================== */
-   .home-btn {
-    position: fixed; 
-    bottom: 25px; 
-    right: 25px; 
-    z-index: 9999; 
-    background: linear-gradient(135deg, #2563eb, #1d4ed8); 
-    color: white; 
-    width: 56px; 
-    height: 56px; 
-    border-radius: 50%; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    text-decoration: none; 
-    font-size: 24px; 
-    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4); 
-    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); /* 弾むような小気味いい動き */
+
+/* STEP2のボタン（まとめる・リセット）の共通基本スタイル */
+#overlapBtn, #resetBtn {
+    position: relative !important;
+    width: 50px !important;
+    min-width: 50px !important;
+    max-width: 50px !important;
+    height: 50px !important;
+    min-height: 50px !important;
+    max-height: 50px !important;
+    
+    padding: 0 !important;
+    margin: 5px !important;
+    border-radius: 50% !important; /* 最初から完全な正円 */
+    
+    /* 元の長い日本語テキストを画面から完全に隠す設定 */
+    font-size: 0px !important;
+    line-height: 0 !important;
+    color: transparent !important;
+    text-shadow: none !important;
+    overflow: visible !important; /* 文字ポップアップをはみ出させて見せるためにvisibleにする */
+    
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    vertical-align: middle !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
 }
 
-/* カーソルが乗ったときのボタン本体の拡大 */
-.home-btn:hover {
-    transform: scale(1.1) rotate(-5deg); /* わずかに傾けて遊び心をプラス */
+/* ボタンの中央に表示する図形（絵文字アイコン）の設定 */
+#overlapBtn::after, #resetBtn::after {
+    font-size: 1.3rem !important;
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    color: white !important;
+    pointer-events: none !important; /* マウスイベントを邪魔しない */
 }
 
-/* ツールチップ（吹き出し本体） */
-.home-btn::after {
-    content: "ポータルに戻る";
-    position: absolute;
-    bottom: 74px; /* ボタンとの距離を最適化 */
-    right: 0;
-    background: rgba(15, 23, 42, 0.95); /* 深いネイビー＋わずかな透過 */
-    backdrop-filter: blur(4px); /* 背景をほんのりぼかすモダンエフェクト */
-    color: #ffffff;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    padding: 7px 14px;
-    border-radius: 20px; /* 丸みのあるカプセル型にして今風に */
-    white-space: nowrap;
-    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.15), 0 3px 6px rgba(15, 23, 42, 0.1);
-    opacity: 0;
-    pointer-events: none;
-    transform: translateY(8px) scale(0.95); /* 下から小さく湧き出るような初期状態 */
-    transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
-                transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+/* 👥 左右の図形を1つにまとめるボタンのアイコン */
+#overlapBtn::after {
+    content: "👥" !important;
+}
+/* 🔄 初期位置に戻すボタンのアイコン */
+#resetBtn::after {
+    content: "🔄" !important;
 }
 
-/* 吹き出しの小さな三角形（矢印）を新規追加！ */
-.home-btn::before {
-    content: "";
-    position: absolute;
-    bottom: 66px;
-    right: 22px; /* ボタンの中央に綺麗に合わせる調整 */
-    border-width: 5px 5px 0 5px;
-    border-style: solid;
-    border-color: rgba(15, 23, 42, 0.95) transparent transparent transparent;
-    opacity: 0;
-    pointer-events: none;
-    transform: translateY(8px);
-    transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
-                transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* ホバーしたときに吹き出しと矢印をふわっと連動表示 */
-.home-btn:hover::after,
-.home-btn:hover::before {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-}
 
 /* ==========================================================================
-   レスポンシブメディアクエリ（全画面対応）
-   ========================================================================== */
-@media (max-width: 1024px) {
-    .container {
-        flex-direction: column;
-        align-items: center;
-        gap: 30px;
-    }
-    .panel {
-        max-width: 100%;
-        width: 100%;
-        min-width: 100%;
-    }
-}
-
-/* ==========================================================================
-   【究極版】JS上書きを完全シャットアウト！縮小時のアイコン化設定
+   ★ カーソルが乗った時（ホバー時）に吹き出しで文字を表示する設定（ツールチップ）
    ========================================================================== */
 
-/* 1. 画面幅 576px 以下のとき：ボタンの文字や余白を少し小さくして収まりやすくする */
-@media (max-width: 576px) {
-    .btn-link, .next-btn, .restart-btn, .option-btn, #overlapBtn, #resetBtn {
-        padding: 10px 14px !important;
-        font-size: 0.95rem !important;
-    }
+/* マウスが乗った時に、ボタンの上に文字を浮かび上がらせる共通設定 */
+#overlapBtn::before, #resetBtn::before {
+    position: absolute !important;
+    bottom: 60px !important; /* ボタンの少し上に浮かせる */
+    left: 50% !important;
+    transform: translateX(-50%) scale(0.8) !important; /* 最初は少し小さくしておく */
+    
+    /* 吹き出しの文字のデザイン */
+    font-size: 13px !important;
+    line-height: 1.4 !important;
+    color: white !important;
+    background-color: rgba(0, 0, 0, 0.85) !important; /* 高級感のある半透明の黒 */
+    padding: 6px 12px !important;
+    border-radius: 6px !important;
+    white-space: nowrap !important; /* 改行させない */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
+    
+    /* 最初は非表示にしておく（透明） */
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transition: transform 0.15s ease, opacity 0.15s ease !important;
+    z-index: 9999 !important;
 }
 
-/* 2. 画面幅 420px 以下のとき：文字を強制消去し、家ボタンのようにアイコン（絵文字）化する */
-@media (max-width: 420px) {
-    
-    /* 対象となるすべてのボタンの「あらゆるサイズ干渉」を完全にリセットして綺麗な正円にする */
-    .next-btn, .restart-btn, #overlapBtn, #resetBtn {
-        width: 50px !important;
-        min-width: 50px !important;   /* 最小幅を50pxで固定 */
-        max-width: 50px !important;
-        height: 50px !important;
-        min-height: 50px !important;
-        max-height: 50px !important;
-        
-        padding: 0 !important;
-        margin: 5px !important;       /* ボタン同士の隙間 */
-        border-radius: 50% !important; /* 完全な正円 */
-        
-        /* 🚨 JSが裏で文字を何度書き換えようが、強制的に画面上から文字を消滅させる設定 */
-        font-size: 0px !important;      /* 文字サイズを0にして消す */
-        line-height: 0 !important;      /* 行の高さを0にしてみえなくする */
-        color: transparent !important;  /* 色も透明にする */
-        text-indent: -9999px !important;/* 文字を画面の外へ遥か彼方に吹き飛ばす */
-        
-        overflow: hidden !important;
-        white-space: nowrap !important;
-        text-shadow: none !important;  /* 文字の影も消す */
-        
-        /* 中央配置のためのフレックス設定 */
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        flex-shrink: 0 !important;     /* 画面が狭くても絶対に潰さない */
-        position: relative !important;
-    }
+/* 👥 ボタンにマウスが乗った時に表示する文字 */
+#overlapBtn:hover::before {
+    content: "左右の図形を1つにまとめる" !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateX(-50%) scale(1) !important; /* ふわっと定位置に拡大表示 */
+}
 
-    /* 各ボタンの中央に、家ボタンのようなアイコン（絵文字）を新しく浮かび上がらせる */
-    /* ※ text-indentで元の文字を飛ばしているため、アイコンは「position: absolute」で中央に固定します */
-    
-    /* クイズ：次の問題へ ➔ */
-    .next-btn::after {
-        content: "➔" !important;
-        color: white !important;
-        font-size: 1.2rem !important;
-        position: absolute !important;
-        left: 50% !important;
-        top: 50% !important;
-        transform: translate(-50%, -50%) !important; /* 真ん中に配置 */
-    }
-    
-    /* クイズ：最初からやり直す */
-    .restart-btn::after {
-        content: "🔄" !important;
-        font-size: 1.2rem !important;
-        position: absolute !important;
-        left: 50% !important;
-        top: 50% !important;
-        transform: translate(-50%, -50%) !important;
-    }
+/* 🔄 ボタンにマウスが乗った時に表示する文字 */
+#resetBtn:hover::before {
+    content: "初期位置に戻す" !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: translateX(-50%) scale(1) !important;
+}
 
-    /* ★ STEP2：左右の図形を1つにまとめるボタン */
-    #overlapBtn::after {
-        content: "👥" !important; /* 通常時は図形が重なるイメージの絵文字 */
-        font-size: 1.2rem !important;
-        position: absolute !important;
-        left: 50% !important;
-        top: 50% !important;
-        transform: translate(-50%, -50%) !important;
-    }
-    
-    /* ★ STEP2：初期位置に戻すボタン */
-    #resetBtn::after {
-        content: "🔄" !important; /* リセットの絵文字 */
-        font-size: 1.2rem !important;
-        position: absolute !important;
-        left: 50% !important;
-        top: 50% !important;
-        transform: translate(-50%, -50%) !important;
-    }
-
-    /* ポータル画面の「教材を開く ➔」ボタンもコンパクトに */
-    .btn-link {
-        font-size: 0px !important; 
-        padding: 8px 16px !important;
-        border-radius: 20px !important;
-        text-indent: 0px !important; /* ポータルは文字を飛ばさない */
-    }
-    .btn-link::after {
-        content: "📖 ➔" !important;
-        font-size: 1rem !important;
+/* スマホなど、マウスがなくて「ホバー」ができない画面用の対策 */
+@media (max-width: 768px) {
+    /* スマホでは文字の吹き出しが邪魔になることがあるため、ホバー文字を無効化（アイコンのみでスッキリ） */
+    #overlapBtn:hover::before, #resetBtn:hover::before {
+        display: none !important;
     }
 }
