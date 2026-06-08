@@ -3,22 +3,69 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>円周角の定理：証明実践教材</title>
+<title>円周角の定理の逆：証明実験教材（大きい側の弧AB可動版）</title>
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 <link rel="stylesheet" href="style.css">
 <style>
-    /* 【追加スタイル】
-      すべてのステップを初期状態で非表示にし、.active がついたステップだけを表に出します。
-      これで「該当ステップだけを表示する」挙動が100%実現します。
-    */
-    .proof-step {
-        display: none;
-        opacity: 0;
-    }
-    .proof-step.active {
-        display: block !important;
-        opacity: 1 !important;
-    }
+/* 左右分割レイアウト（左：図形、右：文章） */
+.container { 
+    display: flex; 
+    flex-direction: row; 
+    align-items: flex-end; /* 下側を揃える */
+    justify-content: center; \r\n    gap: 50px; 
+    max-width: 1300px; 
+    margin: 40px auto; 
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+/* 左側：図形エリア */
+.canvas-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 0 0 auto;
+}
+
+/* スライダーエリアの余白調整 */
+.controls {
+    margin-bottom: 15px;
+    font-size: 0.95rem;
+    color: #334155;
+}
+
+/* 右側：ステップ解説パネル */
+.panel {
+    flex: 1 1 580px;
+    max-width: 580px;
+    text-align: left;
+    background: #f8fafc;
+    padding: 22px;
+    border-radius: 12px;
+    box-sizing: border-box;
+}
+
+.proof-step {
+    min-height: 140px;
+    padding: 14px;
+    border-left: 6px solid #cbd5e1;
+    background: #f1f5f9;
+    margin-bottom: 15px;
+    opacity: 0.4;
+    transition: all 0.3s;
+}
+.proof-step.active {
+    border-left-color: #3b82f6;
+    background: #eff6ff;
+    opacity: 1;
+}
+
+/* 前へ・次へボタン用グループ */
+.btn-group {
+    display: flex;
+    gap: 15px;
+    margin-top: 15px;
+}
 </style>
 </head>
 <body>
@@ -31,253 +78,308 @@
     <button id="switchPc">💻 PC版</button>
 </div>
 
-<h2>円周角の定理：なぜ2倍になるの？（証明の実験）</h2>
+<h2>円周角の定理の逆（同一円周上の条件）</h2>
 
 <div class="container">
-    <div class="canvas-area">
+    
+    <div class="canvas-container">
         <div class="controls">
-            <label>中心角（基本設定）: 
-                <input type="range" id="angleSlider" min="40" max="150" value="80">
-                <span id="angleVal">80</span>°
+            <label>基準となる円周角（弧ABの大きさ）: 
+                <input type="range" id="arcSlider" min="50" max="130" value="90">
+                <span id="arcVal">90</span>°
             </label>
         </div>
-        <canvas id="canvas" width="550" height="520"></canvas>
-        <div class="hint">🔴 赤い点Pをドラッグして、位置による3つのケースを実験しよう！</div>
+        <canvas id="canvas" width="550" height="500"></canvas>
+        <div class="hint">🔴 点Pを上下左右にドラッグして、角度の変化を体感しよう！</div>
     </div>
 
     <div class="panel">
-        <h3>🧭 補助線POによる3つのケース証明</h3>
-        <p class="click-notice">💡 黄色の伏せ字をクリックすると、正しい数式や言葉が開きます！</p>
+        <h3>🧭 背理法による「定理の逆」の証明</h3>
+        <p class="click-notice">💡 黄色の伏せ字をクリックすると、正しい言葉が開きます！</p>
         
         <div id="stepCard1" class="proof-step active">
-            <strong>【ケース1】補助線が中心Oを通る場合</strong><br>
-            点Pを動かして、青い線（直径）の上に重ねてみましょう。<br>
-            <span class="secret-blank" id="b1">△OPA</span> は、半径 OA=OP より<span class="secret-blank" id="b2">二等辺三角形</span>となります。<br>
-            したがって、底角は等しく \( \angle \text{OPA} = \angle \text{OAP} = \bullet \) です。<br>
-            三角形の赤外角の性質より、<br>
-            \( \angle \text{AOK} = \angle \text{OPA} + \angle \text{OAP} = \) <span class="secret-blank" id="b3">\( 2 \bullet \)</span> となり、<br>
-            中心角は円周角のちょうど <strong>2倍</strong> であることが証明されます！
+            <strong>【STEP 1】点Pが円の「外側」にあるとき</strong><br>
+            点Pを円の外に引っ張ってみましょう。線分PBと円の交点を Q とします。<br>
+            \( \triangle \text{AQB} \) は円周角なので、\( \angle \text{AQB} = \angle \text{ACB} \)（同じ大きさ）です。<br>
+            ここで三角形の外角の性質を見ると、\( \angle \text{AQB} = \angle \text{APB} + \angle \text{PAQ} \) となり、<br>
+            外角は内角より必ず大きいため、\( \angle \text{APB} \) は基準の角より必ず<span class="secret-blank" id="b1">小さく</span>なります！<br>
+            つまり、「同じ角度」になることは絶対にあり得ず、矛盾します。
         </div>
 
         <div id="stepCard2" class="proof-step">
-            <strong>【ケース2】中心Oが円周角の内側にある場合</strong><br>
-            補助線 PK (直径) を引いて、左右2つの空間に分けて考えます。<br>
-            左側：ケース1と全く同じ理由から、<br>
-            \( \angle \text{AOK} = 2 \angle \text{OPA} = \) <span class="secret-blank" id="b4">\( 2 \bullet \)</span><br>
-            右側：同じく二等辺三角形 \( \triangle \text{OPB} \) の外角の性質より、<br>
-            \( \angle \text{BOK} = 2 \angle \text{OPB} = \) <span class="secret-blank" id="b5">\( 2 \times \times \)</span><br>
-            これら左右の角を足し合わせると：<br>
-            \( \angle \text{AOB} = \angle \text{AOK} + \angle \text{BOK} = 2( \bullet + \times ) = 2 \angle \text{APB} \)<br>
-            よって、内側にあるときも常に <strong>2倍</strong> が成り立ちます！
+            <strong>【STEP 2】点Pが円の「内側」にあるとき</strong><br>
+            点Pを円の内側に入れてみましょう。光線を延長し、円との交点を Q とします。<br>
+            今度は \( \triangle \text{APB} \) の方が外角の立場になるため、<br>
+            \( \angle \text{APB} = \angle \text{AQB} + \angle \text{PAQ} \) という式が成り立ちます。<br>
+            円周角 \( \angle \text{AQB} \) に余計な角がプラスされるため、\( \angle \text{APB} \) は基準の角より必ず<span class="secret-blank" id="b2">大きく</span>なります！<br>
+            ここでも「同じ角度」には決してならず、矛盾が発生します。
         </div>
 
         <div id="stepCard3" class="proof-step">
-            <strong>【ケース3】中心Oが円周角の外側にある場合</strong><br>
-            補助線 PK (直径) を引き、今度は大きな角から小さな角を<strong>引き算</strong>します。<br>
-            全体：大きな \( \triangle \text{OPB} \) の外角の性質に注目すると、<br>
-            \( \angle \text{BOK} = 2 \angle \text{OPB} = 2 ( \bullet + \times ) \)<br>
-            引く部分：小さな二等辺三角形 \( \triangle \text{OPA} \) に注目すると、<br>
-            \( \angle \text{AOK} = 2 \angle \text{OPA} = \) <span class="secret-blank" id="b6">\( 2 \bullet \)</span><br>
-            求めたい中心角 \( \angle \text{AOB} \) は、この2つの差なので、<br>
-            \( \angle \text{AOB} = \angle \text{BOK} - \angle \text{AOK} = 2(\bullet + \times) - 2\bullet = \) <span class="secret-blank" id="b7">\( 2 \times \)</span><br>
-            これは \( 2 \angle \text{APB} \) そのものです。外側でも <strong>2倍</strong> 確定です！
+            <strong>【STEP 3】結論：同じ角度なら円周上のみ！</strong><br>
+            「外側なら小さくなる」「内側なら大きくなる」ことが今、証明されました。<br>
+            ということは、\( \angle \text{APB} = \angle \text{ACB} \) という「同じ角度」が保たれる場所は、<br>
+            内でも外でもない、<span class="secret-blank" id="b3">円周の上</span>のラインだけに限定されることになります！<br>
+            これが、4点 A, B, C, P が同じ円の上にあるための条件（円周角の定理の逆）です。
         </div>
 
         <div class="btn-group">
-            <button id="resetBlanksBtn">伏せ字をすべて元に戻す</button>
+            <button id="prevBtn" disabled>◀ 前のステップへ</button>
+            <button id="nextBtn">次のステップへ ▶</button>
         </div>
     </div>
+
 </div>
 
 <script>
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-const cx = 260, cy = 260, r = 180;
+const cx = 270, cy = 270, r = 160;
 
-let centerAngle = 80;
-let pAngle = 210; // 初期位置（ケース2付近）
-let draggingP = false;
+// 固定点A, B, Cの角度設定（下側に弧を構える大きな優良円）
+let angleA = 210;
+let angleB = 330;
+let angleC = 90; // 固定の基準円周角
 
-const angleSlider = document.getElementById("angleSlider");
-const angleVal = document.getElementById("angleVal");
-const resetBlanksBtn = document.getElementById("resetBlanksBtn");
+let currentStep = 1; // 1: 外側, 2: 内側, 3: 円周上
 
-angleSlider.addEventListener("input", (e) => {
-    centerAngle = parseInt(e.target.value);
-    angleVal.textContent = centerAngle;
+// 可動点Pの初期位置（ステップ1に合わせて外側上空に配置）
+let mouseX = cx + 50;
+let mouseY = cy - 200;
+let dragging = false;
+
+const arcSlider = document.getElementById("arcSlider");
+const arcVal = document.getElementById("arcVal");
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+const blanks = document.querySelectorAll(".secret-blank");
+
+// 弧のサイズ調整スライダー
+arcSlider.addEventListener("input", (e) => {
+    const targetArc = parseInt(e.target.value);
+    arcVal.textContent = targetArc;
+    
+    // AとBの間の弧の幅がtargetArcになるように、中心から対称に開く
+    const mid = 270; 
+    angleA = mid - targetArc / 2;
+    angleB = mid + targetArc / 2;
     draw();
 });
 
-// 伏せ字クリックシステムの構築
-const blanks = document.querySelectorAll(".secret-blank");
-blanks.forEach(blank => {
-    blank.addEventListener("click", function(e) {
-        // 親要素が .active の場合のみクリックで明かせる
-        if (this.parentElement.classList.contains("active")) {
+// 伏せ字クリック
+blanks.forEach(b => {
+    b.addEventListener("click", function(e) {
+        if(this.parentElement.classList.contains("active")) {
             this.classList.add("revealed");
             e.stopPropagation();
         }
     });
 });
 
-resetBlanksBtn.addEventListener("click", () => {
-    blanks.forEach(blank => blank.classList.remove("revealed"));
-});
+// ステップ切り替えナビゲーション
+function updateStep(stepNum) {
+    currentStep = stepNum;
+    
+    // カード表示切替
+    for(let i=1; i<=3; i++) {
+        document.getElementById("stepCard" + i).classList.toggle("active", i === currentCaseNum(stepNum));
+    }
+    function currentCaseNum(s) { return s; } // マップ互換
 
-function pointOnCircle(angleDeg) {
-    const rad = angleDeg * Math.PI / 180;
-    return { x: cx + r * Math.cos(rad), y: cy - r * Math.sin(rad) };
+    // ボタンの状態制御
+    prevBtn.disabled = (currentStep === 1);
+    nextBtn.disabled = (currentStep === 3);
+
+    // 各ステップにふさわしい初期位置へ点Pを強制ワープ案内
+    if (currentStep === 1) {
+        mouseX = cx + 40; mouseY = cy - 210; // 確実に外側
+    } else if (currentStep === 2) {
+        mouseX = cx + 20; mouseY = cy - 60;  // 確実に内側
+    } else if (currentStep === 3) {
+        const rad = 100 * Math.PI / 180;     // 円周上の斜め上
+        mouseX = cx + r * Math.cos(rad);
+        mouseY = cy - r * Math.sin(rad);
+    }
+    draw();
 }
 
-function drawNode(pt, color, label, isBig = false) {
-    ctx.beginPath();
-    ctx.arc(pt.x, pt.y, isBig ? 10 : 5, 0, Math.PI * 2);
-    ctx.fillStyle = color;
-    ctx.fill();
-    if(isBig) {
-        ctx.strokeStyle = "#ffffff";
-        ctx.lineWidth = 2;
-        ctx.stroke();
-    }
-    ctx.fillStyle = "#1e293b";
-    ctx.font = "bold 16px sans-serif";
+prevBtn.addEventListener("click", () => { if(currentStep > 1) updateStep(currentStep - 1); });
+nextBtn.addEventListener("click", () => { if(currentStep < 3) updateStep(currentStep + 1); });
+
+function degToRad(deg) { return deg * Math.PI / 180; }
+
+function drawNode(x, y, color, label) {
+    ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI*2);
+    ctx.fillStyle = color; ctx.fill();
+    ctx.fillStyle = "#1e293b"; ctx.font = "bold 15px sans-serif";
+    ctx.fillText(label, x - 5, y - 12);
+}
+
+function getLineY(x) {
+    const pA = { x: cx + r*Math.cos(degToRad(angleA)), y: cy - r*Math.sin(degToRad(angleA)) };
+    const pB = { x: cx + r*Math.cos(degToRad(angleB)), y: cy - r*Math.sin(degToRad(angleB)) };
+    if (Math.abs(pB.x - pA.x) < 0.1) return pA.y;
+    return pA.y + (pB.y - pA.y) * (x - pA.x) / (pB.x - pA.x);
 }
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // 円ベース
+    // 1. 基準となる主円の描画
     ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
     ctx.strokeStyle = "#cbd5e1"; ctx.lineWidth = 3; ctx.stroke();
 
-    // A, B, P, K(Pの反対側の直径点) の座標定義
-    const A = pointOnCircle(0);
-    const B = pointOnCircle(centerAngle);
-    const P = pointOnCircle(pAngle);
-    const K = pointOnCircle(pAngle + 180); // 直径の対角点
+    const A = { x: cx + r * Math.cos(degToRad(angleA)), y: cy - r * Math.sin(degToRad(angleA)) };
+    const B = { x: cx + r * Math.cos(degToRad(angleB)), y: cy - r * Math.sin(degToRad(angleB)) };
+    const C = { x: cx + r * Math.cos(degToRad(angleC)), y: cy - r * Math.sin(degToRad(angleC)) };
 
-    // 現在のPの位置に基づき、3つの証明ケースのどれに該当するか自動判定してカードクラスを動的切替
-    let currentCase = 2; 
-    const diff = (pAngle < 0) ? pAngle + 360 : pAngle;
-
-    // 誤差を考慮した判定（直径の上に重なるケース1）
-    if (Math.abs(diff - 180) < 3.0 || Math.abs(diff - (centerAngle + 180)) < 3.0) {
-        currentCase = 1;
-    } else if (diff > 180 && diff < (centerAngle + 180)) {
-        currentCase = 2; // 内側
-    } else {
-        currentCase = 3; // 外側
-    }
-
-    // 解説パネルのアクティブ状態をパチパチ切り替える
+    // 各カードのアクティブを念のため同期
     for(let i=1; i<=3; i++) {
-        const card = document.getElementById("stepCard" + i);
-        if(i === currentCase) {
-            card.classList.add("active");
-        } else {
-            card.classList.remove("active");
+        document.getElementById("stepCard" + i).classList.toggle("active", i === currentStep);
+    }
+
+    // ドラッグ中の点Pの移動範囲に「ステップに応じた強力なバリケード（拘束条件）」をかける
+    let finalX = mouseX;
+    let finalY = mouseY;
+    const orbitBuffer = 5; 
+
+    if (currentStep === 1) {
+        const dist = Math.hypot(mouseX - cx, mouseY - cy);
+        if (dist < r + orbitBuffer) {
+            const rad = Math.atan2(cy - mouseY, mouseX - cx);
+            finalX = cx + (r + orbitBuffer) * Math.cos(rad);
+            finalY = cy - (r + orbitBuffer) * Math.sin(rad);
         }
+        const currentLineY = getLineY(finalX);
+        const lineOffset = 15;
+        if (finalY > currentLineY - lineOffset) {
+            const requiredDx = Math.sqrt(Math.max(0, (r+orbitBuffer)*(r+orbitBuffer) - (finalY - cy)*(finalY - cy)));
+            finalX = (mouseX < cx) ? cx - requiredDx : cx + requiredDx;
+        }
+
+    } else if (currentStep === 2) {
+        const innerLimitR = r - orbitBuffer;
+        const dist = Math.hypot(mouseX - cx, mouseY - cy);
+        if (dist > innerLimitR) {
+            const rad = Math.atan2(cy - mouseY, mouseX - cx);
+            finalX = cx + innerLimitR * Math.cos(rad);
+            finalY = cy - innerLimitR * Math.sin(rad);
+        }
+        const currentLineY = getLineY(finalX);
+        const lineOffset = 15;
+        if (finalY > currentLineY - lineOffset) {
+            finalY = currentLineY - lineOffset;
+        }
+
+    } else if (currentStep === 3) {
+        let rad = Math.atan2(cy - mouseY, mouseX - cx);
+        let angleDeg = rad * 180 / Math.PI;
+        if (angleDeg < 0) angleDeg += 360;
+        if (angleDeg < 31 || angleDeg > 149) {
+            if (mouseX < cx) { angleDeg = 149; } else { angleDeg = 31; }
+        }
+        rad = degToRad(angleDeg);
+        finalX = cx + r * Math.cos(rad);
+        finalY = cy - r * Math.sin(rad);
     }
 
-    // 1. 中心角の扇形（オレンジ）
-    ctx.beginPath();
-    ctx.moveTo(cx, cy);
-    ctx.arc(cx, cy, 35, 0, -centerAngle * Math.PI / 180, true);
-    ctx.closePath();
-    ctx.fillStyle = "rgba(245, 158, 11, 0.25)";
-    ctx.fill();
-    ctx.strokeStyle = "#f59e0b";
-    ctx.lineWidth = 2;
-    ctx.stroke();
+    // 2. 固定の基準円周角三角形 ACB (静かなグレー線)
+    ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(C.x, C.y); ctx.lineTo(B.x, B.y);
+    ctx.strokeStyle = "#94a3b8"; ctx.lineWidth = 1.5; ctx.stroke();
+    
+    // 基準角の数値を計算して表示
+    const baseAngleText = ((360 - (angleB - angleA)) / 2).toFixed(0);
+    ctx.fillStyle = "#64748b"; ctx.font = "14px sans-serif";
+    ctx.fillText(`∠ACB = ${baseAngleText}° (基準円周角)`, C.x - 45, C.y - 15);
 
-    // 2. 円周角の架け橋ライン
-    ctx.beginPath();
-    ctx.moveTo(A.x, A.y); ctx.lineTo(P.x, P.y); ctx.lineTo(B.x, B.y);
-    ctx.strokeStyle = "#475569"; ctx.lineWidth = 2.5; ctx.stroke();
+    // 3. 実験中の可動三角形 APB (鮮やかな赤・またはステップ対応カラー)
+    ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(finalX, finalY); ctx.lineTo(B.x, B.y);
+    ctx.strokeStyle = (currentStep===3) ? "#16a34a" : "#dc2626"; 
+    ctx.lineWidth = 3; ctx.stroke();
 
-    // 3. 補助線 PK (点Pから中心Oを通る、運命の直径線)
-    ctx.beginPath();
-    ctx.moveTo(P.x, P.y); ctx.lineTo(K.x, K.y);
-    ctx.strokeStyle = "#3b82f6"; ctx.lineWidth = 2;
-    ctx.setLineDash([6, 5]); // 点線にする
-    ctx.stroke();
-    ctx.setLineDash([]); // 実線に戻す
-
-    // 4. 半径OA, OBのライン
-    ctx.beginPath();
-    ctx.moveTo(cx, cy); ctx.lineTo(A.x, A.y);
-    ctx.moveTo(cx, cy); ctx.lineTo(B.x, B.y);
-    ctx.strokeStyle = "#94a3b8"; ctx.lineWidth = 2; ctx.stroke();
-
-    // 各角度空間の中にシンボリックなマーク（●や×）を配置
-    ctx.font = "14px Arial";
-    // ケース1、2、3に応じて角度記号の描画場所をリッチに分岐
-    if (currentCase === 1) {
-        ctx.fillStyle = "#e53e3e";
-        ctx.fillText("●", P.x + (cx-P.x)*0.2 - 5, P.y + (cy-P.y)*0.2 + 5);
-        ctx.fillText("2●", cx + 20, cy + 20);
-    } else if (currentCase === 2) {
-        ctx.fillStyle = "#e53e3e"; ctx.fillText("●", P.x + 35*Math.cos((pAngle-15)*Math.PI/180), P.y - 35*Math.sin((pAngle-15)*Math.PI/180));
-        ctx.fillStyle = "#10b981"; ctx.fillText("×", P.x + 35*Math.cos((pAngle+15)*Math.PI/180), P.y - 35*Math.sin((pAngle+15)*Math.PI/180));
-    } else {
-        ctx.fillStyle = "#e53e3e"; ctx.fillText("●", P.x + 40*Math.cos((pAngle-10)*Math.PI/180), P.y - 40*Math.sin((pAngle-10)*Math.PI/180));
-        ctx.fillStyle = "#10b981"; ctx.fillText("×", P.x + 25*Math.cos((pAngle+15)*Math.PI/180), P.y - 25*Math.sin((pAngle+15)*Math.PI/180));
+    // 4. 特殊交点 Q などの補助パーツの算出・描画（ステップ1・2用）
+    if (currentStep === 1) {
+        let radPB = Math.atan2(B.y - finalY, B.x - finalX);
+        let qX = finalX, qY = finalY;
+        for (let d = 0; d < 600; d += 2) {
+            let tx = finalX + d * Math.cos(radPB);
+            let ty = finalY + d * Math.sin(radPB);
+            if (Math.hypot(tx - cx, ty - cy) <= r) {
+                qX = tx; qY = ty; break;
+            }
+        }
+        ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(qX, qY);
+        ctx.strokeStyle = "#3b82f6"; ctx.lineWidth = 2; ctx.setLineDash([4,4]); ctx.stroke(); ctx.setLineDash([]);
+        drawNode(qX, qY, "#3b82f6", "Q");
+    } else if (currentStep === 2) {
+        let radBP = Math.atan2(finalY - B.y, finalX - B.x);
+        let qX = finalX, qY = finalY;
+        for (let d = 0; d < 600; d += 2) {
+            let tx = B.x + d * Math.cos(radBP);
+            let ty = B.y + d * Math.sin(radBP);
+            if (Math.hypot(tx - cx, ty - cy) >= r) {
+                qX = tx; qY = ty; break;
+            }
+        }
+        ctx.beginPath(); ctx.moveTo(A.x, A.y); ctx.lineTo(qX, qY);
+        ctx.strokeStyle = "#3b82f6"; ctx.lineWidth = 2; ctx.setLineDash([4,4]); ctx.stroke(); ctx.setLineDash([]);
+        drawNode(qX, qY, "#3b82f6", "Q");
     }
 
-    // ノードの装飾配置
-    drawNode(A, "#0f172a", "A"); ctx.fillText("A", A.x + 10, A.y + 5);
-    drawNode(B, "#0f172a", "B"); ctx.fillText("B", B.x + 8, B.y - 10);
-    drawNode(P, "#e53e3e", "P", true); ctx.fillText("P", P.x - 5, P.y - 15);
-    drawNode({x:cx, y:cy}, "#2d3748", "O"); ctx.fillText("O", cx - 18, cy + 22);
+    // 角度計算
+    const vPA = { x: A.x - finalX, y: A.y - finalY };
+    const vPB = { x: B.x - finalX, y: B.y - finalY };
+    const dot = vPA.x*vPB.x + vPA.y*vPB.y;
+    const cosP = dot / (Math.hypot(vPA.x, vPA.y) * Math.hypot(vPB.x, vPB.y));
+    const anglePVal = Math.acos(Math.max(-1, Math.min(1, cosP))) * 180 / Math.PI;
 
-    ctx.fillStyle = "#718096";
-    ctx.beginPath(); ctx.arc(K.x, K.y, 4, 0, Math.PI*2); ctx.fill();
-    ctx.fillText("K", K.x + 8, K.y + 12);
+    // Pの頭上に角度リアルタイムバッジを描画
+    ctx.fillStyle = (currentStep===3) ? "#16a34a" : "#dc2626";
+    ctx.font = "bold 16px sans-serif";
+    ctx.fillText(`∠APB = ${anglePVal.toFixed(1)}°`, finalX - 45, finalY - 25);
+
+    // 各点ラベルと本体ピンの設置
+    drawNode(A.x, A.y, "#0f172a", "A");
+    drawNode(B.x, B.y, "#0f172a", "B");
+    drawNode(C.x, C.y, "#94a3b8", "C");
+    
+    // 可動ピンPは大きくして白フチ付きの高級仕様
+    ctx.beginPath(); ctx.arc(finalX, finalY, 10, 0, Math.PI*2);
+    ctx.fillStyle = (currentStep===3) ? "#16a34a" : "#dc2626"; ctx.fill();
+    ctx.strokeStyle = "#fff"; ctx.lineWidth = 2; ctx.stroke();
+    ctx.fillStyle = "#0f172a"; ctx.font = "bold 16px sans-serif";
+    ctx.fillText("P", finalX - 5, finalY - 12);
 }
 
-function isMouseOverP(e) {
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const P = pointOnCircle(pAngle);
-    return Math.hypot(x - P.x, y - P.y) < 20;
-}
-
+// マウスイベント
 canvas.addEventListener("mousedown", (e) => {
-    if (isMouseOverP(e)) {
-        draggingP = true;
-    }
-});
-
-canvas.addEventListener("mousemove", (e) => {
-    if (isMouseOverP(e) || draggingP) {
-        canvas.style.cursor = "pointer";
-    } else {
-        canvas.style.cursor = "default";
-    }
-
-    if (!draggingP) return;
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
     
-    let angle = Math.atan2(cy - y, x - cx) * 180 / Math.PI;
-    if (angle < 0) angle += 360;
-
-    // AやBと完全にくっつくと作図が崩れるのを防ぐ制限
-    if (angle > 8 && angle < 352) {
-        pAngle = angle;
+    // 現在位置の点Pとの当たり判定
+    // 描画ロジックと共通の拘束位置を簡易計算
+    if (Math.hypot(x - mouseX, y - mouseY) < 35) {
+        dragging = true;
     }
-    draw();
 });
 
-window.addEventListener("mouseup", () => {
-    draggingP = false;
+canvas.addEventListener("mousemove", (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    if(dragging) {
+        mouseX = x; mouseY = y;
+        draw();
+    }
 });
 
-// 初期起動
-draw();
+window.addEventListener("mouseup", () => { dragging = false; });
+
+// 初回キック起動
+updateStep(1);
 
 // ⚙️ 画面サイズ切り替えスクリプト
 document.addEventListener("DOMContentLoaded", () => {
