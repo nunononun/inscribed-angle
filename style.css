@@ -1,13 +1,13 @@
 @charset "UTF-8";
 
 /* ==========================================================================
-   全般的な基本スタイル設定（洗練された清潔感のあるストライプ背景）
+   全般的な基本スタイル設定
    ========================================================================== */
 body {
     font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
     text-align: center;
     margin: 0;
-    padding: 0 0 20px 0; /* ヘッダー固定用の余白調整 */
+    padding: 0 0 40px 0;
     color: #2d3748;
     line-height: 1.6;
     background-color: #f2f7fc;
@@ -22,16 +22,10 @@ body {
         transparent
     );
     background-size: 40px 40px;
-    animation: cleanStripes 40s linear infinite;
-}
-
-@keyframes cleanStripes {
-    0% { background-position: 0 0; }
-    100% { background-position: 40px 40px; }
 }
 
 /* ==========================================================================
-   新設：最高級モダン共通ヘッダー（最上部グローバルナビゲーション）
+   新設：最高級モダン共通ヘッダー
    ========================================================================== */
 .custom-header {
     display: flex;
@@ -50,7 +44,7 @@ body {
     width: 100%;
 }
 
-/* 劇的に目立つように洗練されたホームボタン */
+/* 劇的に目立つようにしたホームボタン */
 .custom-header .enhanced-home-btn {
     display: inline-flex;
     align-items: center;
@@ -90,21 +84,37 @@ body {
 .custom-header .toggle-view-btn:hover {
     background: #f8fafc;
     border-color: #94a3b8;
-    transform: translateY(-0.5px);
 }
 
 /* ==========================================================================
-   ナビゲーションボタン群・高級吹き出しツールチップ（一元化マネジメント）
+   ナビゲーションボタン群・高級吹き出しツールチップ
    ========================================================================== */
 .nav-tooltip-wrapper {
     position: relative;
     display: inline-block;
 }
 
-/* 汎用吹き出しの美しき極み */
+.nav-tooltip-wrapper button,
+.controls button {
+    padding: 10px 16px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    transition: all 0.2s;
+    font-weight: 600;
+}
+
+.nav-tooltip-wrapper button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* 汎用吹き出しツールチップ */
 .nav-tooltip-wrapper .tooltip-text {
     visibility: hidden;
-    width: 150px;
+    width: 160px;
     background-color: rgba(15, 23, 42, 0.96);
     color: #ffffff;
     text-align: center;
@@ -119,7 +129,7 @@ body {
     font-size: 0.8rem;
     font-weight: 600;
     line-height: 1.4;
-    transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: opacity 0.2s, transform 0.2s;
     pointer-events: none;
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
 }
@@ -134,72 +144,64 @@ body {
     border-color: rgba(15, 23, 42, 0.96) transparent transparent transparent;
 }
 
-/* ホバー時にツールチップを展開（スマホモード時のみ有効化するための初期設定） */
-.nav-tooltip-wrapper:hover .tooltip-text {
-    /* 通常時はツールチップ不要なため非表示、レスポンシブ側で制御 */
-    visibility: hidden;
-    opacity: 0;
-}
-
-/* テキスト切り替え用の標準構造 */
+/* 初期状態：通常テキストを表示、アイコンは隠す */
 .btn-text-normal { display: inline; }
 .btn-text-icon { display: none; }
 
 /* ==========================================================================
-   スマホ版スタイル変更（エラー完全解消の独立した2階層分離設計）
+   レイアウト用共通設定
+   ========================================================================== */
+.container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+canvas {
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+.controls {
+    margin-bottom: 15px;
+    background: #ffffff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ==========================================================================
+   スマホ版スタイル変更（独立した2階層分離設計により赤線エラーを完全排除）
    ========================================================================== */
 
-/* --- 1階層目：bodyに.forced-mobile（スマホ版ボタン押下時）が適用された場合 --- */
+/* 1. body.forced-mobile（トグルボタンON時） */
 body.forced-mobile .custom-header { padding: 10px 16px; }
 body.forced-mobile .btn-text-normal { display: none !important; }
 body.forced-mobile .btn-text-icon { display: inline !important; font-size: 1.35rem; line-height: 1; }
-body.forced-mobile .nav-tooltip-wrapper button, 
-body.forced-mobile .option-btn,
-body.forced-mobile .step-control-btn { 
-    padding: 10px 14px !important; 
-    min-width: 50px;
-}
-body.forced-mobile .nav-tooltip-wrapper:hover .tooltip-text {
-    visibility: visible;
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-}
-body.forced-mobile .container, 
-body.forced-mobile .quiz-container { 
-    flex-direction: column !important; 
-    align-items: center !important; 
-    gap: 20px !important; 
-    padding: 10px !important;
-}
-body.forced-mobile canvas {
-    max-width: 100% !important;
-    height: auto !important;
-}
+body.forced-mobile .nav-tooltip-wrapper button { padding: 8px 12px !important; min-width: 50px; }
+body.forced-mobile .nav-tooltip-wrapper:hover .tooltip-text { visibility: visible; opacity: 1; transform: translateX(-50%) translateY(0); }
+body.forced-mobile .container { flex-direction: column !important; align-items: center !important; gap: 20px !important; }
+body.forced-mobile canvas { max-width: 100% !important; height: auto !important; }
 
-/* --- 2階層目：実際の物理的なブラウザ幅が狭い場合（ブレイクポイント: 768px） --- */
+/* 2. 実際の画面幅が狭い時（ブレイクポイント: 768px） */
 @media (max-width: 768px) {
     .custom-header { padding: 10px 16px; }
     .btn-text-normal { display: none !important; }
     .btn-text-icon { display: inline !important; font-size: 1.35rem; line-height: 1; }
-    .nav-tooltip-wrapper button,
-    .option-btn,
-    .step-control-btn { 
-        padding: 10px 14px !important; 
-        min-width: 50px;
-    }
-    .nav-tooltip-wrapper:hover .tooltip-text {
-        visibility: visible;
-        opacity: 1;
-        transform: translateX(-50%) translateY(0);
-    }
-    .container, .quiz-container { 
-        flex-direction: column !important; 
-        align-items: center !important; 
-        gap: 20px !important; 
-        padding: 10px !important;
-    }
-    canvas {
-        max-width: 100% !important;
-        height: auto !important;
-    }
+    .nav-tooltip-wrapper button { padding: 8px 12px !important; min-width: 50px; }
+    .nav-tooltip-wrapper:hover .tooltip-text { visibility: visible; opacity: 1; transform: translateX(-50%) translateY(0); }
+    .container { flex-direction: column !important; align-items: center !important; gap: 20px !important; }
+    canvas { max-width: 100% !important; height: auto !important; }
 }
