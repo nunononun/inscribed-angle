@@ -448,17 +448,78 @@ button:disabled {
     content: "🔄" !important;
 }
 
-
 /* ==========================================================================
-   ★ カーソルが乗った時（ホバー時）に吹き出しで文字を表示する設定（ツールチップ）
+   【完全解決版】最初から図形（アイコン）表示 ＋ カーソルホバーで文字表示
    ========================================================================== */
 
-/* マウスが乗った時に、ボタンの上に文字を浮かび上がらせる共通設定 */
+/* STEP2のボタン（まとめる・リセット）の共通基本スタイル */
+#overlapBtn, #resetBtn {
+    position: relative !important;
+    width: 50px !important;
+    min-width: 50px !important;
+    max-width: 50px !important;
+    height: 50px !important;
+    min-height: 50px !important;
+    max-height: 50px !important;
+    
+    padding: 0 !important;
+    margin: 5px !important;
+    border-radius: 50% !important; /* 最初から完全な正円 */
+    
+    /* 🚨【重要】フレックス配置を一度リ解除し、文字を完全に透明化・極小化する */
+    display: inline-block !important; 
+    font-size: 0px !important;
+    line-height: 0 !important;
+    color: transparent !important;
+    text-shadow: none !important;
+    
+    /* 🚨画像ではみ出ていた文字を、ボタンの「枠外」に絶対に一歩も出さない設定 */
+    overflow: hidden !important; 
+    white-space: nowrap !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+}
+
+/* 👥 左右の図形を1つにまとめるボタンのアイコン */
+#overlapBtn::after {
+    content: "👥" !important;
+    font-size: 1.3rem !important;
+    color: white !important;
+    
+    /* ボタンのど真ん中に固定 */
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+}
+
+/* 🔄 初期位置に戻すボタンのアイコン */
+#resetBtn::after {
+    content: "🔄" !important;
+    font-size: 1.3rem !important;
+    color: white !important;
+    
+    /* ボタンのど真ん中に固定 */
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+}
+
+/* ==========================================================================
+   ★ カーソルが乗った時（ホバー時）にボタンの【外側】に文字を表示する（ツールチップ）
+   ========================================================================== */
+
+/* 吹き出し文字の共通デザイン（ボタンがoverflow:hiddenなので、親要素の動きに合わせます） */
+#overlapBtn:hover, #resetBtn:hover {
+    overflow: visible !important; /* 🚨マウスが乗った時だけ、吹き出しを外に見せる */
+}
+
 #overlapBtn::before, #resetBtn::before {
     position: absolute !important;
     bottom: 60px !important; /* ボタンの少し上に浮かせる */
     left: 50% !important;
-    transform: translateX(-50%) scale(0.8) !important; /* 最初は少し小さくしておく */
+    transform: translateX(-50%) scale(0.8) !important;
     
     /* 吹き出しの文字のデザイン */
     font-size: 13px !important;
@@ -467,10 +528,10 @@ button:disabled {
     background-color: rgba(0, 0, 0, 0.85) !important; /* 高級感のある半透明の黒 */
     padding: 6px 12px !important;
     border-radius: 6px !important;
-    white-space: nowrap !important; /* 改行させない */
+    white-space: nowrap !important;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
     
-    /* 最初は非表示にしておく（透明） */
+    /* 最初は非表示にしておく */
     opacity: 0 !important;
     visibility: hidden !important;
     transition: transform 0.15s ease, opacity 0.15s ease !important;
@@ -482,7 +543,7 @@ button:disabled {
     content: "左右の図形を1つにまとめる" !important;
     opacity: 1 !important;
     visibility: visible !important;
-    transform: translateX(-50%) scale(1) !important; /* ふわっと定位置に拡大表示 */
+    transform: translateX(-50%) scale(1) !important;
 }
 
 /* 🔄 ボタンにマウスが乗った時に表示する文字 */
@@ -493,9 +554,8 @@ button:disabled {
     transform: translateX(-50%) scale(1) !important;
 }
 
-/* スマホなど、マウスがなくて「ホバー」ができない画面用の対策 */
+/* スマホ等、ホバーがない画面用の対策 */
 @media (max-width: 768px) {
-    /* スマホでは文字の吹き出しが邪魔になることがあるため、ホバー文字を無効化（アイコンのみでスッキリ） */
     #overlapBtn:hover::before, #resetBtn:hover::before {
         display: none !important;
     }
