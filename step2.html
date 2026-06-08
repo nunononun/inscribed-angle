@@ -4,8 +4,26 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>等しい弧に対する円周角</title>
-<link rel="stylesheet" href="style.css">
 <style>
+    /* ベーススタイル */
+    body {
+        margin: 0;
+        padding: 20px;
+        box-sizing: border-box;
+        font-family: sans-serif;
+        background-color: #f8fafc;
+        position: relative;
+        min-height: 100vh;
+    }
+
+    main {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 0;
+        margin: 0;
+        padding-bottom: 80px; /* 右下のホームボタンと被らないように余白を確保 */
+    }
+
     /* 他のステップと100%統一された、美しく深みのあるグラデーションヘッダー */
     header {
         background: linear-gradient(135deg, #2563eb, #1d4ed8);
@@ -25,21 +43,6 @@
         font-size: 2rem;
         font-weight: 800;
         letter-spacing: -0.5px;
-    }
-
-    body {
-        margin: 0;
-        padding: 20px;
-        box-sizing: border-box;
-        font-family: sans-serif;
-        background-color: #f8fafc;
-    }
-
-    main {
-        width: 100%;
-        box-sizing: border-box;
-        padding: 0;
-        margin: 0;
     }
 
     /* ヘッダーの横幅と完全に一致させ、中央寄せにする */
@@ -119,15 +122,15 @@
         box-shadow: 0 2px 4px rgba(220, 38, 38, 0.15);
     }
 
-    /* 【修正】初期位置に戻すボタンを明るく爽やかなデザインに変更 */
+    /* 初期位置に戻すボタン（明るいミントカラー） */
     #resetBtn {
-        background-color: #f0fdf4; /* 明るいミント系の白 */
-        color: #16a34a !important;   /* くっきりとした緑色の文字 */
-        border: 2px solid #bbf7d0;  /* 明るい緑の枠線 */
+        background-color: #f0fdf4;
+        color: #16a34a !important;
+        border: 2px solid #bbf7d0;
         box-shadow: 0 2px 4px rgba(22, 163, 74, 0.05);
     }
     #resetBtn:hover {
-        background-color: #dcfce7; /* ホバー時に少し濃い明るい緑に */
+        background-color: #dcfce7;
         border-color: #86efac;
     }
 
@@ -146,10 +149,40 @@
         box-shadow: 0 4px 12px rgba(0,0,0,0.03);
         display: inline-block;
     }
+
+    /* 【修正】通常時は青背景×白アイコン、ホバー時にスクショの通り「淡い水色背景×青アイコン」へ変化 */
+    .home-btn {
+        position: fixed;
+        bottom: 25px;
+        right: 25px;
+        background-color: #2563eb; /* 通常時：鮮やかな青色 */
+        color: #ffffff !important;  /* 通常時：白色の家アイコン */
+        border: 2px solid #2563eb;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        text-decoration: none;
+        font-size: 1.4rem;
+        box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* カーソルを合わせたときのスタイル（画像のデザインを再現） */
+    .home-btn:hover {
+        background-color: #eff6ff; /* ホバー時：明るく淡い水色 */
+        color: #2563eb !important;  /* ホバー時：青色の家アイコン */
+        border-color: #3b82f6;     /* ホバー時：クッキリした青の輪郭線 */
+        transform: scale(1.08);
+        box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+    }
 </style>
 </head>
 <body>
-<a href="index.html" class="home-btn">🏠</a>
+
 <main>
     <header>
         <h1>等しい弧に対する円周角</h1>
@@ -171,6 +204,8 @@
         </div>
     </div>
 </main>
+
+<a href="index.html" class="home-btn">🏠</a>
 
 <script>
 const canvas = document.getElementById("canvas");
@@ -482,24 +517,6 @@ window.addEventListener("mouseup", () => {
 });
 
 draw();
-
-document.addEventListener("DOMContentLoaded", () => {
-    const btnAuto = document.getElementById("switchAuto");
-    const btnMobile = document.getElementById("switchMobile");
-    const btnPc = document.getElementById("switchPc");
-    const body = document.body;
-
-    function removeClasses() {
-        body.classList.remove("forced-mobile", "forced-pc");
-        if(btnAuto) btnAuto.classList.remove("active");
-        if(btnMobile) btnMobile.classList.remove("active");
-        if(btnPc) btnPc.classList.remove("active");
-    }
-
-    if(btnAuto) btnAuto.addEventListener("click", () => { removeClasses(); btnAuto.classList.add("active"); });
-    if(btnMobile) btnMobile.addEventListener("click", () => { removeClasses(); body.classList.add("forced-mobile"); btnMobile.classList.add("active"); });
-    if(btnPc) btnPc.addEventListener("click", () => { removeClasses(); body.classList.add("forced-pc"); btnPc.classList.add("active"); });
-});
 </script>
 </body>
 </html>
