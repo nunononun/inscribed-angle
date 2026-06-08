@@ -6,7 +6,7 @@
     <title>円周角の定理 デジタル教材ポータル</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        header.hero-section {
+        header {
             background: linear-gradient(135deg, #2563eb, #1d4ed8);
             color: white;
             padding: 55px 20px;
@@ -17,137 +17,95 @@
             margin: 0 auto 35px auto;
             text-shadow: 0 2px 4px rgba(0,0,0,0.15);
         }
-        header.hero-section h1 { margin: 0; font-size: 2.3rem; font-weight: 800; }
-        header.hero-section p { margin: 12px 0 0 0; font-size: 1.1rem; opacity: 0.9; }
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 25px;
-            max-width: 1140px;
-            margin: 0 auto;
-            padding: 0 20px;
-            box-sizing: border-box;
+        header h1 {
+            margin: 0;
+            font-size: 2.3rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
         }
-        .card {
-            background: #ffffff;
-            border-radius: 14px;
-            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
-            border: 1px solid #e2e8f0;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            transition: all 0.25s ease;
+        header p {
+            margin: 12px 0 0 0;
+            font-size: 1.1rem;
+            opacity: 0.9;
         }
-        .card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(15, 23, 42, 0.1); }
-        .card-body { padding: 25px; flex-grow: 1; text-align: left; }
-        .step-badge {
-            display: inline-block;
-            background: #eff6ff;
-            color: #2563eb;
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            margin-bottom: 12px;
-        }
-        .card-title { margin: 0 0 10px 0; font-size: 1.25rem; font-weight: 700; color: #1e293b; }
-        .card-text { margin: 0; font-size: 0.95rem; color: #64748b; line-height: 1.5; }
-        .card-footer { padding: 15px 25px; background: #f8fafc; border-top: 1px solid #f1f5f9; text-align: right; }
-        .btn-link { color: #2563eb; text-decoration: none; font-weight: 700; font-size: 0.95rem; }
     </style>
 </head>
 <body>
 
-<header class="custom-header">
-    <a href="index.html" class="enhanced-home-btn">🏠 ホーム</a>
-    <button id="toggleViewBtn" class="toggle-view-btn">
-        <span id="toggleViewIcon">📱</span> <span id="toggleViewText">スマホ版に切り替える</span>
-    </button>
-</header>
+    <header>
+        <h1>📐 円周角の定理 デジタル幾何学教材</h1>
+        <p>直感的なドラッグ操作と視覚的なシミュレーションで、幾何学の本質をマスターしよう</p>
+    </header>
 
-<header class="hero-section">
-    <h1>📐 円周角の定理 デジタル数学教材</h1>
-    <p>動かして、目で見て、定理の本質を直感的に深く理解しよう</p>
-</header>
+    <main class="menu-container">
+        <div class="card-grid">
+            <div class="card">
+                <div class="card-body">
+                    <span class="step-badge">STEP 01</span>
+                    <h2 class="card-title">円周角の定理：基本のき</h2>
+                    <p class="card-text">円周角と中心角の基本的な関係性を学びます。点Pや点Qをドラッグして、角度が常に「半分（1/2）」または「2倍」の綺麗な整数比を保ち続ける不思議を体感できます。</p>
+                </div>
+                <div class="card-footer">
+                    <a href="step1.html" class="btn-link">教材を開く ➔</a>
+                </div>
+            </div>
 
-<main class="grid">
-    <div class="card">
-        <div class="card-body">
-            <span class="step-badge">STEP 01</span>
-            <h2 class="card-title">円周角の定理（基本法則）</h2>
-            <p class="card-text">点P・点Qを自由にドラッグして、中心角と円周角がどこでも「常に1:2の比率」を維持する不思議を体験できます。</p>
-        </div>
-        <div class="card-footer"><a href="step1.html" class="btn-link">教材を開く ➔</a></div>
-    </div>
-    <div class="card">
-        <div class="card-body">
-            <span class="step-badge">STEP 02</span>
-            <h2 class="card-title">等しい弧に対する円周角</h2>
-            <p class="card-text">同じ長さの弧に対する円周角は、どこにあってもすべて角度が等しくなる性質を視覚的に確かめられます。</p>
-        </div>
-        <div class="card-footer"><a href="step2.html" class="btn-link">教材を開く ➔</a></div>
-    </div>
-    <div class="card">
-        <div class="card-body">
-            <span class="step-badge">STEP 03</span>
-            <h2 class="card-title">弧の長さと円周角の比例</h2>
-            <p class="card-text">弧の長さが2倍・3倍になると、そこから広がる円周角も綺麗に2倍・3倍へと比例していく法則を学習します。</p>
-        </div>
-        <div class="card-footer"><a href="step3.html" class="btn-link">教材を開く ➔</a></div>
-    </div>
-    <div class="card">
-        <div class="card-body">
-            <span class="step-badge">STEP 04</span>
-            <h2 class="card-title">半円の弧に対する円周角（直角）</h2>
-            <p class="card-text">直径から広がる円周角が、どこへ動かしても必ず「90°（直角）」に変身する特殊で重要なケースを確かめます。</p>
-        </div>
-        <div class="card-footer"><a href="step4.html" class="btn-link">教材を開く ➔</a></div>
-    </div>
-    <div class="card">
-        <div class="card-body">
-            <span class="step-badge">STEP 05</span>
-            <h2 class="card-title">円周角の定理の逆（証明）</h2>
-            <p class="card-text">4つの点が同じ円の上にある条件を、補助線をステップに沿って動かしながら論理的に納得・証明できる教材です。</p>
-        </div>
-        <div class="card-footer"><a href="step5.html" class="btn-link">教材を開く ➔</a></div>
-    </div>
-    <div class="card">
-        <div class="card-body">
-            <span class="step-badge">FINAL QUIZ</span>
-            <h2 class="card-title">円周角の定理マスタークイズ</h2>
-            <p class="card-text">学んだすべての知識を定着させるため、ランダムに出題される全20問の幾何学クイズに挑戦しましょう。</p>
-        </div>
-        <div class="card-footer"><a href="step6.html" class="btn-link">クイズに挑戦 ➔</a></div>
-    </div>
-</main>
+            <div class="card">
+                <div class="card-body">
+                    <span class="step-badge">STEP 02</span>
+                    <h2 class="card-title">等しい弧に対する円周角</h2>
+                    <p class="card-text">「同じ長さの弧から出る円周角はどこにあってもすべて等しい」という性質を、2つの角を自由に動かしたり、1つに重ね合わせたりしながら直感的に納得できる教材です。</p>
+                </div>
+                <div class="card-footer">
+                    <a href="step2.html" class="btn-link">教材を開く ➔</a>
+                </div>
+            </div>
 
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-    const toggleViewBtn = document.getElementById("toggleViewBtn");
-    const toggleViewIcon = document.getElementById("toggleViewIcon");
-    const toggleViewText = document.getElementById("toggleViewText");
-    const body = document.body;
+            <div class="card">
+                <div class="card-body">
+                    <span class="step-badge">STEP 03</span>
+                    <h2 class="card-title">半円の弧に対する円周角（直角）</h2>
+                    <p class="card-text">中心角が180°（直径）になるとき、円周角はどこを指しても必ず「90°（直角）」になる特性を、ダイナミックなドラッグ操作とリアルタイムな角度計測で確かめます。</p>
+                </div>
+                <div class="card-footer">
+                    <a href="step3.html" class="btn-link">教材を開く ➔</a>
+                </div>
+            </div>
 
-    if(localStorage.getItem("forcedMobile") === "true") {
-        body.classList.add("forced-mobile");
-        toggleViewIcon.textContent = "💻";
-        toggleViewText.textContent = "PC版に切り替える";
-    }
+            <div class="card">
+                <div class="card-body">
+                    <span class="step-badge">STEP 04</span>
+                    <h2 class="card-title">円周角の定理：なぜ2倍？（証明）</h2>
+                    <p class="card-text">「なぜ2倍になるのか？」を、補助線を動かしながらステップバイステップのビジュアル解説付きで、論理的に納得・証明できるインタラクティブ教材です。</p>
+                </div>
+                <div class="card-footer">
+                    <a href="step4.html" class="btn-link">教材を開く ➔</a>
+                </div>
+            </div>
 
-    toggleViewBtn.addEventListener("click", () => {
-        if (body.classList.contains("forced-mobile")) {
-            body.classList.remove("forced-mobile");
-            localStorage.setItem("forcedMobile", "false");
-            toggleViewIcon.textContent = "📱";
-            toggleViewText.textContent = "スマホ版に切り替える";
-        } else {
-            body.classList.add("forced-mobile");
-            localStorage.setItem("forcedMobile", "true");
-            toggleViewIcon.textContent = "💻";
-            toggleViewText.textContent = "PC版に切り替える";
-        }
-    });
-});
-</script>
+            <div class="card">
+                <div class="card-body">
+                    <span class="step-badge">STEP 05</span>
+                    <h2 class="card-title">円周角の定理の逆：同一円周上の条件</h2>
+                    <p class="card-text">4つの点が同じ円の上に配置される条件を、点Pを内側や外側にドラッグさせたときに出現する矛盾の図形を用いてより深く理解します。</p>
+                </div>
+                <div class="card-footer">
+                    <a href="step5.html" class="btn-link">教材を開く ➔</a>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <span class="step-badge">FINAL QUIZ</span>
+                    <h2 class="card-title">円周角の定理マスタークイズ</h2>
+                    <p class="card-text">学んだ知識を定着させるための全4問のランダムクイズです。出題される問題の幾何学パターンに合わせて図形が自動生成され、あなたの理解度を測定します。</p>
+                </div>
+                <div class="card-footer">
+                    <a href="step6.html" class="btn-link">クイズに挑戦 ➔</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
 </body>
 </html>
