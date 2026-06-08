@@ -1,16 +1,20 @@
 @charset "UTF-8";
 
 /* ==========================================================================
-   全般的な基本スタイル設定
+   全般的な基本スタイル設定（洗練された清潔感のあるストライプ背景）
    ========================================================================== */
 body {
     font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
     text-align: center;
     margin: 0;
-    padding: 0 0 40px 0;
-    color: #2d3748;
+    padding: 20px;
+    color: #2d3748; /* 文字色を少し濃くしてくっきりと */
     line-height: 1.6;
+
+    /* 清潔感のある、気持ち悪さのないアイスブルー */
     background-color: #f2f7fc;
+    
+    /* 純白の細い斜めラインを等間隔で引くCSS幾何学デザイン */
     background-image: linear-gradient(
         135deg, 
         rgba(255, 255, 255, 0.6) 25%, 
@@ -22,186 +26,460 @@ body {
         transparent
     );
     background-size: 40px 40px;
+    
+    /* 非常に静かに、心地よくラインが流れ続けるアニメーション */
+    animation: cleanStripes 40s linear infinite;
 }
 
-/* ==========================================================================
-   新設：最高級モダン共通ヘッダー
-   ========================================================================== */
-.custom-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(8px);
-    padding: 12px 24px;
-    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    margin-bottom: 25px;
-    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
-    box-sizing: border-box;
-    width: 100%;
+@keyframes cleanStripes {
+    0% { background-position: 0 0; }
+    100% { background-position: 40px 40px; }
 }
 
-/* 劇的に目立つようにしたホームボタン */
-.custom-header .enhanced-home-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: linear-gradient(135deg, #2563eb, #1d4ed8);
-    color: #ffffff;
-    text-decoration: none;
-    padding: 10px 18px;
-    border-radius: 8px;
-    font-weight: bold;
-    font-size: 0.95rem;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.custom-header .enhanced-home-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.45);
-    background: linear-gradient(135deg, #1d4ed8, #1e40af);
+/* タイトルなどの装飾（一貫性を持たせるため追加） */
+h2 {
+    font-weight: 800;
+    color: #0f172a;
+    margin-top: 30px;
+    margin-bottom: 5px;
 }
 
-/* トグル式：単一の版切り替えボタン */
-.custom-header .toggle-view-btn {
-    background: #ffffff;
-    color: #1e293b;
-    border: 2px solid #cbd5e1;
-    padding: 9px 16px;
-    border-radius: 8px;
-    font-weight: 700;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.04);
-}
-.custom-header .toggle-view-btn:hover {
-    background: #f8fafc;
-    border-color: #94a3b8;
-}
-
-/* ==========================================================================
-   ナビゲーションボタン群・高級吹き出しツールチップ
-   ========================================================================== */
-.nav-tooltip-wrapper {
-    position: relative;
+/* 共通の説明テキストスタイル */
+.description {
+    max-width: 620px;
+    margin: 0 auto 20px auto;
+    font-size: 0.98em;
+    line-height: 1.6;
+    color: #4a5568;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 10px 15px;
+    border-radius: 30px;
     display: inline-block;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
 }
-
-.nav-tooltip-wrapper button,
-.controls button {
-    padding: 10px 16px;
-    font-size: 0.95rem;
-    cursor: pointer;
-    border-radius: 6px;
-    border: 1px solid #cbd5e1;
-    background: #ffffff;
-    transition: all 0.2s;
-    font-weight: 600;
-}
-
-.nav-tooltip-wrapper button:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-}
-
-/* 汎用吹き出しツールチップ */
-.nav-tooltip-wrapper .tooltip-text {
-    visibility: hidden;
-    width: 160px;
-    background-color: rgba(15, 23, 42, 0.96);
-    color: #ffffff;
-    text-align: center;
-    border-radius: 8px;
-    padding: 8px 12px;
-    position: absolute;
-    z-index: 1100;
-    bottom: 130%;
-    left: 50%;
-    transform: translateX(-50%) translateY(6px);
-    opacity: 0;
-    font-size: 0.8rem;
-    font-weight: 600;
-    line-height: 1.4;
-    transition: opacity 0.2s, transform 0.2s;
-    pointer-events: none;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-}
-.nav-tooltip-wrapper .tooltip-text::after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    margin-left: -6px;
-    border-width: 6px;
-    border-style: solid;
-    border-color: rgba(15, 23, 42, 0.96) transparent transparent transparent;
-}
-
-/* 初期状態：通常テキストを表示、アイコンは隠す */
-.btn-text-normal { display: inline; }
-.btn-text-icon { display: none; }
 
 /* ==========================================================================
-   レイアウト用共通設定
+   レイアウトコンテナ（全ページで破綻しない共通分割定義）
    ========================================================================== */
-.container {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: flex-start;
-    gap: 30px;
-    max-width: 1200px;
-    margin: 0 auto;
+.container { 
+    display: flex; 
+    flex-direction: row; 
+    align-items: flex-end; /* 下側を綺麗に揃える */
+    justify-content: center; 
+    gap: 50px; 
+    max-width: 1300px; 
+    margin: 40px auto; 
     padding: 0 20px;
     box-sizing: border-box;
 }
 
-canvas {
-    background: #ffffff;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+/* ==========================================================================
+   作図キャンバスまわりのデザイン（立体的なシャドウ）
+   ========================================================================= */
+.canvas-area,
+.canvas-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 0 0 auto;
 }
 
-.controls {
-    margin-bottom: 15px;
-    background: #ffffff;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    align-items: center;
-    justify-content: center;
+canvas {
+    border: none;
+    background-color: #ffffff;
+    border-radius: 16px; /* 角をより丸くしてモダンに */
+    box-shadow: 0 12px 30px rgba(0, 50, 100, 0.08), 0 2px 4px rgba(0, 0, 0, 0.02);
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+canvas:hover {
+    transform: scale(1.01); /* マウスを乗せるとわずかに浮き上がる */
 }
 
 /* ==========================================================================
-   スマホ版スタイル変更（独立した2階層分離設計により赤線エラーを完全排除）
+   コントロール・角度表示エリア（カード型の高級感あるデザイン）
    ========================================================================== */
+.controls {
+    width: 100%;
+    margin-bottom: 15px;
+    background: #ffffff;
+    padding: 20px 25px;
+    border-radius: 14px;
+    box-shadow: 0 10px 25px rgba(0, 50, 100, 0.05);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(0, 123, 255, 0.05);
+    font-size: 0.95rem;
+    color: #334155;
+}
 
-/* 1. body.forced-mobile（トグルボタンON時） */
-body.forced-mobile .custom-header { padding: 10px 16px; }
-body.forced-mobile .btn-text-normal { display: none !important; }
-body.forced-mobile .btn-text-icon { display: inline !important; font-size: 1.35rem; line-height: 1; }
-body.forced-mobile .nav-tooltip-wrapper button { padding: 8px 12px !important; min-width: 50px; }
-body.forced-mobile .nav-tooltip-wrapper:hover .tooltip-text { visibility: visible; opacity: 1; transform: translateX(-50%) translateY(0); }
-body.forced-mobile .container { flex-direction: column !important; align-items: center !important; gap: 20px !important; }
-body.forced-mobile canvas { max-width: 100% !important; height: auto !important; }
+.controls label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-weight: 700;
+    color: #2d3748;
+    font-size: 1.05rem;
+}
 
-/* 2. 実際の画面幅が狭い時（ブレイクポイント: 768px） */
-@media (max-width: 768px) {
-    .custom-header { padding: 10px 16px; }
-    .btn-text-normal { display: none !important; }
-    .btn-text-icon { display: inline !important; font-size: 1.35rem; line-height: 1; }
-    .nav-tooltip-wrapper button { padding: 8px 12px !important; min-width: 50px; }
-    .nav-tooltip-wrapper:hover .tooltip-text { visibility: visible; opacity: 1; transform: translateX(-50%) translateY(0); }
-    .container { flex-direction: column !important; align-items: center !important; gap: 20px !important; }
-    canvas { max-width: 100% !important; height: auto !important; }
+/* 数値入力フォーム（STEP1用） */
+input[type="number"] {
+    padding: 8px 12px;
+    border: 2px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 1.05rem;
+    font-weight: bold;
+    width: 80px;
+    text-align: center;
+    color: #1e293b;
+    background-color: #f8fafc;
+    transition: all 0.2s ease;
+}
+input[type="number"]:focus {
+    border-color: #3b82f6;
+    background-color: #ffffff;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* スライダーバー */
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 280px;
+    height: 8px;
+    background: #e2e8f0;
+    border-radius: 6px;
+    outline: none;
+    vertical-align: middle;
+    margin-left: 10px;
+}
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8); /* 青のグラデーションツマミ */
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(29, 78, 216, 0.3);
+    transition: transform 0.1s ease, background 0.2s;
+}
+input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+    background: linear-gradient(135deg, #60a5fa, #1d4ed8);
+}
+
+#angleVal {
+    display: inline-block;
+    min-width: 40px;
+    text-align: right;
+    color: #2563eb;
+    font-size: 1.2rem;
+    font-weight: 800;
+}
+
+/* 角度の数値表示バッジ（色みをはっきりと、読みやすく変更） */
+.angle-display {
+    font-weight: 800;
+    padding: 8px 16px;
+    border-radius: 30px;
+    font-size: 1rem;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+#pAngleDisplay { color: #dc2626; background-color: #fee2e2; border: 1px solid #fca5a5; }
+#qAngleDisplay { color: #16a34a; background-color: #dcfce7; border: 1px solid #86efac; }
+
+.hint {
+    font-size: 0.88em;
+    font-weight: bold;
+    color: #475569;
+    margin-top: 12px;
+    background: #e2e8f0;
+    padding: 6px 16px;
+    border-radius: 30px;
+    display: inline-block;
+}
+
+/* ==========================================================================
+   ボタンのデザイン（地味さをなくした最高級のグラデーション仕様）
+   ========================================================================== */
+.btn-group {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 0;
+    width: 100%;
+}
+
+.controls button,
+.btn-group button {
+    flex: 1;
+    min-width: 0;
+    padding: 12px 14px;
+    font-weight: 800;
+    font-size: 0.95rem;
+    cursor: pointer;
+    /* 鮮やかで美しい青の立体グラデーション */
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    margin: 0 !important;
+}
+
+/* スマホ等でのボタン縦並び調整 */
+.controls { flex-direction: column; }
+@media (min-width: 400px) { .controls { flex-direction: row; flex-wrap: wrap; } }
+
+button:hover:not(:disabled) {
+    background: linear-gradient(135deg, #60a5fa, #2563eb);
+    box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35);
+    transform: translateY(-2px); /* ボタンが少し浮く */
+}
+button:active:not(:disabled) {
+    transform: translateY(1px); /* 押した時に凹む心地よいフィードバック */
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.2);
+}
+button:disabled {
+    background: #e2e8f0;
+    color: #94a3b8;
+    box-shadow: none;
+    text-shadow: none;
+    cursor: not-allowed;
+}
+
+/* リセット系ボタン（シックで洗練されたダークグレー） */
+#resetBtn,
+#resetBlanksBtn {
+    background: linear-gradient(135deg, #64748b, #334155);
+    box-shadow: 0 4px 12px rgba(51, 65, 85, 0.2);
+}
+#resetBtn:hover,
+#resetBlanksBtn:hover {
+    background: linear-gradient(135deg, #94a3b8, #475569);
+    box-shadow: 0 6px 18px rgba(51, 65, 85, 0.35);
+}
+
+/* ==========================================================================
+   右側：解説パネル・ステップカードのデザイン
+   ========================================================================== */
+.panel {
+    flex: 1 1 580px;
+    max-width: 580px;
+    text-align: left;
+    background: #f8fafc;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgba(0,0,0,0.02);
+    margin-bottom: 5px;
+}
+
+.panel h3 {
+    margin-top: 0;
+    color: #0f172a;
+    font-size: 1.2rem;
+    font-weight: 800;
+    border-bottom: 2px solid #f1f5f9;
+    padding-bottom: 12px;
+    margin-bottom: 15px;
+}
+
+.panel hr {
+    border: 0;
+    border-top: 1px solid #e2e8f0;
+    margin-bottom: 20px;
+}
+
+.click-notice {
+    background-color: #fff7ed;
+    color: #ea580c;
+    border: 1px solid #ffedd5;
+    padding: 12px 15px;
+    border-radius: 10px;
+    font-size: 0.95em;
+    font-weight: 800;
+    margin-bottom: 20px;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(234, 88, 12, 0.04);
+}
+
+.proof-step {
+    min-height: 160px;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: #334155;
+    margin-bottom: 15px;
+    padding: 16px;
+    border-left: 6px solid #cbd5e1;
+    background: #f8fafc;
+    border-radius: 0 10px 10px 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0.5;
+}
+
+/* 証明ステップの一覧を出すページ用のアクティブ表示 */
+.proof-step.active {
+    border-left-color: #2563eb;
+    background: #eff6ff;
+    box-shadow: 0 6px 15px rgba(37, 99, 235, 0.06);
+    opacity: 1;
+    transform: translateX(4px); /* アクティブなステップが右に少しズレて際立つ */
+}
+.proof-step strong {
+    font-size: 1.1rem;
+    color: #0f172a;
+    display: inline-block;
+    margin-bottom: 8px;
+}
+
+/* ==========================================================================
+   伏せ字（シークレットマスク）のデザイン
+   ========================================================================== */
+.secret-blank {
+    display: inline-block;
+    background: linear-gradient(135deg, #fef3c7, #fde68a); /* うっすらグラデーション */
+    border: 1px dashed #d97706 !important;
+    color: transparent !important;
+    padding: 4px 10px;
+    margin: 2px 4px;
+    border-radius: 6px;
+    user-select: none;
+    transition: all 0.2s ease;
+    font-weight: bold;
+    position: relative;
+    text-shadow: none !important;
+    pointer-events: none;
+    box-shadow: 0 2px 4px rgba(217, 119, 6, 0.05);
+}
+
+.proof-step.active .secret-blank:not(.revealed) {
+    cursor: pointer;
+    pointer-events: auto;
+}
+.proof-step.active .secret-blank:not(.revealed):hover {
+    background: linear-gradient(135deg, #fde68a, #fcd34d);
+    border-color: #b45309 !important;
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(217, 119, 6, 0.15);
+}
+
+.secret-blank.revealed {
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7) !important;
+    border: 1px solid #16a34a !important;
+    color: #14532d !important;
+    cursor: default;
+    pointer-events: none;
+    transform: none !important;
+    box-shadow: none;
+}
+
+.secret-blank mjx-container { visibility: hidden; }
+.secret-blank.revealed mjx-container { visibility: visible; }
+
+/* ==========================================================================
+   右下：固定配置の家ボタン（🏠）＆極上モダンツールチップ
+   ========================================================================== */
+   .home-btn {
+    position: fixed; 
+    bottom: 25px; 
+    right: 25px; 
+    z-index: 9999; 
+    background: linear-gradient(135deg, #2563eb, #1d4ed8); 
+    color: white; 
+    width: 56px; 
+    height: 56px; 
+    border-radius: 50%; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    text-decoration: none; 
+    font-size: 24px; 
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4); 
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); /* 弾むような小気味いい動き */
+}
+
+/* カーソルが乗ったときのボタン本体の拡大 */
+.home-btn:hover {
+    transform: scale(1.1) rotate(-5deg); /* わずかに傾けて遊び心をプラス */
+}
+
+/* ツールチップ（吹き出し本体） */
+.home-btn::after {
+    content: "ポータルに戻る";
+    position: absolute;
+    bottom: 74px; /* ボタンとの距離を最適化 */
+    right: 0;
+    background: rgba(15, 23, 42, 0.95); /* 深いネイビー＋わずかな透過 */
+    backdrop-filter: blur(4px); /* 背景をほんのりぼかすモダンエフェクト */
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 7px 14px;
+    border-radius: 20px; /* 丸みのあるカプセル型にして今風に */
+    white-space: nowrap;
+    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.15), 0 3px 6px rgba(15, 23, 42, 0.1);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(8px) scale(0.95); /* 下から小さく湧き出るような初期状態 */
+    transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
+                transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 吹き出しの小さな三角形（矢印）を新規追加！ */
+.home-btn::before {
+    content: "";
+    position: absolute;
+    bottom: 66px;
+    right: 22px; /* ボタンの中央に綺麗に合わせる調整 */
+    border-width: 5px 5px 0 5px;
+    border-style: solid;
+    border-color: rgba(15, 23, 42, 0.95) transparent transparent transparent;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(8px);
+    transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
+                transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ホバーしたときに吹き出しと矢印をふわっと連動表示 */
+.home-btn:hover::after,
+.home-btn:hover::before {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+/* ==========================================================================
+   レスポンシブメディアクエリ（全画面対応）
+   ========================================================================== */
+@media (max-width: 1024px) {
+    .container {
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+    }
+    .panel {
+        max-width: 100%;
+        width: 100%;
+        min-width: 100%;
+    }
 }
