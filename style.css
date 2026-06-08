@@ -7,14 +7,10 @@ body {
     font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
     text-align: center;
     margin: 0;
-    padding: 20px;
-    color: #2d3748; /* 文字色を少し濃くしてくっきりと */
+    padding: 0 0 20px 0; /* ヘッダー固定用の余白調整 */
+    color: #2d3748;
     line-height: 1.6;
-
-    /* 清潔感のある、気持ち悪さのないアイスブルー */
     background-color: #f2f7fc;
-    
-    /* 純白の細い斜めラインを等間隔で引くCSS幾何学デザイン */
     background-image: linear-gradient(
         135deg, 
         rgba(255, 255, 255, 0.6) 25%, 
@@ -26,8 +22,6 @@ body {
         transparent
     );
     background-size: 40px 40px;
-    
-    /* 非常に静かに、心地よくラインが流れ続けるアニメーション */
     animation: cleanStripes 40s linear infinite;
 }
 
@@ -36,605 +30,176 @@ body {
     100% { background-position: 40px 40px; }
 }
 
-/* タイトルなどの装飾（一貫性を持たせるため追加） */
-h2 {
-    font-weight: 800;
-    color: #0f172a;
-    margin-top: 30px;
-    margin-bottom: 5px;
-}
-
-/* 共通の説明テキストスタイル */
-.description {
-    max-width: 620px;
-    margin: 0 auto 20px auto;
-    font-size: 0.98em;
-    line-height: 1.6;
-    color: #4a5568;
-    background: rgba(255, 255, 255, 0.7);
-    padding: 10px 15px;
-    border-radius: 30px;
-    display: inline-block;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-}
-
 /* ==========================================================================
-   レイアウトコンテナ（全ページで破綻しない共通分割定義）
+   新設：最高級モダン共通ヘッダー（最上部グローバルナビゲーション）
    ========================================================================== */
-.container { 
-    display: flex; 
-    flex-direction: row; 
-    align-items: flex-end; /* 下側を綺麗に揃える */
-    justify-content: center; 
-    gap: 50px; 
-    max-width: 1300px; 
-    margin: 40px auto; 
-    padding: 0 20px;
-    box-sizing: border-box;
-}
-
-/* ==========================================================================
-   作図キャンバスまわりのデザイン（立体的なシャドウ）
-   ========================================================================= */
-.canvas-area,
-.canvas-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    flex: 0 0 auto;
-}
-
-canvas {
-    border: none;
-    background-color: #ffffff;
-    border-radius: 16px; /* 角をより丸くしてモダンに */
-    box-shadow: 0 12px 30px rgba(0, 50, 100, 0.08), 0 2px 4px rgba(0, 0, 0, 0.02);
-    cursor: pointer;
-    transition: transform 0.2s ease;
-}
-canvas:hover {
-    transform: scale(1.01); /* マウスを乗せるとわずかに浮き上がる */
-}
-
-/* ==========================================================================
-   コントロール・角度表示エリア（カード型の高級感あるデザイン）
-   ========================================================================== */
-.controls {
-    width: 100%;
-    margin-bottom: 15px;
-    background: #ffffff;
-    padding: 20px 25px;
-    border-radius: 14px;
-    box-shadow: 0 10px 25px rgba(0, 50, 100, 0.05);
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid rgba(0, 123, 255, 0.05);
-    font-size: 0.95rem;
-    color: #334155;
-}
-
-.controls label {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    font-weight: 700;
-    color: #2d3748;
-    font-size: 1.05rem;
-}
-
-/* 数値入力フォーム（STEP1用） */
-input[type="number"] {
-    padding: 8px 12px;
-    border: 2px solid #cbd5e1;
-    border-radius: 8px;
-    font-size: 1.05rem;
-    font-weight: bold;
-    width: 80px;
-    text-align: center;
-    color: #1e293b;
-    background-color: #f8fafc;
-    transition: all 0.2s ease;
-}
-input[type="number"]:focus {
-    border-color: #3b82f6;
-    background-color: #ffffff;
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-}
-
-/* スライダーバー */
-input[type="range"] {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 280px;
-    height: 8px;
-    background: #e2e8f0;
-    border-radius: 6px;
-    outline: none;
-    vertical-align: middle;
-    margin-left: 10px;
-}
-input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #3b82f6, #1d4ed8); /* 青のグラデーションツマミ */
-    cursor: pointer;
-    box-shadow: 0 2px 6px rgba(29, 78, 216, 0.3);
-    transition: transform 0.1s ease, background 0.2s;
-}
-input[type="range"]::-webkit-slider-thumb:hover {
-    transform: scale(1.15);
-    background: linear-gradient(135deg, #60a5fa, #1d4ed8);
-}
-
-#angleVal {
-    display: inline-block;
-    min-width: 40px;
-    text-align: right;
-    color: #2563eb;
-    font-size: 1.2rem;
-    font-weight: 800;
-}
-
-/* 角度の数値表示バッジ（色みをはっきりと、読みやすく変更） */
-.angle-display {
-    font-weight: 800;
-    padding: 8px 16px;
-    border-radius: 30px;
-    font-size: 1rem;
-    letter-spacing: 0.5px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-}
-#pAngleDisplay { color: #dc2626; background-color: #fee2e2; border: 1px solid #fca5a5; }
-#qAngleDisplay { color: #16a34a; background-color: #dcfce7; border: 1px solid #86efac; }
-
-.hint {
-    font-size: 0.88em;
-    font-weight: bold;
-    color: #475569;
-    margin-top: 12px;
-    background: #e2e8f0;
-    padding: 6px 16px;
-    border-radius: 30px;
-    display: inline-block;
-}
-
-/* ==========================================================================
-   ボタンのデザイン（地味さをなくした最高級のグラデーション仕様）
-   ========================================================================== */
-.btn-group {
+.custom-header {
     display: flex;
     justify-content: space-between;
-    gap: 12px;
-    margin-top: 20px;
-    padding-top: 0;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    padding: 12px 24px;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    margin-bottom: 25px;
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+    box-sizing: border-box;
     width: 100%;
 }
 
-.controls button,
-.btn-group button {
-    flex: 1;
-    min-width: 0;
-    padding: 12px 14px;
-    font-weight: 800;
-    font-size: 0.95rem;
-    cursor: pointer;
-    /* 鮮やかで美しい青の立体グラデーション */
-    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-    color: white;
-    border: none;
-    border-radius: 4px;
+/* 劇的に目立つように洗練されたホームボタン */
+.custom-header .enhanced-home-btn {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    gap: 6px;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
-    text-shadow: 0 1px 2px rgba(0,0,0,0.1);
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    white-space: nowrap;
-    margin: 0 !important;
-}
-
-/* スマホ等でのボタン縦並び調整 */
-.controls { flex-direction: column; }
-@media (min-width: 400px) { .controls { flex-direction: row; flex-wrap: wrap; } }
-
-button:hover:not(:disabled) {
-    background: linear-gradient(135deg, #60a5fa, #2563eb);
-    box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35);
-    transform: translateY(-2px); /* ボタンが少し浮く */
-}
-button:active:not(:disabled) {
-    transform: translateY(1px); /* 押した時に凹む心地よいフィードバック */
-    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.2);
-}
-button:disabled {
-    background: #e2e8f0;
-    color: #94a3b8;
-    box-shadow: none;
-    text-shadow: none;
-    cursor: not-allowed;
-}
-
-/* リセット系ボタン（シックで洗練されたダークグレー） */
-#resetBtn,
-#resetBlanksBtn {
-    background: linear-gradient(135deg, #64748b, #334155);
-    box-shadow: 0 4px 12px rgba(51, 65, 85, 0.2);
-}
-#resetBtn:hover,
-#resetBlanksBtn:hover {
-    background: linear-gradient(135deg, #94a3b8, #475569);
-    box-shadow: 0 6px 18px rgba(51, 65, 85, 0.35);
-}
-
-/* ==========================================================================
-   右側：解説パネル・ステップカードのデザイン
-   ========================================================================== */
-.panel {
-    flex: 1 1 580px;
-    max-width: 580px;
-    text-align: left;
-    background: #f8fafc;
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    border: 1px solid rgba(0,0,0,0.02);
-    margin-bottom: 5px;
-}
-
-.panel h3 {
-    margin-top: 0;
-    color: #0f172a;
-    font-size: 1.2rem;
-    font-weight: 800;
-    border-bottom: 2px solid #f1f5f9;
-    padding-bottom: 12px;
-    margin-bottom: 15px;
-}
-
-.panel hr {
-    border: 0;
-    border-top: 1px solid #e2e8f0;
-    margin-bottom: 20px;
-}
-
-.click-notice {
-    background-color: #fff7ed;
-    color: #ea580c;
-    border: 1px solid #ffedd5;
-    padding: 12px 15px;
-    border-radius: 10px;
-    font-size: 0.95em;
-    font-weight: 800;
-    margin-bottom: 20px;
-    text-align: center;
-    box-shadow: 0 2px 6px rgba(234, 88, 12, 0.04);
-}
-
-.proof-step {
-    min-height: 160px;
-    font-size: 0.95rem;
-    line-height: 1.7;
-    color: #334155;
-    margin-bottom: 15px;
-    padding: 16px;
-    border-left: 6px solid #cbd5e1;
-    background: #f8fafc;
-    border-radius: 0 10px 10px 0;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    opacity: 0.5;
-}
-
-/* 証明ステップの一覧を出すページ用のアクティブ表示 */
-.proof-step.active {
-    border-left-color: #2563eb;
-    background: #eff6ff;
-    box-shadow: 0 6px 15px rgba(37, 99, 235, 0.06);
-    opacity: 1;
-    transform: translateX(4px); /* アクティブなステップが右に少しズレて際立つ */
-}
-.proof-step strong {
-    font-size: 1.1rem;
-    color: #0f172a;
-    display: inline-block;
-    margin-bottom: 8px;
-}
-
-/* ==========================================================================
-   伏せ字（シークレットマスク）のデザイン
-   ========================================================================== */
-.secret-blank {
-    display: inline-block;
-    background: linear-gradient(135deg, #fef3c7, #fde68a); /* うっすらグラデーション */
-    border: 1px dashed #d97706 !important;
-    color: transparent !important;
-    padding: 4px 10px;
-    margin: 2px 4px;
-    border-radius: 6px;
-    user-select: none;
-    transition: all 0.2s ease;
+    gap: 8px;
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: #ffffff;
+    text-decoration: none;
+    padding: 10px 18px;
+    border-radius: 8px;
     font-weight: bold;
-    position: relative;
-    text-shadow: none !important;
-    pointer-events: none;
-    box-shadow: 0 2px 4px rgba(217, 119, 6, 0.05);
+    font-size: 0.95rem;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.custom-header .enhanced-home-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.45);
+    background: linear-gradient(135deg, #1d4ed8, #1e40af);
 }
 
-.proof-step.active .secret-blank:not(.revealed) {
+/* トグル式：単一の版切り替えボタン */
+.custom-header .toggle-view-btn {
+    background: #ffffff;
+    color: #1e293b;
+    border: 2px solid #cbd5e1;
+    padding: 9px 16px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.9rem;
     cursor: pointer;
-    pointer-events: auto;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.04);
 }
-.proof-step.active .secret-blank:not(.revealed):hover {
-    background: linear-gradient(135deg, #fde68a, #fcd34d);
-    border-color: #b45309 !important;
-    transform: scale(1.05);
-    box-shadow: 0 4px 8px rgba(217, 119, 6, 0.15);
+.custom-header .toggle-view-btn:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+    transform: translateY(-0.5px);
 }
 
-.secret-blank.revealed {
-    background: linear-gradient(135deg, #f0fdf4, #dcfce7) !important;
-    border: 1px solid #16a34a !important;
-    color: #14532d !important;
-    cursor: default;
+/* ==========================================================================
+   ナビゲーションボタン群・高級吹き出しツールチップ（一元化マネジメント）
+   ========================================================================== */
+.nav-tooltip-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+/* 汎用吹き出しの美しき極み */
+.nav-tooltip-wrapper .tooltip-text {
+    visibility: hidden;
+    width: 150px;
+    background-color: rgba(15, 23, 42, 0.96);
+    color: #ffffff;
+    text-align: center;
+    border-radius: 8px;
+    padding: 8px 12px;
+    position: absolute;
+    z-index: 1100;
+    bottom: 130%;
+    left: 50%;
+    transform: translateX(-50%) translateY(6px);
+    opacity: 0;
+    font-size: 0.8rem;
+    font-weight: 600;
+    line-height: 1.4;
+    transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     pointer-events: none;
-    transform: none !important;
-    box-shadow: none;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+.nav-tooltip-wrapper .tooltip-text::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -6px;
+    border-width: 6px;
+    border-style: solid;
+    border-color: rgba(15, 23, 42, 0.96) transparent transparent transparent;
 }
 
-.secret-blank mjx-container { visibility: hidden; }
-.secret-blank.revealed mjx-container { visibility: visible; }
+/* ホバー時にツールチップを展開（スマホモード時のみ有効化するための初期設定） */
+.nav-tooltip-wrapper:hover .tooltip-text {
+    /* 通常時はツールチップ不要なため非表示、レスポンシブ側で制御 */
+    visibility: hidden;
+    opacity: 0;
+}
+
+/* テキスト切り替え用の標準構造 */
+.btn-text-normal { display: inline; }
+.btn-text-icon { display: none; }
 
 /* ==========================================================================
-   【仕様変更】最初から図形（アイコン）表示 ＋ カーソルホバーで文字表示
+   スマホ版スタイル変更（エラー完全解消の独立した2階層分離設計）
    ========================================================================== */
 
-/* STEP2のボタン（まとめる・リセット）の共通基本スタイル */
-#overlapBtn, #resetBtn {
-    position: relative !important;
-    width: 50px !important;
-    min-width: 50px !important;
-    max-width: 50px !important;
-    height: 50px !important;
-    min-height: 50px !important;
-    max-height: 50px !important;
-    
-    padding: 0 !important;
-    margin: 5px !important;
-    border-radius: 50% !important; /* 最初から完全な正円 */
-    
-    /* 元の長い日本語テキストを画面から完全に隠す設定 */
-    font-size: 0px !important;
-    line-height: 0 !important;
-    color: transparent !important;
-    text-shadow: none !important;
-    overflow: visible !important; /* 文字ポップアップをはみ出させて見せるためにvisibleにする */
-    
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    vertical-align: middle !important;
-    cursor: pointer !important;
-    transition: all 0.2s ease !important;
+/* --- 1階層目：bodyに.forced-mobile（スマホ版ボタン押下時）が適用された場合 --- */
+body.forced-mobile .custom-header { padding: 10px 16px; }
+body.forced-mobile .btn-text-normal { display: none !important; }
+body.forced-mobile .btn-text-icon { display: inline !important; font-size: 1.35rem; line-height: 1; }
+body.forced-mobile .nav-tooltip-wrapper button, 
+body.forced-mobile .option-btn,
+body.forced-mobile .step-control-btn { 
+    padding: 10px 14px !important; 
+    min-width: 50px;
 }
-
-/* ボタンの中央に表示する図形（絵文字アイコン）の設定 */
-#overlapBtn::after, #resetBtn::after {
-    font-size: 1.3rem !important;
-    position: absolute !important;
-    left: 50% !important;
-    top: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    color: white !important;
-    pointer-events: none !important; /* マウスイベントを邪魔しない */
+body.forced-mobile .nav-tooltip-wrapper:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
 }
-
-/* 👥 左右の図形を1つにまとめるボタンのアイコン */
-#overlapBtn::after {
-    content: "👥" !important;
-}
-/* 🔄 初期位置に戻すボタンのアイコン */
-#resetBtn::after {
-    content: "🔄" !important;
-}
-
-/* ==========================================================================
-   【完全解決版】最初から図形（アイコン）表示 ＋ カーソルホバーで文字表示
-   ========================================================================== */
-
-/* STEP2のボタン（まとめる・リセット）の共通基本スタイル */
-#overlapBtn, #resetBtn {
-    position: relative !important;
-    width: 50px !important;
-    min-width: 50px !important;
-    max-width: 50px !important;
-    height: 50px !important;
-    min-height: 50px !important;
-    max-height: 50px !important;
-    
-    padding: 0 !important;
-    margin: 5px !important;
-    border-radius: 50% !important; /* 最初から完全な正円 */
-    
-    /* 🚨【重要】フレックス配置を一度リ解除し、文字を完全に透明化・極小化する */
-    display: inline-block !important; 
-    font-size: 0px !important;
-    line-height: 0 !important;
-    color: transparent !important;
-    text-shadow: none !important;
-    
-    /* 🚨画像ではみ出ていた文字を、ボタンの「枠外」に絶対に一歩も出さない設定 */
-    overflow: hidden !important; 
-    white-space: nowrap !important;
-    cursor: pointer !important;
-    transition: all 0.2s ease !important;
-}
-
-/* 👥 左右の図形を1つにまとめるボタンのアイコン */
-#overlapBtn::after {
-    content: "👥" !important;
-    font-size: 1.3rem !important;
-    color: white !important;
-    
-    /* ボタンのど真ん中に固定 */
-    position: absolute !important;
-    left: 50% !important;
-    top: 50% !important;
-    transform: translate(-50%, -50%) !important;
-}
-
-/* 🔄 初期位置に戻すボタンのアイコン */
-#resetBtn::after {
-    content: "🔄" !important;
-    font-size: 1.3rem !important;
-    color: white !important;
-    
-    /* ボタンのど真ん中に固定 */
-    position: absolute !important;
-    left: 50% !important;
-    top: 50% !important;
-    transform: translate(-50%, -50%) !important;
-}
-
-/* ==========================================================================
-   ★ カーソルが乗った時（ホバー時）にボタンの【外側】に文字を表示する（ツールチップ）
-   ========================================================================== */
-
-/* 吹き出し文字の共通デザイン（ボタンがoverflow:hiddenなので、親要素の動きに合わせます） */
-#overlapBtn:hover, #resetBtn:hover {
-    overflow: visible !important; /* 🚨マウスが乗った時だけ、吹き出しを外に見せる */
-}
-
-#overlapBtn::before, #resetBtn::before {
-    position: absolute !important;
-    bottom: 60px !important; /* ボタンの少し上に浮かせる */
-    left: 50% !important;
-    transform: translateX(-50%) scale(0.8) !important;
-    
-    /* 吹き出しの文字のデザイン */
-    font-size: 13px !important;
-    line-height: 1.4 !important;
-    color: white !important;
-    background-color: rgba(0, 0, 0, 0.85) !important; /* 高級感のある半透明の黒 */
-    padding: 6px 12px !important;
-    border-radius: 6px !important;
-    white-space: nowrap !important;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2) !important;
-    
-    /* 最初は非表示にしておく */
-    opacity: 0 !important;
-    visibility: hidden !important;
-    transition: transform 0.15s ease, opacity 0.15s ease !important;
-    z-index: 9999 !important;
-}
-
-/* 👥 ボタンにマウスが乗った時に表示する文字 */
-#overlapBtn:hover::before {
-    content: "左右の図形を1つにまとめる" !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    transform: translateX(-50%) scale(1) !important;
-}
-
-/* 🔄 ボタンにマウスが乗った時に表示する文字 */
-#resetBtn:hover::before {
-    content: "初期位置に戻す" !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    transform: translateX(-50%) scale(1) !important;
-}
-
-/* ==========================================================================
-   スマホ・PC表示の手動切り替えシステム ＆ 横並び維持設定
-   ========================================================================== */
-
-/* 手動切り替えボタンのスタイル */
-.view-switcher {
-    position: fixed;
-    top: 15px;
-    right: 15px;
-    z-index: 10000;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 6px;
-    border-radius: 30px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    display: flex;
-    gap: 5px;
-    border: 1px solid #e2e8f0;
-}
-.view-switcher button {
-    padding: 6px 12px !important;
-    font-size: 0.85rem !important;
-    border-radius: 20px !important;
-    height: auto !important;
-    width: auto !important;
-    min-width: 0 !important;
-    box-shadow: none !important;
-    background: transparent !important;
-    color: #64748b !important;
-    transform: none !important;
-    text-shadow: none !important;
-}
-.view-switcher button.active {
-    background: linear-gradient(135deg, #3b82f6, #1d4ed8) !important;
-    color: white !important;
-    font-weight: bold !important;
-}
-
-/* --- 【重要】スマホ化してもボタンの横並びを絶対に維持する設定 --- */
-.controls {
-    display: flex !important;
-    flex-direction: row !important; /* 常に横並び */
-    flex-wrap: nowrap !important;   /* 絶対に折り返さない */
-    justify-content: center !important;
-    align-items: center !important;
-    gap: 10px !important;
-    overflow-x: auto !important;    /* 万が一はみ出たらコントロール内だけでスクロール */
-}
-
-/* ボタン自体が小さくなっても潰れない最低限のサイズ指定 */
-.controls button, .btn-group button {
-    flex-shrink: 0 !important; /* 横幅が狭くなってもボタンを縮小・変形させない */
-}
-
-/* 元のCSSにあった「400px未満で縦にする」挙動を無効化 */
-@media (max-width: 399px) {
-    .controls { flex-direction: row !important; }
-}
-
-/* --- 手動切り替え用のコンテナ制御 --- */
-/* スマホ画面強制モード */
-body.forced-mobile .container {
-    flex-direction: column !important; /* 図形と解説を縦並びにする */
-    align-items: center !important;
-    max-width: 480px !important;
-    margin: 40px auto !important;
+body.forced-mobile .container, 
+body.forced-mobile .quiz-container { 
+    flex-direction: column !important; 
+    align-items: center !important; 
+    gap: 20px !important; 
+    padding: 10px !important;
 }
 body.forced-mobile canvas {
-    max-width: 100% !important; /* キャンバスを画面幅にフィットさせる */
+    max-width: 100% !important;
     height: auto !important;
 }
 
-/* PC画面強制モード（画面が小さくなってもPCの横並びを無理やり維持） */
-body.forced-pc .container {
-    flex-direction: row !important;
-    align-items: flex-end !important;
-    overflow-x: auto !important; /* 画面からはみ出したらページ全体を横スクロール */
-}
-
-/* スマホ等、ホバーがない画面用の対策 */
+/* --- 2階層目：実際の物理的なブラウザ幅が狭い場合（ブレイクポイント: 768px） --- */
 @media (max-width: 768px) {
-    #overlapBtn:hover::before, #resetBtn:hover::before {
-        display: none !important;
+    .custom-header { padding: 10px 16px; }
+    .btn-text-normal { display: none !important; }
+    .btn-text-icon { display: inline !important; font-size: 1.35rem; line-height: 1; }
+    .nav-tooltip-wrapper button,
+    .option-btn,
+    .step-control-btn { 
+        padding: 10px 14px !important; 
+        min-width: 50px;
+    }
+    .nav-tooltip-wrapper:hover .tooltip-text {
+        visibility: visible;
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+    .container, .quiz-container { 
+        flex-direction: column !important; 
+        align-items: center !important; 
+        gap: 20px !important; 
+        padding: 10px !important;
+    }
+    canvas {
+        max-width: 100% !important;
+        height: auto !important;
     }
 }
