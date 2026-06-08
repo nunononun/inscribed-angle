@@ -525,23 +525,6 @@ window.addEventListener("mouseup", () => {
 
 draw();
 
-document.addEventListener("DOMContentLoaded", () => {
-    const btnAuto = document.getElementById("switchAuto");
-    const btnMobile = document.getElementById("switchMobile");
-    const btnPc = document.getElementById("switchPc");
-    const body = document.body;
-
-    function removeClasses() {
-        body.classList.remove("forced-mobile", "forced-pc");
-        btnAuto.classList.remove("active");
-        btnMobile.classList.remove("active");
-        btnPc.classList.remove("active");
-    }
-
-    btnAuto.addEventListener("click", () => { removeClasses(); btnAuto.classList.add("active"); });
-    btnMobile.addEventListener("click", () => { removeClasses(); body.classList.add("forced-mobile"); btnMobile.classList.add("active"); });
-    btnPc.addEventListener("click", () => { removeClasses(); body.classList.add("forced-pc"); btnPc.classList.add("active"); });
-});
 </script>
 </body>
 </html>
