@@ -5,44 +5,32 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>円周角の定理 教材</title>
 <link rel="stylesheet" href="style.css">
-<style>
-    .angle-display { font-weight: bold; padding: 6px 12px; background: #f1f5f9; border-radius: 4px; font-size: 0.9rem; }
-</style>
 </head>
 <body>
 
-<header class="custom-header">
-    <a href="index.html" class="enhanced-home-btn">🏠 ホーム</a>
-    <button id="toggleViewBtn" class="toggle-view-btn">
-        <span id="toggleViewIcon">📱</span> <span id="toggleViewText">スマホ版に切り替える</span>
-    </button>
-</header>
+<a href="index.html" class="home-btn">🏠</a>
+
+<div class="view-switcher">
+    <button id="switchAuto" class="active">🔄 自動</button>
+    <button id="switchMobile">📱 スマホ版</button>
+    <button id="switchPc">💻 PC版</button>
+</div>
 
 <h2>円周角の定理</h2>
 
 <div class="container">
     <div class="canvas-area">
         <div class="controls">
-            <label>中心角 ∠AOB :
-                <input type="number" id="angleInput" value="80" min="10" max="350" style="width:60px;">°
+            <label>中心角 ∠AOB(入力値) :
+                <input type="number" id="angleInput" value="80" min="10" max="350">°
             </label>
-            <div class="nav-tooltip-wrapper">
-                <button id="toggleP">
-                    <span class="btn-text-normal">Pを非表示</span>
-                    <span class="btn-text-icon">🙈</span>
-                </button>
-                <span class="tooltip-text">点Pを隠す / 表示する</span>
-            </div>
-            <div class="nav-tooltip-wrapper">
-                <button id="toggleQ">
-                    <span class="btn-text-normal">Qを表示</span>
-                    <span class="btn-text-icon">👁</span>
-                </button>
-                <span class="tooltip-text">点Qを出す / 隠す</span>
-            </div>
-            <span id="pAngleDisplay" class="angle-display">Pの円周角: --°</span>
-            <span id="qAngleDisplay" class="angle-display">Qの円周角: --°</span>
+            <button id="toggleP">Pを非表示</button>
+            <button id="toggleQ">Qを表示</button>
+
+            <span id="pAngleDisplay" class="angle-display">Pの中心角: --°</span>
+            <span id="qAngleDisplay" class="angle-display">Qの中心角: --°</span>
         </div>
+
         <canvas id="canvas" width="700" height="600"></canvas>
     </div>
 </div>
@@ -50,125 +38,210 @@
 <script>
 const canvas=document.getElementById("canvas");
 const ctx=canvas.getContext("2d");
+
 const cx=350,cy=300,r=220;
 
 let centerAngle=80;
 let pAngle=220;
 let qAngle=140;
-let showP=true;
-let showQ=false;
+
 let draggingP=false;
 let draggingQ=false;
+let showP=true;
+let showQ=false;
+
+const angleInput=document.getElementById("angleInput");
+const togglePBtn=document.getElementById("toggleP");
+const toggleQBtn=document.getElementById("toggleQ");
+const pAngleDisplay=document.getElementById("pAngleDisplay");
+const qAngleDisplay=document.getElementById("qAngleDisplay");
 
 function pointOnCircle(deg){
-    const rad = deg * Math.PI / 180;
-    return { x: cx + r * Math.cos(rad), y: cy - r * Math.sin(rad) };
+    const rad=(deg*Math.PI)/180;
+    return {
+        x:cx+r*Math.cos(rad),
+        y:cy-r*Math.sin(rad)
+    };
 }
 
 function draw(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
-    // 補助線・円の描画
     ctx.beginPath();
     ctx.arc(cx,cy,r,0,Math.PI*2);
-    ctx.strokeStyle="#94a3b8";
-    ctx.lineWidth=2;
+    ctx.strokeStyle="#cbd5e1";
+    ctx.lineWidth=3;
     ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(cx,cy,5,0,Math.PI*2);
+    ctx.fillStyle="#1e293b";
+    ctx.fill();
+    ctx.font="16px Arial";
+    ctx.fillText("O",cx-20,cy+5);
 
     const A = pointOnCircle(0);
     const B = pointOnCircle(centerAngle);
 
-    // 弧ABの強調
     ctx.beginPath();
-    ctx.arc(cx,cy,r, -centerAngle*Math.PI/180, 0, false);
+    ctx.moveTo(cx,cy);
+    ctx.lineTo(A.x,A.y);
+    ctx.moveTo(cx,cy);
+    ctx.lineTo(B.x,B.y);
     ctx.strokeStyle="#3b82f6";
-    ctx.lineWidth=5;
+    ctx.lineWidth=4;
     ctx.stroke();
 
-    // 中心角
     ctx.beginPath();
-    ctx.moveTo(A.x,A.y); ctx.lineTo(cx,cy); ctx.lineTo(B.x,B.y);
-    ctx.strokeStyle="#cbd5e1";
-    ctx.lineWidth=2;
-    ctx.stroke();
+    ctx.arc(A.x,A.y,6,0,Math.PI*2);
+    ctx.fillStyle="#3b82f6";
+    ctx.fill();
+    ctx.fillText("A",A.x+10,A.y+5);
 
-    ctx.fillStyle="rgba(59,130,246,0.1)";
-    ctx.beginPath(); ctx.moveTo(cx,cy);
-    ctx.arc(cx,cy,40, -centerAngle*Math.PI/180, 0, false);
-    ctx.closePath(); ctx.fill();
+    ctx.beginPath();
+    ctx.arc(B.x,B.y,6,0,Math.PI*2);
+    ctx.fillStyle="#3b82f6";
+    ctx.fill();
+    ctx.fillText("B",B.x+10,B.y-10);
 
-    ctx.fillStyle="#1e40af";
-    ctx.font="bold 15px sans-serif";
-    ctx.fillText(`中心角 ${centerAngle}°`, cx+15, cy-15);
+    ctx.font="bold 18px Arial";
+    ctx.fillStyle="#1e293b";
+    ctx.fillText(`中心角 ∠AOB = ${centerAngle}°`,40,50);
 
-    // 点A, B
-    ctx.fillStyle="#334155";
-    ctx.beginPath(); ctx.arc(A.x,A.y,6,0,Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(B.x,B.y,6,0,Math.PI*2); ctx.fill();
-    ctx.fillText("A", A.x+12, A.y+5);
-    ctx.fillText("B", B.x-5, B.y-12);
+    let currentCenterAngleP = pAngle;
+    if(currentCenterAngleP < 0) currentCenterAngleP += 360;
+    let currentCenterAngleQ = qAngle;
+    if(currentCenterAngleQ < 0) currentCenterAngleQ += 360;
 
     if(showP){
         const P = pointOnCircle(pAngle);
-        ctx.beginPath(); ctx.moveTo(A.x,A.y); ctx.lineTo(P.x,P.y); ctx.lineTo(B.x,B.y);
-        ctx.strokeStyle="#ef4444"; ctx.lineWidth=2; ctx.stroke();
-        ctx.fillStyle="#ef4444"; ctx.beginPath(); ctx.arc(P.x,P.y,8,0,Math.PI*2); ctx.fill();
-        ctx.fillStyle="#b91c1c"; ctx.fillText(`P (${(centerAngle/2).toFixed(1)}°)`, P.x-10, P.y-15);
-        document.getElementById("pAngleDisplay").textContent = `Pの円周角: ${(centerAngle/2).toFixed(1)}°`;
+        ctx.beginPath();
+        ctx.moveTo(A.x,A.y);
+        ctx.lineTo(P.x,P.y);
+        ctx.lineTo(B.x,B.y);
+        ctx.strokeStyle="#ef4444";
+        ctx.lineWidth=3;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(P.x,P.y,8,0,Math.PI*2);
+        ctx.fillStyle="#ef4444";
+        ctx.fill();
+        ctx.fillText("P",P.x-5,P.y-15);
+
+        ctx.fillStyle="#ef4444";
+        ctx.fillText(`円周角 ∠APB = ${(centerAngle/2).toFixed(1)}°`,40,90);
     }
+
     if(showQ){
         const Q = pointOnCircle(qAngle);
-        ctx.beginPath(); ctx.moveTo(A.x,A.y); ctx.lineTo(Q.x,Q.y); ctx.lineTo(B.x,B.y);
-        ctx.strokeStyle="#10b981"; ctx.lineWidth=2; ctx.stroke();
-        ctx.fillStyle="#10b981"; ctx.beginPath(); ctx.arc(Q.x,Q.y,8,0,Math.PI*2); ctx.fill();
-        ctx.fillStyle="#047857"; ctx.fillText(`Q (${(centerAngle/2).toFixed(1)}°)`, Q.x-10, Q.y-15);
-        document.getElementById("qAngleDisplay").textContent = `Qの円周角: ${(centerAngle/2).toFixed(1)}°`;
+        ctx.beginPath();
+        ctx.moveTo(A.x,A.y);
+        ctx.lineTo(Q.x,Q.y);
+        ctx.lineTo(B.x,B.y);
+        ctx.strokeStyle="#10b981";
+        ctx.lineWidth=3;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(Q.x,Q.y,8,0,Math.PI*2);
+        ctx.fillStyle="#10b981";
+        ctx.fill();
+        ctx.fillText("Q",Q.x-5,Q.y-15);
+
+        ctx.fillStyle="#10b981";
+        ctx.fillText(`円周角 ∠AQB = ${(centerAngle/2).toFixed(1)}°`,40,130);
+    }
+
+    if(showP) {
+        pAngleDisplay.textContent = `Pの中心角: ${currentCenterAngleP.toFixed(1)}°`;
+        pAngleDisplay.style.display = "inline";
+    } else {
+        pAngleDisplay.style.display = "none";
+    }
+
+    if(showQ) {
+        qAngleDisplay.textContent = `Qの中心角: ${currentCenterAngleQ.toFixed(1)}°`;
+        qAngleDisplay.style.display = "inline";
+    } else {
+        qAngleDisplay.style.display = "none";
     }
 }
 
-document.getElementById("angleInput").addEventListener("input",(e)=>{
-    centerAngle = Math.min(Math.max(parseInt(e.target.value)||10, 10), 350);
+angleInput.addEventListener("input",(e)=>{
+    let val = parseInt(e.target.value);
+    if(isNaN(val)) return;
+    if(val < 1) val = 1;
+    if(val > 359) val = 359;
+    centerAngle = val;
     draw();
 });
-document.getElementById("toggleP").addEventListener("click",()=>{
-    showP=!showP;
-    document.getElementById("toggleP").querySelector(".btn-text-normal").textContent = showP?"Pを非表示":"Pを表示";
+
+togglePBtn.addEventListener("click",()=>{
+    showP = !showP;
+    togglePBtn.textContent = showP ? "Pを非表示" : "Pを表示";
     draw();
 });
-document.getElementById("toggleQ").addEventListener("click",()=>{
-    showQ=!showQ;
-    document.getElementById("toggleQ").querySelector(".btn-text-normal").textContent = showQ?"Qを非表示":"Qを表示";
+
+toggleQBtn.addEventListener("click",()=>{
+    showQ = !showQ;
+    toggleQBtn.textContent = showQ ? "Qを非表示" : "Qを表示";
     draw();
 });
 
 canvas.addEventListener("mousedown",(e)=>{
     const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left, y = e.clientY - rect.top;
-    if(showP && Math.hypot(x-pointOnCircle(pAngle).x, y-pointOnCircle(pAngle).y)<20) draggingP=true;
-    if(showQ && Math.hypot(x-pointOnCircle(qAngle).x, y-pointOnCircle(qAngle).y)<20) draggingQ=true;
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const P = pointOnCircle(pAngle);
+    const Q = pointOnCircle(qAngle);
+
+    if(showP && Math.hypot(x-P.x,y-P.y) < 15){
+        draggingP = true;
+    }
+    if(showQ && Math.hypot(x-Q.x,y-Q.y) < 15){
+        draggingQ = true;
+    }
 });
+
 canvas.addEventListener("mousemove",(e)=>{
     if(!draggingP && !draggingQ) return;
+
     const rect = canvas.getBoundingClientRect();
-    let angle = Math.atan2(cy - (e.clientY - rect.top), (e.clientX - rect.left) - cx) * 180 / Math.PI;
-    if(angle<0) angle+=360;
-    if(draggingP) pAngle=angle;
-    if(draggingQ) qAngle=angle;
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    let angle = Math.atan2(cy - y, x - cx) * 180 / Math.PI;
+    if (angle < 0) angle += 360;
+
+    if (draggingP) pAngle = angle;
+    if (draggingQ) qAngle = angle;
+
     draw();
 });
-window.addEventListener("mouseup",()=>{ draggingP=false; draggingQ=false; });
+
+canvas.addEventListener("mouseup", () => { draggingP = false; draggingQ = false; });
+canvas.addEventListener("mouseleave", () => { draggingP = false; draggingQ = false; });
+
+draw();
 
 document.addEventListener("DOMContentLoaded", () => {
-    const toggleViewBtn = document.getElementById("toggleViewBtn");
-    const toggleViewIcon = document.getElementById("toggleViewIcon");
-    const toggleViewText = document.getElementById("toggleViewText");
+    const btnAuto = document.getElementById("switchAuto");
+    const btnMobile = document.getElementById("switchMobile");
+    const btnPc = document.getElementById("switchPc");
     const body = document.body;
-    if(localStorage.getItem("forcedMobile") === "true") { body.classList.add("forced-mobile"); toggleViewIcon.textContent = "💻"; toggleViewText.textContent = "PC版に切り替える"; }
-    toggleViewBtn.addEventListener("click", () => {
-        if (body.classList.contains("forced-mobile")) { body.classList.remove("forced-mobile"); localStorage.setItem("forcedMobile", "false"); toggleViewIcon.textContent = "📱"; toggleViewText.textContent = "スマホ版に切り替える"; }
-        else { body.classList.add("forced-mobile"); localStorage.setItem("forcedMobile", "true"); toggleViewIcon.textContent = "💻"; toggleViewText.textContent = "PC版に切り替える"; }
-    });
-    draw();
+
+    function removeClasses() {
+        body.classList.remove("forced-mobile", "forced-pc");
+        btnAuto.classList.remove("active");
+        btnMobile.classList.remove("active");
+        btnPc.classList.remove("active");
+    }
+
+    btnAuto.addEventListener("click", () => { removeClasses(); btnAuto.classList.add("active"); });
+    btnMobile.addEventListener("click", () => { removeClasses(); body.classList.add("forced-mobile"); btnMobile.classList.add("active"); });
+    btnPc.addEventListener("click", () => { removeClasses(); body.classList.add("forced-pc"); btnPc.classList.add("active"); });
 });
 </script>
 </body>
