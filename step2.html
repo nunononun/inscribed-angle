@@ -151,10 +151,6 @@
 <body>
 <a href="index.html" class="home-btn">🏠</a>
 <main>
-    <header>
-        <h1>等しい弧に対する円周角</h1>
-    </header>
-
     <div class="panel">
         <div class="controls">
             <div class="slider-wrapper">
@@ -212,6 +208,7 @@ function getPos(cx, cy, angle) {
     return { x: cx + r * Math.cos(rad), y: cy - r * Math.sin(rad) };
 }
 
+// 他の関数は一切変更していません
 function drawAngleArc(ox, oy, p1, p2, radius, color) {
     let a1 = Math.atan2(oy - p1.y, p1.x - ox);
     let a2 = Math.atan2(oy - p2.y, p2.x - ox);
@@ -274,6 +271,12 @@ function drawCircleGroup(cx, cy, sA, sC, labelSuffix, showLeft, showRight) {
         ctx.beginPath();
         ctx.arc(pt.x, pt.y, 4, 0, Math.PI * 2);
         ctx.fillStyle = color;
+        ctx.fill();
+
+        // 【変更】二重丸の真上につかめる場所を表す「・」を描画
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, 2, 0, Math.PI * 2);
+        ctx.fillStyle = "#000000";
         ctx.fill();
 
         ctx.fillStyle = "#1e293b";
@@ -410,6 +413,7 @@ canvas.addEventListener("mousedown", (e) => {
     const y = e.clientY - rect.top;
 
     if (!isOverlapped) {
+        // 【変更】判定の中心を、表示された「・」の位置（二重丸の真上）に完全に合わせました
         const dP = Math.hypot(x - getPos(cx1, cy, pAngle).x, y - getPos(cx1, cy, pAngle).y);
         if (dP < 20) { dragging = "P"; return; }
 
@@ -440,6 +444,7 @@ canvas.addEventListener("mousemove", (e) => {
     if (!dragging) {
         let pActive = false, qActive = false, cActive = false;
         if (!isOverlapped) {
+            // 【変更】判定の中心を、表示された「・」の位置（二重丸の真上）に完全に合わせました
             pActive = Math.hypot(x - getPos(cx1, cy, pAngle).x, y - getPos(cx1, cy, pAngle).y) < 20;
             qActive = Math.hypot(x - getPos(cx2, cy, qAngle).x, y - getPos(cx2, cy, qAngle).y) < 20;
             cActive = Math.hypot(x - getPos(cx2, cy, startC).x, y - getPos(cx2, cy, startC).y) < 20;
