@@ -211,6 +211,12 @@
 </style>
 </head>
 <body>
+　　<header class="custom-header">
+    　　<a href="index.html" class="enhanced-home-btn">🏠 ホーム</a>
+    　　<button id="toggleViewBtn" class="toggle-view-btn">
+        　　<span id="toggleViewIcon">📱</span> <span id="toggleViewText">スマホ版に切り替える</span>
+    　　</button>
+　　</header>
 
 <a href="index.html" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; background: rgba(0,123,255,0.9); color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); font-weight: bold;" title="ポータルに戻る">🏠</a>
 
@@ -866,6 +872,33 @@ function restartQuiz() {
 generateQuizData();
 loadQuestion();
 </script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const toggleViewBtn = document.getElementById("toggleViewBtn");
+    const toggleViewIcon = document.getElementById("toggleViewIcon");
+    const toggleViewText = document.getElementById("toggleViewText");
+    const body = document.body;
 
+    if(localStorage.getItem("forcedMobile") === "true") {
+        body.classList.add("forced-mobile");
+        toggleViewIcon.textContent = "💻";
+        toggleViewText.textContent = "PC版に切り替える";
+    }
+
+    toggleViewBtn.addEventListener("click", () => {
+        if (body.classList.contains("forced-mobile")) {
+            body.classList.remove("forced-mobile");
+            localStorage.setItem("forcedMobile", "false");
+            toggleViewIcon.textContent = "📱";
+            toggleViewText.textContent = "スマホ版に切り替える";
+        } else {
+            body.classList.add("forced-mobile");
+            localStorage.setItem("forcedMobile", "true");
+            toggleViewIcon.textContent = "💻";
+            toggleViewText.textContent = "PC版に切り替える";
+        }
+    });
+});
+</script>
 </body>
 </html>
