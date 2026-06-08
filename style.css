@@ -485,7 +485,7 @@ button:disabled {
 }
 
 /* ==========================================================================
-   【JS干渉対策版】ボタンサイズ縮小時のアイコン・コンパクト化設定
+   【究極版】JS上書きを完全シャットアウト！縮小時のアイコン化設定
    ========================================================================== */
 
 /* 1. 画面幅 576px 以下のとき：ボタンの文字や余白を少し小さくして収まりやすくする */
@@ -496,45 +496,42 @@ button:disabled {
     }
 }
 
-/* 2. 画面幅 420px 以下のとき：文字を消して、家ボタンのようにアイコン（絵文字）化する */
+/* 2. 画面幅 420px 以下のとき：文字を強制消去し、家ボタンのようにアイコン（絵文字）化する */
 @media (max-width: 420px) {
     
-    /* 対象となるすべてのボタンを100%確実に正円に固定する */
+    /* 対象となるすべてのボタンの「あらゆるサイズ干渉」を完全にリセットして綺麗な正円にする */
     .next-btn, .restart-btn, #overlapBtn, #resetBtn {
         width: 50px !important;
-        min-width: 50px !important;
+        min-width: 50px !important;   /* 最小幅を50pxで固定 */
         max-width: 50px !important;
         height: 50px !important;
         min-height: 50px !important;
         max-height: 50px !important;
         
         padding: 0 !important;
-        margin: 5px !important;
-        border-radius: 50% !important; /* 綺麗な正円 */
+        margin: 5px !important;       /* ボタン同士の隙間 */
+        border-radius: 50% !important; /* 完全な正円 */
+        
+        /* 🚨 JSが裏で文字を何度書き換えようが、強制的に画面上から文字を消滅させる設定 */
+        font-size: 0px !important;      /* 文字サイズを0にして消す */
+        line-height: 0 !important;      /* 行の高さを0にしてみえなくする */
+        color: transparent !important;  /* 色も透明にする */
+        text-indent: -9999px !important;/* 文字を画面の外へ遥か彼方に吹き飛ばす */
         
         overflow: hidden !important;
-        position: relative !important;
+        white-space: nowrap !important;
+        text-shadow: none !important;  /* 文字の影も消す */
+        
+        /* 中央配置のためのフレックス設定 */
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
-        flex-shrink: 0 !important;
+        flex-shrink: 0 !important;     /* 画面が狭くても絶対に潰さない */
+        position: relative !important;
     }
 
-    /* ★ JSが文字を書き換えても関係なく、中のテキスト（span）を完全に消し去る */
-    .next-btn .btn-text, .restart-btn .btn-text, 
-    #overlapBtn .btn-text, #resetBtn .btn-text {
-        display: none !important;
-        opacity: 0 !important;
-        visibility: hidden !important;
-    }
-    
-    /* もともと直に文字が入っているクイズ用ボタンのテキストを非表示にする保険 */
-    .next-btn, .restart-btn {
-        color: transparent !important;
-        font-size: 0px !important;
-    }
-
-    /* 各ボタンの中央に、家ボタンのようなアイコン（絵文字）を新しくセット */
+    /* 各ボタンの中央に、家ボタンのようなアイコン（絵文字）を新しく浮かび上がらせる */
+    /* ※ text-indentで元の文字を飛ばしているため、アイコンは「position: absolute」で中央に固定します */
     
     /* クイズ：次の問題へ ➔ */
     .next-btn::after {
@@ -542,6 +539,9 @@ button:disabled {
         color: white !important;
         font-size: 1.2rem !important;
         position: absolute !important;
+        left: 50% !important;
+        top: 50% !important;
+        transform: translate(-50%, -50%) !important; /* 真ん中に配置 */
     }
     
     /* クイズ：最初からやり直す */
@@ -549,27 +549,29 @@ button:disabled {
         content: "🔄" !important;
         font-size: 1.2rem !important;
         position: absolute !important;
+        left: 50% !important;
+        top: 50% !important;
+        transform: translate(-50%, -50%) !important;
     }
 
-    /* ★ STEP2：左右の図形を1つにまとめるボタン（通常時 ➔ 👥） */
+    /* ★ STEP2：左右の図形を1つにまとめるボタン */
     #overlapBtn::after {
-        content: "👥" !important; 
+        content: "👥" !important; /* 通常時は図形が重なるイメージの絵文字 */
         font-size: 1.2rem !important;
-        color: white !important;
         position: absolute !important;
+        left: 50% !important;
+        top: 50% !important;
+        transform: translate(-50%, -50%) !important;
     }
     
-    /* ★ STEP2：左右の図形を1つにまとめるボタン（クリックして非表示にする状態の時 ➔ ❌） */
-    #overlapBtn.active::after {
-        content: "❌" !important; 
-    }
-    
-    /* ★ STEP2：初期位置に戻すボタン ➔ 🔄 */
+    /* ★ STEP2：初期位置に戻すボタン */
     #resetBtn::after {
-        content: "🔄" !important; 
+        content: "🔄" !important; /* リセットの絵文字 */
         font-size: 1.2rem !important;
-        color: white !important;
         position: absolute !important;
+        left: 50% !important;
+        top: 50% !important;
+        transform: translate(-50%, -50%) !important;
     }
 
     /* ポータル画面の「教材を開く ➔」ボタンもコンパクトに */
@@ -577,6 +579,7 @@ button:disabled {
         font-size: 0px !important; 
         padding: 8px 16px !important;
         border-radius: 20px !important;
+        text-indent: 0px !important; /* ポータルは文字を飛ばさない */
     }
     .btn-link::after {
         content: "📖 ➔" !important;
