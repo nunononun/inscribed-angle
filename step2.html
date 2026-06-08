@@ -18,8 +18,8 @@
     <input type="range" id="arcInput" min="20" max="170" value="80">
     <span id="arcValue"> </span>
     <br>
-    <button id="overlapBtn">左右の図形を1つにまとめる</button>
-    <button id="resetBtn">初期位置に戻す</button>
+    <button id="overlapBtn"><span class="btn-text">左右の図形を1つにまとめる</span></button>
+    <button id="resetBtn"><span class="btn-text">初期位置に戻す</span></button>
 </div>
 
 <canvas id="canvas" width="900" height="750"></canvas>
@@ -63,14 +63,17 @@ arcInput.addEventListener("input",(e)=>{
 });
 
 const toggleBtn = document.getElementById("overlapBtn");
+const overlapBtnText = toggleBtn.querySelector(".btn-text");
+
 toggleBtn.onclick = function() {
     showOverlap = !showOverlap;
     if(showOverlap) {
-        toggleBtn.textContent = "まとめ画面を非表示にする";
-        toggleBtn.style.backgroundColor = "#dc3545";
+        // ★ テキストの書き換えはspanの中身だけに行う
+        overlapBtnText.textContent = "まとめ画面を非表示にする";
+        toggleBtn.classList.add("active"); // CSS切り替え用のクラスを追加
     } else {
-        toggleBtn.textContent = "左右の図形を1つにまとめる";
-        toggleBtn.style.backgroundColor = "#007bff";
+        overlapBtnText.textContent = "左右の図形を1つにまとめる";
+        toggleBtn.classList.remove("active"); // クラスを外す
     }
     draw();
 };
@@ -165,7 +168,6 @@ function drawFixedPoint(pt, color, label){
     ctx.fillText(label, pt.x+10, pt.y-8);
 }
 
-// ★ 前の教材と同じく、白抜きの美しいツマミデザインに統一
 function drawDraggablePoint(pt, color, label, showHint = false){
     ctx.strokeStyle = color;
     ctx.lineWidth = 3;
@@ -194,7 +196,7 @@ function drawDraggablePoint(pt, color, label, showHint = false){
 function drawCircle(centerX, centerY){
     ctx.beginPath();
     ctx.arc(centerX, centerY, r, 0, Math.PI*2);
-    ctx.strokeStyle = "#ccc"; // 少しスッキリしたグレーに変更
+    ctx.strokeStyle = "#ccc"; 
     ctx.lineWidth = 2;
     ctx.stroke();
 }
@@ -394,7 +396,6 @@ function draw(){
     }
 }
 
-// ★ マウス位置がいずれかの可動点（P, C, Q）の上にあるか判定する共通関数
 function getHoveredPoint(x, y) {
     const P = pointOnCircle(cx1, cy, pAngle);
     const C = pointOnCircle(cx2, cy, startC);
@@ -417,7 +418,7 @@ canvas.addEventListener("mousedown",(e)=>{
     dragging = getHoveredPoint(x, y);
 
     if(dragging) {
-        canvas.style.cursor = "grabbing"; // つかんでいる時は「握りこぶし」
+        canvas.style.cursor = "grabbing";
     }
 });
 
@@ -426,7 +427,6 @@ canvas.addEventListener("mousemove",(e)=>{
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    // ★ ドラッグ中、またはツマミの上にマウスが乗った時に確実に「手のひら（pointer）」にする処理
     if (dragging || getHoveredPoint(x, y)) {
         canvas.style.cursor = dragging ? "grabbing" : "pointer";
     } else {
@@ -470,7 +470,6 @@ canvas.addEventListener("mouseleave",()=> {
     canvas.style.cursor = "default";
 });
 
-// initial render
 draw();
 
 </script>
