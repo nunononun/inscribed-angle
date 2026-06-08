@@ -1,130 +1,274 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>円周角の定理の逆：証明実験教材（大きい側の弧AB可動版）</title>
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-<link rel="stylesheet" href="style.css">
-<style>
-/* 左右分割レイアウト（左：図形、右：文章） */
-.container { 
-    display: flex; 
-    flex-direction: row; 
-    align-items: flex-end; /* 下側を揃える */
-    justify-content: center; 
-    gap: 50px; 
-    max-width: 1300px; 
-    margin: 40px auto; 
-    padding: 0 20px;
-    box-sizing: border-box;
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>円周角の定理の逆：同一円周上の条件 - デジタル教材</title>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* 画面全体の基本パディング */
+        body {
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            background-color: #f8fafc;
+        }
 
-/* 左側：図形エリア */
-.canvas-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    flex: 0 0 auto;
-}
+        /* 美しく深みのあるグラデーションヘッダー */
+        header {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.25);
+            max-width: 1200px;
+            margin: 0 auto 35px auto;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.15);
+            box-sizing: border-box;
+        }
 
-/* スライダーエリアの余白調整 */
-.controls {
-    margin-bottom: 15px;
-    font-size: 0.95rem;
-    color: #334155;
-}
+        header h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
 
-/* 右側：文章パネルエリア */
-.panel {
-    flex: 1 1 580px; 
-    max-width: 580px; 
-    background: #f8fafc; 
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    box-sizing: border-box;
-    margin-bottom: 5px; 
-}
+        header p {
+            margin: 10px 0 0 0;
+            font-size: 1.05rem;
+            opacity: 0.9;
+        }
 
-/* 各ステップの最低高さを確保 */
-.proof-step {
-    min-height: 160px; 
-    font-size: 0.95rem;
-    line-height: 1.7;
-    color: #334155;
-}
+        /* 画面分割レイアウト */
+        .container { 
+            display: flex; 
+            flex-direction: row; 
+            align-items: flex-start; 
+            justify-content: center; 
+            gap: 40px; 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
 
-/* レスポンシブ対応 */
-@media (max-width: 1024px) {
-    .container {
-        flex-direction: column;
-        align-items: center;
-        gap: 30px;
-    }
-    .panel {
-        max-width: 100%;
-        width: 100%;
-    }
-}
-</style>
+        /* 左側：キャンバス領域 */
+        .canvas-container {
+            flex: 0 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        canvas {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid #e2e8f0;
+        }
+
+        /* 右側：証明文パネル */
+        .proof-panel {
+            flex: 1 1 500px; 
+            max-width: 550px; 
+            background: #ffffff; 
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+            box-sizing: border-box;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* 各ステップの共通定義 */
+        .proof-step {
+            display: none;
+            font-size: 1rem;
+            line-height: 1.8;
+            color: var(--text-dark);
+            min-height: 260px;
+        }
+
+        .proof-step.active {
+            display: block;
+        }
+
+        /* 数式ブロックの装飾 */
+        .math-block {
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #3182ce;
+            font-size: 1.05rem;
+        }
+
+        /* PQ接続線切り替えボタンのスタイル */
+        .toggle-line-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            margin-top: 15px;
+            padding: 10px 15px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            background-color: #f1f5f9;
+            color: #334155;
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-line-btn:hover {
+            background-color: #e2e8f0;
+            color: #0f172a;
+        }
+
+        .toggle-line-btn.active {
+            background-color: #ffedd5;
+            color: #c2410c;
+            border-color: #f97316;
+            box-shadow: 0 2px 8px rgba(249, 115, 22, 0.15);
+        }
+
+        /* 操作ボタン群 */
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn-group button {
+            flex: 1;
+            padding: 12px 20px;
+            font-size: 1rem;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        /* 「次へ」ボタン */
+        #nextBtn { 
+            background-color: #2563eb; 
+            color: white; 
+            border: none; 
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+        
+        #nextBtn:hover { 
+            background-color: #1d4ed8; 
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
+        }
+
+        /* 「前のステップ」ボタン */
+        #prevBtn { 
+            background-color: #ff69b4; 
+            color: white; 
+            border: none;
+            box-shadow: 0 4px 12px rgba(255, 105, 180, 0.25);
+        }
+
+        #prevBtn:hover:not(:disabled) { 
+            background-color: #e04e96; 
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(255, 105, 180, 0.35);
+        }
+
+        #prevBtn:disabled {
+            background-color: #f1f5f9;
+            color: #94a3b8;
+            border: 1px solid #e2e8f0;
+            box-shadow: none;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        @media (max-width: 1024px) {
+            .container { flex-direction: column; align-items: center; gap: 30px; }
+            .proof-panel { max-width: 700px; width: 100%; }
+        }
+    </style>
 </head>
 <body>
 
-<a href="index.html" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 22px; box-shadow: 0 4px 12px rgba(37,99,235,0.3); font-weight: bold; transition: all 0.2s ease;" title="ポータルに戻る" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">🏠</a>
+    <a href="index.html" class="home-btn">🏠</a>
 
-<h2 style="font-weight: 800; color: #0f172a; margin-top: 30px; margin-bottom: 5px; text-align: center;">円周角の定理の逆：4点が同じ円の上にある条件</h2>
-<p class="description" style="text-align: center; color: #64748b; margin-bottom: 20px;">スライダーを動かして基準の点Qの位置（大きい側の弧AB）を変えながら、定理の逆を確かめましょう。</p>
+    <header>
+        <h1>円周角の定理の逆：4点が同じ円の上にある条件</h1>
+        <p>Qの位置を変えながら「同じ角度の時だけぴったり円の上に乗る」逆の特性を背理法で確かめましょう</p>
+    </header>
 
-<div class="container">
-    <div class="canvas-container">
-        <div class="controls">
-            <label>基準の点Qの位置: 
-                <input type="range" id="angleSlider" min="31" max="149" value="90" style="width: 280px; vertical-align: middle; margin-left: 10px;">
-            </label>
+    <main>
+        <div class="container">
+            <div class="canvas-container">
+                <div class="controls" style="margin-bottom: 15px;">
+                    <label style="font-weight: 700; color: var(--text-dark); background: #f8fafc; padding: 8px 16px; border-radius: 8px; border: 1px solid #e2e8f0;">基準の点Qの位置: 
+                        <input type="range" id="angleSlider" min="31" max="149" value="90" style="width: 240px; vertical-align: middle; margin-left: 10px;">
+                    </label>
+                </div>
+                <canvas id="canvas" width="600" height="500"></canvas>
+                <p style="font-size: 0.9rem; color: #64748b; margin-top: 12px; font-weight: 700;">
+                    💡 円周角の条件を満たさない点 P はドラッグして自由に動かせます
+                </p>
+            </div>
+
+            <div class="proof-panel">
+                <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 1.3rem; font-weight: 800; color: #1a202c; display: flex; align-items: center; gap: 8px;">
+                    🧭 証明のステップ
+                </h3>
+                <p style="font-size: 0.9rem; color: #4a5568; margin-bottom: 20px; line-height: 1.5; background: #ebf8ff; padding: 10px; border-radius: 6px; border: 1px solid #bee3f8;">
+                    2つの点 P, Q が直線 AB に対して同じ側にあるとき、\( \angle\text{APB} = \angle\text{AQB} \) ならば、4点 A, B, Q, P は同一円周上にあります。
+                </p>
+                <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-bottom: 20px;">
+                
+                <div id="step1" class="proof-step active">
+                    <strong style="color: #dc3545; font-size: 1.1rem; font-weight: 800;">① 点Pが円の外側にある場合</strong><br><br>
+                    線分 AP と円との交点を <strong>P'</strong> とします。<br>
+                    \(\triangle\text{P'BP}\) の外角の性質に注目すると、<br>
+                    <div class="math-block" style="border-left-color: #dc3545;">
+                        \( \angle\text{AP'B} = \angle\text{APB} + \angle\text{P'BP} \)
+                    </div>
+                    円周角の定理より \( \angle\text{AP'B} = \angle\text{AQB} \) なので、<br>
+                    \( \angle\text{AQB} > \angle\text{APB} \) となり、同じ角度になりません。
+                </div>
+
+                <div id="step2" class="proof-step">
+                    <strong style="color: #dc3545; font-size: 1.1rem; font-weight: 800;">② 点Pが円の内側にある場合</strong><br><br>
+                    線分 AP を延長した線と円との交点を <strong>P'</strong> とします。<br>
+                    \(\triangle\text{PBP'}\) の外角の性質に注目すると、<br>
+                    <div class="math-block" style="border-left-color: #dc3545;">
+                        \( \angle\text{APB} = \angle\text{AP'B} + \angle\text{PBP'} \)
+                    </div>
+                    円周角の定理より \( \angle\text{AP'B} = \angle\text{AQB} \) なので、<br>
+                    \( \angle\text{APB} > \angle\text{AQB} \) となり、やはり同じ角度になりません。
+                </div>
+
+                <div id="step3" class="proof-step">
+                    <strong style="color: #38a169; font-size: 1.1rem; font-weight: 800;">③ 結論</strong><br><br>
+                    点Pが円の外側でも内側でも矛盾するため、<br>
+                    \( \angle\text{APB} = \angle\text{AQB} \) が成り立つのは、<br><br>
+                    <strong>点Pがぴったり円周上にあるときだけ</strong>です！<br><br>
+                    <span style="font-size:1rem; color:#38a169; font-weight: bold;">（左側のPをドラッグして円周上に乗せてみましょう）</span>
+                </div>
+
+                <button id="toggleLineBtn" class="toggle-line-btn">
+                    <span>🔗 点Pと点Qをつなぐ線を表示する</span>
+                </button>
+
+                <div class="btn-group">
+                    <button id="prevBtn" disabled>↩ 前のステップ</button>
+                    <button id="nextBtn">次へ進む ↪</button>
+                </div>
+            </div>
         </div>
-        <canvas id="canvas" width="600" height="500"></canvas>
-    </div>
-
-    <div class="panel">
-        <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 1.2rem; color: #0f172a;">🧭 証明のステップ</h3>
-        <p style="font-size: 0.95rem; color: #64748b; margin-bottom: 20px; line-height: 1.6;">
-            2つの点 P, Q が直線 AB に対して同じ側（上側の大きい弧の側）にあるとき、\( \angle\text{APB} = \angle\text{AQB} \) ならば、4点 A, B, Q, P は同一円周上にあります。背理法を使って確かめてみましょう。
-        </p>
-        <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-bottom: 20px;">
-        
-        <div id="step1" class="proof-step active">
-            <strong style="color: #dc3545; font-size: 1.05rem;">① 点Pが円の外側にある場合</strong><br>
-            線分 AP と円との交点を <strong>P'</strong> とします。<br>
-            \(\triangle\text{P'BP}\) の外角の性質に注目すると、<br>
-            <div style="text-align: center; margin: 8px 0;">\( \angle\text{AP'B} = \angle\text{APB} + \angle\text{P'BP} \)</div>
-            円周角の定理より \( \angle\text{AP'B} = \angle\text{AQB} \) なので、<br>
-            \( \angle\text{AQB} > \angle\text{APB} \) となり、同じ角度になりません。
-        </div>
-
-        <div id="step2" class="proof-step" style="display:none;">
-            <strong style="color: #dc3545; font-size: 1.05rem;">② 点Pが円の内側にある場合</strong><br>
-            線分 AP を延長した線と円との交点を <strong>P'</strong> とします。<br>
-            \(\triangle\text{PBP'}\) の外角の性質に注目すると、<br>
-            <div style="text-align: center; margin: 8px 0;">\( \angle\text{APB} = \angle\text{AP'B} + \angle\text{PBP'} \)</div>
-            円周角の定理より \( \angle\text{AP'B} = \angle\text{AQB} \) なので、<br>
-            \( \angle\text{APB} > \angle\text{AQB} \) となり、やはり同じ角度になりません。
-        </div>
-
-        <div id="step3" class="proof-step" style="display:none;">
-            <strong style="color: #16a34a; font-size: 1.05rem;">③ 結論</strong><br>
-            点Pが円の外側でも内側でも矛盾するため、<br>
-            \( \angle\text{APB} = \angle\text{AQB} \) が成り立つのは、<br>
-            <strong>点Pがぴったり円周上（大きい側の弧ABの上）にあるときだけ</strong>です！<br>
-            <span style="font-size:0.92rem; color:#16a34a; font-weight: bold;">（このとき4点 A, B, Q, P はすべて同一円周上に存在します。Pをドラッグして円周上に乗せてみましょう）</span>
-        </div>
-
-        <div class="btn-group" style="margin-top: 20px; display: flex; gap: 10px;">
-            <button id="prevBtn" disabled style="padding: 8px 16px; flex: 1; cursor: pointer;">↩ 戻る</button>
-            <button id="nextBtn" style="padding: 8px 16px; flex: 1; cursor: pointer; background-color: #2563eb; color: white; border: none; border-radius: 4px; font-weight: bold;">次へ ↪</button>
-        </div>
-    </div>
-</div>
+    </main>
 
 <script>
 const canvas = document.getElementById("canvas");
@@ -140,10 +284,12 @@ let pPos = { x: 200, y: 70 };
 
 let draggingP = false;
 let currentStep = 1;
+let showPQLine = false; 
 
 const angleSlider = document.getElementById("angleSlider");
 const prevBtn = document.getElementById("prevBtn");
 const nextBtn = document.getElementById("nextBtn");
+const toggleLineBtn = document.getElementById("toggleLineBtn");
 
 function degToRad(d) { return d * Math.PI / 180; }
 
@@ -160,30 +306,30 @@ function getLineY(x) {
 }
 
 function updateAngleQFromSlider() {
-    angleQ = Number(angleSlider.value);
+    const minVal = Number(angleSlider.min);
+    const maxVal = Number(angleSlider.max);
+    angleQ = maxVal + minVal - Number(angleSlider.value);
 }
 
 function updateStepDisplay(newStep) {
-    document.getElementById(`step${currentStep}`).style.display = "none";
+    document.getElementById(`step${currentStep}`).classList.remove("active");
     currentStep = newStep;
-    document.getElementById(`step${currentStep}`).style.display = "block";
+    document.getElementById(`step${currentStep}`).classList.add("active");
 
     prevBtn.disabled = (currentStep === 1);
     if (currentStep === 3) {
-        nextBtn.textContent = "最初から見る ↪";
+        nextBtn.textContent = "最初から見る 🔄";
     } else {
-        nextBtn.textContent = "次へ ↪";
+        nextBtn.textContent = "次へ進む ↪";
     }
 
     updateAngleQFromSlider();
 
-    // 各ステップの切り替え「時」のみ、固定初期位置を与える
     if (currentStep === 1) {
-        pPos = { x: 200, y: 70 };  // 円の外側（左上）
+        pPos = { x: 200, y: 70 };  
     } else if (currentStep === 2) {
-        pPos = { x: 230, y: 180 }; // 円の内側（左寄り）
+        pPos = { x: 230, y: 180 }; 
     } else if (currentStep === 3) {
-        // 【修正】ステップ3でもQに強制吸着させず、円周上の独立した初期位置（右上付近）に配置
         const initialRad = degToRad(50); 
         pPos = { x: cx + r * Math.cos(initialRad), y: cy - r * Math.sin(initialRad) };
     }
@@ -191,12 +337,20 @@ function updateStepDisplay(newStep) {
     draw();
 }
 
-// スライダー（Q）操作イベント
+toggleLineBtn.addEventListener("click", () => {
+    showPQLine = !showPQLine;
+    if (showPQLine) {
+        toggleLineBtn.classList.add("active");
+        toggleLineBtn.innerHTML = "<span>🔓 点Pと点Qをつなぐ線を非表示にする</span>";
+    } else {
+        toggleLineBtn.classList.remove("active");
+        toggleLineBtn.innerHTML = "<span>🔗 点Pと点Qをつなぐ線を表示する</span>";
+    }
+    draw();
+});
+
 angleSlider.addEventListener("input", () => {
     updateAngleQFromSlider();
-    
-    // 【修正】すべてのステップにおいて、スライダーを動かしてもpPosの座標（x, y）は1ミリも書き換えない！
-    // これにより、全ステップでQをどれだけ動かしてもPが勝手に吸い付くことは完全になくなります。
     draw();
 });
 
@@ -275,7 +429,6 @@ function draw() {
     const A = pointOnCircle(angleA);
     const B = pointOnCircle(angleB);
     const Q = pointOnCircle(angleQ);
-    
     const P = { x: pPos.x, y: pPos.y }; 
 
     const qToA = Math.atan2(A.y - Q.y, A.x - Q.x);
@@ -286,14 +439,12 @@ function draw() {
     const angleAQB = 60; 
     const angleAPB = angleBetweenVectors({ x: A.x - P.x, y: A.y - P.y }, { x: B.x - P.x, y: B.y - P.y });
 
-    // 円の描画
     ctx.beginPath();
     ctx.arc(cx, cy, r, 0, Math.PI * 2);
     ctx.strokeStyle = (currentStep === 3) ? "#16a34a" : "#cbd5e1";
     ctx.lineWidth = (currentStep === 3) ? 3 : 2;
     ctx.stroke();
 
-    // 青い角（Q側）
     drawAngleMark(Q, qToB, qToA, 30, "rgba(59, 130, 246, 0.25)");
     ctx.beginPath();
     ctx.moveTo(A.x, A.y); ctx.lineTo(Q.x, Q.y); ctx.lineTo(B.x, B.y);
@@ -301,7 +452,6 @@ function draw() {
     ctx.lineWidth = 2.5;
     ctx.stroke();
 
-    // 赤または緑の角（P側）
     drawAngleMark(P, pToB, pToA, 30, (currentStep === 3) ? "rgba(22, 163, 74, 0.25)" : "rgba(220, 53, 69, 0.25)");
     ctx.beginPath();
     ctx.moveTo(A.x, A.y); ctx.lineTo(P.x, P.y); ctx.lineTo(B.x, B.y);
@@ -309,7 +459,6 @@ function draw() {
     ctx.lineWidth = 2.5;
     ctx.stroke();
 
-    // ステップ1, 2の背理法用補助線（P'）
     if (currentStep === 1 || currentStep === 2) {
         const P_prime = getCircleIntersection(A, P);
         if (P_prime) {
@@ -341,7 +490,18 @@ function draw() {
         }
     }
 
-    // 角度のテキスト表示
+    // 🔗 点Pと点Qをつなぐ補助線
+    if (showPQLine) {
+        ctx.beginPath();
+        ctx.moveTo(P.x, P.y);
+        ctx.lineTo(Q.x, Q.y);
+        ctx.strokeStyle = "#f97316"; 
+        ctx.lineWidth = 2;
+        ctx.setLineDash([6, 4]); 
+        ctx.stroke();
+        ctx.setLineDash([]);
+    }
+
     ctx.font = "bold 15px sans-serif";
     ctx.fillStyle = "#2563eb";
     ctx.fillText(`∠AQB = ${angleAQB.toFixed(0)}°`, Q.x - 30, Q.y - 18);
@@ -446,7 +606,6 @@ canvas.addEventListener("mousemove", (e) => {
         }
 
     } else if (currentStep === 3) {
-        // ステップ3では円周上に拘束する
         let rad = Math.atan2(cy - mouseY, mouseX - cx);
         let angleDeg = rad * 180 / Math.PI;
         if (angleDeg < 0) angleDeg += 360;
