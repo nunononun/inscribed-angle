@@ -485,7 +485,7 @@ button:disabled {
 }
 
 /* ==========================================================================
-   【最終決戦版】ボタンサイズ縮小時のアイコン・コンパクト化設定
+   【JS干渉対策版】ボタンサイズ縮小時のアイコン・コンパクト化設定
    ========================================================================== */
 
 /* 1. 画面幅 576px 以下のとき：ボタンの文字や余白を少し小さくして収まりやすくする */
@@ -499,38 +499,42 @@ button:disabled {
 /* 2. 画面幅 420px 以下のとき：文字を消して、家ボタンのようにアイコン（絵文字）化する */
 @media (max-width: 420px) {
     
-    /* 対象となるすべてのボタンの日本語テキストを消し去り、絶対に正円にする */
+    /* 対象となるすべてのボタンを100%確実に正円に固定する */
     .next-btn, .restart-btn, #overlapBtn, #resetBtn {
-        /* 横幅と高さの「絶対固定化」（あらゆる干渉をリセットします） */
         width: 50px !important;
-        min-width: 50px !important;   /* 👈 これが原因でした！最小幅を50pxで上書きします */
+        min-width: 50px !important;
         max-width: 50px !important;
         height: 50px !important;
         min-height: 50px !important;
         max-height: 50px !important;
         
-        /* 余白と形状の強制リセット */
         padding: 0 !important;
-        margin: 5px !important;       /* ボタン同士がくっつきすぎないように隙間を固定 */
-        border-radius: 50% !important; /* 100%綺麗な正円にする */
+        margin: 5px !important;
+        border-radius: 50% !important; /* 綺麗な正円 */
         
-        /* 文字の非表示化 */
-        color: transparent !important;
-        font-size: 0px !important;
-        line-height: 0 !important;
         overflow: hidden !important;
-        white-space: nowrap !important;
-        text-shadow: none !important;  /* 文字の影が残るのを防ぐ */
-        
-        /* 配置方法の強制上書き */
+        position: relative !important;
         display: inline-flex !important;
         align-items: center !important;
         justify-content: center !important;
-        flex-shrink: 0 !important;     /* 親要素に潰されるのを絶対に防ぐ */
-        position: relative !important;
+        flex-shrink: 0 !important;
     }
 
-    /* 各ボタンの中央に、家ボタンのようなアイコン（絵文字）を浮かび上がらせる */
+    /* ★ JSが文字を書き換えても関係なく、中のテキスト（span）を完全に消し去る */
+    .next-btn .btn-text, .restart-btn .btn-text, 
+    #overlapBtn .btn-text, #resetBtn .btn-text {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+    }
+    
+    /* もともと直に文字が入っているクイズ用ボタンのテキストを非表示にする保険 */
+    .next-btn, .restart-btn {
+        color: transparent !important;
+        font-size: 0px !important;
+    }
+
+    /* 各ボタンの中央に、家ボタンのようなアイコン（絵文字）を新しくセット */
     
     /* クイズ：次の問題へ ➔ */
     .next-btn::after {
@@ -538,7 +542,6 @@ button:disabled {
         color: white !important;
         font-size: 1.2rem !important;
         position: absolute !important;
-        display: block !important;
     }
     
     /* クイズ：最初からやり直す */
@@ -546,25 +549,27 @@ button:disabled {
         content: "🔄" !important;
         font-size: 1.2rem !important;
         position: absolute !important;
-        display: block !important;
     }
 
-    /* ★ STEP2：左右の図形を1つにまとめるボタン */
+    /* ★ STEP2：左右の図形を1つにまとめるボタン（通常時 ➔ 👥） */
     #overlapBtn::after {
-        content: "👥" !important; /* 重なるイメージの絵文字 */
+        content: "👥" !important; 
         font-size: 1.2rem !important;
         color: white !important;
         position: absolute !important;
-        display: block !important;
     }
     
-    /* ★ STEP2：初期位置に戻すボタン */
+    /* ★ STEP2：左右の図形を1つにまとめるボタン（クリックして非表示にする状態の時 ➔ ❌） */
+    #overlapBtn.active::after {
+        content: "❌" !important; 
+    }
+    
+    /* ★ STEP2：初期位置に戻すボタン ➔ 🔄 */
     #resetBtn::after {
-        content: "🔄" !important; /* リセットの絵文字 */
+        content: "🔄" !important; 
         font-size: 1.2rem !important;
         color: white !important;
         position: absolute !important;
-        display: block !important;
     }
 
     /* ポータル画面の「教材を開く ➔」ボタンもコンパクトに */
