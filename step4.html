@@ -7,41 +7,96 @@
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 <link rel="stylesheet" href="style.css">
 <style>
-    /* 左右分割レイアウトの調整（step5の美しい構造に統一） */
+    /* 1. ポータルや他ページと100%統一された、美しく深みのあるグラデーションヘッダー */
+    header {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        color: white;
+        padding: 40px 20px;
+        text-align: center;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(37, 99, 235, 0.25);
+        max-width: 1200px;
+        margin: 0 auto 35px auto;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        box-sizing: border-box;
+    }
+
+    header h1 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+    }
+
+    header p {
+        margin: 10px 0 0 0;
+        font-size: 0.95rem;
+        opacity: 0.9;
+        font-weight: 500;
+    }
+
+    /* 2. 左右のカードをトップレベルで綺麗に整列し、高さを完全に引き伸ばして一致させる */
     .container { 
         display: flex; 
         flex-direction: row; 
-        align-items: flex-end; 
+        align-items: stretch; /* 左右の外枠の高さを強制的に100%完全同期 */
         justify-content: center; 
-        gap: 50px; 
-        max-width: 1300px; 
-        margin: 40px auto; 
-        padding: 0 20px;
+        gap: 40px; 
+        max-width: 1200px; 
+        margin: 0 auto 40px auto; 
+        padding: 0;
         box-sizing: border-box;
     }
 
-    .canvas-area {
+    /* 3. 左側：図形エリアの外枠（右の解説パネルとサイズ・質感を100%完全統一） */
+    .canvas-card {
+        flex: 0 0 580px;
+        width: 580px;
+        height: 580px; /* 高さを580pxに完全固定 */
+        background: #f8fafc; 
+        padding: 30px 25px;
+        border-radius: 16px;
+        box-shadow: 0 4px 10px rgba(15, 23, 42, 0.05), 0 1px 4px rgba(15, 23, 42, 0.02);
+        box-sizing: border-box;
         display: flex;
         flex-direction: column;
         align-items: center;
-        flex: 0 0 auto;
+        justify-content: center; /* 枠内で縦方向に美しく中央配置 */
     }
 
+    /* キャンバス自体のデザイン（外枠になじむクリーンな白） */
+    #canvas {
+        background: #ffffff;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        max-width: 100%;
+        height: auto;
+        margin: 5px 0;
+    }
+
+    /* 4. 右側：解説パネルエリアの外枠（左とサイズ・高さを100%完全統一） */
     .panel {
-        flex: 1 1 580px; 
-        max-width: 580px; 
+        flex: 0 0 580px; 
+        width: 580px; 
+        height: 580px; /* 高さを580pxに完全固定 */
         background: #f8fafc; 
-        padding: 25px;
-        border-radius: 12px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        padding: 30px 25px;
+        border-radius: 16px;
+        box-shadow: 0 4px 10px rgba(15, 23, 42, 0.05), 0 1px 4px rgba(15, 23, 42, 0.02);
         box-sizing: border-box;
-        margin-bottom: 5px; 
+        text-align: left;
+        display: flex;
+        flex-direction: column;
     }
 
-    /* 【最適化】ステップ切り替え時にガタつかないよう、高さを固定化して今いるものだけを表示 */
+    /* 内側のコンテンツを上下に綺麗に分散配置（ボタンを一番下に固定するため） */
+    .panel-content {
+        flex: 1;
+    }
+
+    /* ステップ切り替え時に外枠がガタつかないよう内部のみ可変制御 */
     .proof-step {
         display: none;
-        min-height: 130px; /* ステップ間で高さが変わってもボタンが跳ねないように確保 */
         font-size: 0.95rem;
         line-height: 1.7;
         color: #334155;
@@ -51,51 +106,115 @@
         display: block !important;
     }
 
-    .click-notice {
-        background-color: #fef08a;
-        padding: 8px 12px;
-        border-radius: 6px;
-        font-size: 0.85rem;
-        margin-bottom: 15px;
-        color: #713f12;
-        font-weight: bold;
+    /* 5. 大好評の網掛け機能スタイル */
+    .proof-step.active .secret-blank {
+        display: inline-block !important;
+        background: linear-gradient(135deg, #fef08a, #fcd34d) !important; 
+        border: 1px dashed #ca8a04 !important; 
+        color: transparent !important; 
+        padding: 3px 10px !important;
+        margin: 2px 4px !important;
+        border-radius: 6px !important;
+        user-select: none !important;
+        cursor: pointer !important;
+        pointer-events: auto !important; 
+        box-shadow: 0 2px 4px rgba(202, 138, 4, 0.1) !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .proof-step.active .secret-blank:not(.revealed):hover {
+        background: linear-gradient(135deg, #fef9c3, #fde047) !important;
+        border-color: #a16207 !important;
+        transform: translateY(-1px) scale(1.03) !important;
+        box-shadow: 0 4px 6px rgba(202, 138, 4, 0.15) !important;
+    }
+
+    .proof-step.active .secret-blank.revealed {
+        background: linear-gradient(135deg, #f0fdf4, #dcfce7) !important;
+        border: 1px solid #22c55e !important;
+        color: #14532d !important; 
+        cursor: default !important;
+        pointer-events: none !important;
+        transform: none !important;
+        box-shadow: none !important;
+    }
+
+    .proof-step.active .secret-blank mjx-container { visibility: hidden !important; }
+    .proof-step.active .secret-blank.revealed mjx-container { visibility: visible !important; }
+
+    /* 6. 立体モダンボタン（パネルの一番下に美しく固定配置） */
+    .btn-group {
+        margin-top: auto; /* これにより580pxの枠の最下部にピタッと揃います */
+        display: flex; 
+        gap: 12px;
+        padding-top: 15px;
     }
 
     .btn-group button {
-        padding: 8px 16px;
+        padding: 11px 20px;
         flex: 1;
         cursor: pointer;
-        border-radius: 4px;
+        border-radius: 8px;
         font-weight: bold;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
     #nextBtn {
-        background-color: #2563eb;
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
         color: white;
         border: none;
     }
+    #nextBtn:hover {
+        background: linear-gradient(135deg, #1d4ed8, #1e40af);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(37, 99, 235, 0.2);
+    }
     #prevBtn {
-        background-color: #e2e8f0;
+        background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
         color: #334155;
-        border: none;
+        border: 1px solid #cbd5e1;
+    }
+    #prevBtn:hover:not(:disabled) {
+        background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
+        transform: translateY(-1px);
     }
     #prevBtn:disabled {
         opacity: 0.5;
         cursor: not-allowed;
+        transform: none !important;
+        box-shadow: none !important;
     }
     #resetBlanksBtn {
-        background-color: #ef4444;
+        background: linear-gradient(135deg, #ef4444, #dc2626);
         color: white;
         border: none;
     }
+    #resetBlanksBtn:hover {
+        background: linear-gradient(135deg, #dc2626, #b91c1c);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(239, 44, 44, 0.2);
+    }
 
-    @media (max-width: 1024px) {
+    /* レスポンシブ対応 */
+    @media (max-width: 1240px) {
         .container {
             flex-direction: column;
             align-items: center;
             gap: 30px;
         }
-        .panel {
+        .canvas-card, .panel {
             max-width: 100%;
+            width: 580px;
+            height: auto; 
+            min-height: 540px;
+        }
+        .btn-group {
+            margin-top: 25px;
+        }
+    }
+    @media (max-width: 620px) {
+        .canvas-card, .panel {
             width: 100%;
         }
     }
@@ -103,59 +222,65 @@
 </head>
 <body>
 
-<a href="index.html" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 22px; box-shadow: 0 4px 12px rgba(37,99,235,0.3); font-weight: bold; transition: all 0.2s ease;" title="ポータルに戻る" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">🏠</a>
+<a href="index.html" class="home-btn">🏠</a>
 
-<h2 style="font-weight: 800; color: #0f172a; margin-top: 30px; margin-bottom: 5px; text-align: center;">円周角の定理：なぜ2倍になるの？（証明の実験）</h2>
-<p style="text-align: center; color: #64748b; margin-bottom: 20px;">補助線を動かしながら、中心角と円周角の関係を段階的に解き明かしましょう。</p>
+<header>
+    <h1>円周角の定理：なぜ2倍になるの？（証明の実験）</h1>
+    <p>補助線を動かしながら、中心角と円周角の関係を段階的に解き明かしましょう。</p>
+</header>
 
 <div class="container">
-    <div class="canvas-area">
-        <div class="controls" style="margin-bottom: 15px; font-size: 0.95rem; color: #334155;">
+    <div class="canvas-card">
+        <div class="controls" style="margin-bottom: 15px; font-size: 0.95rem; color: #334155; font-weight: bold; width: 100%; text-align: center;">
             <label>中心角（基本設定）: 
-                <input type="range" id="angleSlider" min="40" max="150" value="80" style="width: 200px; vertical-align: middle; margin-left: 10px;">
-                <span id="angleVal" style="font-weight: bold;">80</span>°
+                <input type="range" id="angleSlider" min="40" max="150" value="80" style="width: 180px; vertical-align: middle; margin-left: 8px;">
+                <span id="angleVal" style="font-weight: bold; color: #2563eb;">80</span>°
             </label>
         </div>
-        <canvas id="canvas" width="600" height="520"></canvas>
-        <p class="hint" style="color: #64748b; font-size: 0.85rem; margin-top: 10px;">※点Pをドラッグして、補助線の位置や三角形の形を自由に変えられます。</p>
+        <canvas id="canvas" width="530" height="450"></canvas>
+        <p style="color: #64748b; font-size: 0.82rem; margin-top: 15px; margin-bottom: 0; font-weight: 500; text-align: center; width: 100%;">
+            ※点Pをドラッグして、補助線の位置や三角形の形を自由に変えられます。
+        </p>
     </div>
 
     <div class="panel">
-        <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 1.2rem; color: #0f172a;">🧭 証明のステップ</h3>
-        
-        <div class="click-notice">
-            💡 黄色の網掛けをタッチして、隠された数式を確認してみよう！
+        <div class="panel-content">
+            <h3 style="margin-top: 0; margin-bottom: 15px; font-size: 1.2rem; color: #0f172a; border-left: 4px solid #2563eb; padding-left: 10px; font-weight: 800;">🧭 証明のステップ</h3>
+            
+            <div class="click-notice" style="background-color: #fef08a; padding: 10px 12px; border-radius: 6px; font-size: 0.85rem; margin-bottom: 20px; color: #713f12; font-weight: bold; text-align: center;">
+                💡 黄色の網掛けをタッチして、隠された数式を確認してみよう！
+            </div>
+
+            <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 15px; line-height: 1.6; font-weight: 500;">
+                点Pと中心Oを通る補助線（直径）を引いて考えてみましょう。
+            </p>
+            <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-bottom: 20px;">
+            
+            <div id="step1" class="proof-step active">
+                <strong style="color: #2563eb; font-size: 1.05rem;">① 二等辺三角形を見つける</strong><br><br>
+                線分 OA, OB, OP はすべて円の半径なので長さが等しいです。<br>
+                よって、
+                <span id="blankOAP" class="secret-blank">\(\triangle\text{OAP}\)</span> と 
+                <span id="blankOBP" class="secret-blank">\(\triangle\text{OBP}\)</span> はどちらも<strong><span id="blankIso" class="secret-blank" style="text-decoration: underline;">二等辺三角形</span></strong>になります。<br>
+                底角をそれぞれ <span style="color:red; font-weight: bold;">角 \(a\)</span>, <span style="color:green; font-weight: bold;">角 \(b\)</span> とおきます。
+            </div>
+
+            <div id="step2" class="proof-step">
+                <strong style="color: #2563eb; font-size: 1.05rem;">② 三角形の「外角の性質」を使う</strong><br><br>
+                三角形の1つの外角は、それと隣り合わない2つの内角の和に等しいので：<br>
+                ・∠AOK（赤側の中心角）＝ <span id="blankExtA" class="secret-blank">\(a + a = 2a\)</span><br>
+                ・∠BOK（緑側の中心角）＝ <span id="blankExtB" class="secret-blank">\(b + b = 2b\)</span>
+            </div>
+
+            <div id="step3" class="proof-step">
+                <strong style="color: #16a34a; font-size: 1.05rem;">③ 合計して定理を導く</strong><br><br>
+                ・円周角 ∠APB ＝ <span id="blankTotalP" class="secret-blank">\(a + b\)</span><br>
+                ・中心角 ∠AOB ＝ <span id="blankTotalO" class="secret-blank">\(2a + 2b = 2(a + b)\)</span><br><br>
+                したがって、<strong>中心角 ∠AOB は 円周角 ∠APB のちょうど2倍</strong>になります！
+            </div>
         </div>
 
-        <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 15px; line-height: 1.6;">
-            点Pと中心Oを通る補助線（直径）を引いて考えてみましょう。
-        </p>
-        <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-bottom: 20px;">
-        
-        <div id="step1" class="proof-step active">
-            <strong style="color: #2563eb; font-size: 1.05rem;">① 二等辺三角形を見つける</strong><br><br>
-            線分 OA, OB, OP はすべて円の半径なので長さが等しいです。<br>
-            よって、
-            <span id="blankOAP" class="secret-blank" style="background-color: #fef08a; padding: 2px 6px; border-radius: 4px; cursor: pointer; font-weight: bold;">\(\triangle\text{OAP}\)</span> と 
-            <span id="blankOBP" class="secret-blank" style="background-color: #fef08a; padding: 2px 6px; border-radius: 4px; cursor: pointer; font-weight: bold;">\(\triangle\text{OBP}\)</span> はどちらも<strong><span id="blankIso" class="secret-blank" style="background-color: #fef08a; padding: 2px 6px; border-radius: 4px; cursor: pointer; text-decoration: underline;">二等辺三角形</span></strong>になります。<br>
-            底角をそれぞれ <span style="color:red; font-weight: bold;">角 \(a\)</span>, <span style="color:green; font-weight: bold;">角 \(b\)</span> とおきます。
-        </div>
-
-        <div id="step2" class="proof-step">
-            <strong style="color: #2563eb; font-size: 1.05rem;">② 三角形の「外角の性質」を使う</strong><br><br>
-            三角形の1つの外角は、それと隣り合わない2つの内角の和に等しいので：<br>
-            ・∠AOK（赤側の中心角）＝ <span id="blankExtA" class="secret-blank" style="background-color: #fef08a; padding: 2px 6px; border-radius: 4px; cursor: pointer; font-weight: bold;">\(a + a = 2a\)</span><br>
-            ・∠BOK（緑側の中心角）＝ <span id="blankExtB" class="secret-blank" style="background-color: #fef08a; padding: 2px 6px; border-radius: 4px; cursor: pointer; font-weight: bold;">\(b + b = 2b\)</span>
-        </div>
-
-        <div id="step3" class="proof-step">
-            <strong style="color: #16a34a; font-size: 1.05rem;">③ 合計して定理を導く</strong><br><br>
-            ・円周角 ∠APB ＝ <span id="blankTotalP" class="secret-blank" style="background-color: #fef08a; padding: 2px 6px; border-radius: 4px; cursor: pointer; font-weight: bold;">\(a + b\)</span><br>
-            ・中心角 ∠AOB ＝ <span id="blankTotalO" class="secret-blank" style="background-color: #fef08a; padding: 2px 6px; border-radius: 4px; cursor: pointer; font-weight: bold;">\(2a + 2b = 2(a + b)\)</span><br><br>
-            したがって、<strong>中心角 ∠AOB は 円周角 ∠APB のちょうど2倍</strong>になります！
-        </div>
-
-        <div class="btn-group" style="margin-top: 20px; display: flex; gap: 10px;">
+        <div class="btn-group">
             <button id="prevBtn" disabled>↩ 戻る</button>
             <button id="nextBtn">次へ ↪</button>
             <button id="resetBlanksBtn">🔄 リセット</button>
@@ -167,7 +292,7 @@
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-const cx = 300, cy = 260, r = 180; // step5と揃えるため少し上の配置に微調整
+const cx = 265, cy = 225, r = 160;
 
 let centerAngle = 80;
 let pAngle = 230; 
@@ -187,12 +312,10 @@ const blankExtB = document.getElementById("blankExtB");
 const blankTotalP = document.getElementById("blankTotalP");
 const blankTotalO = document.getElementById("blankTotalO");
 
-// 伏せ字クリック処理
 document.querySelectorAll('.secret-blank').forEach(blank => {
-    blank.addEventListener('click', function() {
+    blank.addEventListener('click', function(e) {
         const parentStep = this.closest('.proof-step');
         if (parentStep && parentStep.classList.contains('active')) {
-            this.style.backgroundColor = "transparent"; // 背景の黄色を消す
             this.classList.add('revealed');
             draw(); 
         }
@@ -201,7 +324,6 @@ document.querySelectorAll('.secret-blank').forEach(blank => {
 
 function resetBlanksInStep(stepNum) {
     document.querySelectorAll(`#step${stepNum} .secret-blank`).forEach(blank => {
-        blank.style.backgroundColor = "#fef08a";
         blank.classList.remove('revealed');
     });
 }
@@ -227,12 +349,10 @@ angleSlider.addEventListener("input", (e) => {
 
 function updateStepDisplay(newStep) {
     document.getElementById(`step${currentStep}`).classList.remove("active");
-    
     currentStep = newStep;
     document.getElementById(`step${currentStep}`).classList.add("active");
 
     resetBlanksInStep(currentStep);
-
     prevBtn.disabled = (currentStep === 1);
     
     if (currentStep === 3) {
@@ -240,7 +360,6 @@ function updateStepDisplay(newStep) {
     } else {
         nextBtn.textContent = "次へ ↪";
     }
-    
     draw();
 }
 
@@ -262,8 +381,6 @@ prevBtn.addEventListener("click", () => {
 });
 
 function degToRad(d) { return d * Math.PI / 180; }
-function radToDeg(r) { return r * 180 / Math.PI; }
-
 function pointOnCircle(a) {
     const t = degToRad(a);
     return { x: cx + r * Math.cos(t), y: cy - r * Math.sin(t) };
@@ -319,20 +436,20 @@ function draw() {
 
     if (currentStep >= 2) {
         if (showExtA || (currentStep === 3 && showTotalO)) {
-            drawSimpleArc({x:cx, y:cy}, oToK, oToA, 45, "rgba(239, 68, 68, 0.25)");
+            drawSimpleArc({x:cx, y:cy}, oToK, oToA, 40, "rgba(239, 68, 68, 0.25)");
         }
         if (showExtB || (currentStep === 3 && showTotalO)) {
-            drawSimpleArc({x:cx, y:cy}, oToB, oToK, 45, "rgba(34, 197, 94, 0.25)");
+            drawSimpleArc({x:cx, y:cy}, oToB, oToK, 40, "rgba(34, 197, 94, 0.25)");
         }
     }
 
     if (showAngleA || (currentStep === 3 && showTotalP)) {
-        drawSimpleArc(P, pToO, pToA, 35, "rgba(239, 68, 68, 0.25)");
-        drawSimpleArc(A, aToP, aToO, 30, "rgba(239, 68, 68, 0.25)");
+        drawSimpleArc(P, pToO, pToA, 30, "rgba(239, 68, 68, 0.25)");
+        drawSimpleArc(A, aToP, aToO, 25, "rgba(239, 68, 68, 0.25)");
     }
     if (showAngleB || (currentStep === 3 && showTotalP)) {
-        drawSimpleArc(P, pToB, pToO, 35, "rgba(34, 197, 94, 0.25)");
-        drawSimpleArc(B, bToP, bToO, 30, "rgba(34, 197, 94, 0.25)");
+        drawSimpleArc(P, pToB, pToO, 30, "rgba(34, 197, 94, 0.25)");
+        drawSimpleArc(B, bToP, bToO, 25, "rgba(34, 197, 94, 0.25)");
     }
 
     ctx.beginPath();
@@ -357,28 +474,28 @@ function draw() {
     ctx.lineWidth = 2.5;
     ctx.stroke();
 
-    ctx.font = "bold 16px sans-serif";
+    ctx.font = "bold 15px sans-serif";
     
     if (showAngleA || (currentStep === 3 && showTotalP)) {
         let midPA = pToO + (pToA - pToO) / 2;
         if (Math.abs(pToA - pToO) > Math.PI) midPA += Math.PI;
         ctx.fillStyle = "#e53e3e";
-        ctx.fillText("a", P.x + Math.cos(midPA) * 55 - 5, P.y + Math.sin(midPA) * 55 + 5);
+        ctx.fillText("a", P.x + Math.cos(midPA) * 45 - 4, P.y + Math.sin(midPA) * 45 + 5);
 
         let midAO = aToP + (aToO - aToP) / 2;
         if (Math.abs(aToO - aToP) > Math.PI) midAO += Math.PI;
-        ctx.fillText("a", A.x + Math.cos(midAO) * 45 - 5, A.y + Math.sin(midAO) * 45 + 5);
+        ctx.fillText("a", A.x + Math.cos(midAO) * 38 - 4, A.y + Math.sin(midAO) * 38 + 5);
     }
 
     if (showAngleB || (currentStep === 3 && showTotalP)) {
         let midPB = pToB + (pToO - pToB) / 2;
         if (Math.abs(pToO - pToB) > Math.PI) midPB += Math.PI;
         ctx.fillStyle = "#38a169";
-        ctx.fillText("b", P.x + Math.cos(midPB) * 55 - 5, P.y + Math.sin(midPB) * 55 + 5);
+        ctx.fillText("b", P.x + Math.cos(midPB) * 45 - 4, P.y + Math.sin(midPB) * 45 + 5);
 
         let midBO = bToP + (bToO - bToP) / 2;
         if (Math.abs(bToO - bToP) > Math.PI) midBO += Math.PI;
-        ctx.fillText("b", B.x + Math.cos(midBO) * 45 - 5, B.y + Math.sin(midBO) * 45 + 5);
+        ctx.fillText("b", B.x + Math.cos(midBO) * 38 - 4, B.y + Math.sin(midBO) * 38 + 5);
     }
 
     if (currentStep >= 2) {
@@ -386,14 +503,14 @@ function draw() {
             let mid2a = oToK + (oToA - oToK) / 2;
             if (Math.abs(oToA - oToK) > Math.PI) mid2a += Math.PI;
             ctx.fillStyle = "#e53e3e";
-            ctx.fillText("2a", cx + Math.cos(mid2a) * 65 - 10, cy + Math.sin(mid2a) * 65 + 5);
+            ctx.fillText("2a", cx + Math.cos(mid2a) * 55 - 8, cy + Math.sin(mid2a) * 55 + 5);
         }
 
         if (showExtB || (currentStep === 3 && showTotalO)) {
             let mid2b = oToB + (oToK - oToB) / 2;
             if (Math.abs(oToK - oToB) > Math.PI) mid2b += Math.PI;
             ctx.fillStyle = "#38a169";
-            ctx.fillText("2b", cx + Math.cos(mid2b) * 65 - 10, cy + Math.sin(mid2b) * 65 + 5);
+            ctx.fillText("2b", cx + Math.cos(mid2b) * 55 - 8, cy + Math.sin(mid2b) * 55 + 5);
         }
     }
 
@@ -403,7 +520,6 @@ function draw() {
             ctx.arc(pt.x, pt.y, 9, 0, Math.PI * 2);
             ctx.fillStyle = "#e53e3e";
             ctx.fill();
-            
             ctx.beginPath();
             ctx.arc(pt.x, pt.y, 5, 0, Math.PI * 2);
             ctx.fillStyle = "white";
@@ -413,7 +529,7 @@ function draw() {
             ctx.beginPath(); ctx.arc(pt.x, pt.y, 7, 0, Math.PI*2); ctx.fill();
         }
         ctx.fillStyle = "#2d3748";
-        ctx.fillText(label, pt.x + 12, pt.y - 12);
+        ctx.fillText(label, pt.x + 10, pt.y - 10);
     }
     
     drawNode(A, "#3182ce", "A");
@@ -434,36 +550,19 @@ function isMouseOverP(e) {
     return Math.hypot(x - P.x, y - P.y) < 20;
 }
 
-canvas.addEventListener("mousedown", (e) => {
-    if (isMouseOverP(e)) {
-        draggingP = true;
-    }
-});
-
+canvas.addEventListener("mousedown", (e) => { if (isMouseOverP(e)) draggingP = true; });
 canvas.addEventListener("mousemove", (e) => {
-    if (isMouseOverP(e) || draggingP) {
-        canvas.style.cursor = "pointer";
-    } else {
-        canvas.style.cursor = "default";
-    }
-
+    if (isMouseOverP(e) || draggingP) { canvas.style.cursor = "pointer"; } else { canvas.style.cursor = "default"; }
     if (!draggingP) return;
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-
     let angle = Math.atan2(cy - y, x - cx) * 180 / Math.PI;
     if (angle < 0) angle += 360;
-
     const minAngle = 180 + 10;                  
     const maxAngle = 180 + centerAngle - 10;     
-
-    if (angle >= minAngle && angle <= maxAngle) {
-        pAngle = angle;
-        draw();
-    }
+    if (angle >= minAngle && angle <= maxAngle) { pAngle = angle; draw(); }
 });
-
 canvas.addEventListener("mouseup", () => { draggingP = false; canvas.style.cursor = "default"; });
 canvas.addEventListener("mouseleave", () => { draggingP = false; canvas.style.cursor = "default"; });
 
