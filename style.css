@@ -483,3 +483,58 @@ button:disabled {
         min-width: 100%;
     }
 }
+
+/* ==========================================================================
+   【共通追加】縦長画面・ウィンドウ縮小時のフルサイズ催促警告画面
+   ========================================================================== */
+#orientation-warning {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(15, 23, 42, 0.95); /* 深みのある濃紺背景 */
+    color: #ffffff;
+    z-index: 9999;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 30px;
+    box-sizing: border-box;
+    font-family: sans-serif;
+}
+
+#orientation-warning .icon {
+    font-size: 3.5rem;
+    margin-bottom: 20px;
+    animation: rotateHint 2s infinite ease-in-out;
+}
+
+#orientation-warning h2 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin: 0 0 15px 0;
+    letter-spacing: -0.5px;
+}
+
+#orientation-warning p {
+    font-size: 1rem;
+    color: #94a3b8;
+    line-height: 1.6;
+    margin: 0;
+}
+
+@keyframes rotateHint {
+    0% { transform: rotate(0deg); }
+    50% { transform: rotate(-90deg); }
+    100% { transform: rotate(0deg); }
+}
+
+/* 横幅が950px未満、または画面が縦長（ポートレート）の場合に警告を強制表示 */
+@media (max-width: 949px), (orientation: portrait) {
+    #orientation-warning {
+        display: flex !important;
+    }
+}
